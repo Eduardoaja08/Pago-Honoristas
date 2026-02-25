@@ -20,35 +20,35 @@ interface NavItem {
 })
 export class DashboardShellComponent {
   readonly menuItems: NavItem[] = [
-    { icon: 'dashboard', label: 'Dashboard', href: '/' },
-    { icon: 'task', label: 'Tasks', badge: '124', href: '/tasks' },
-    { icon: 'calendar', label: 'Calendar', href: '/calendar' },
-    { icon: 'analytics', label: 'Analytics', href: '/analytics' },
-    { icon: 'users', label: 'Team', href: '/team' }
+    { icon: 'dashboard', label: 'Resumen', href: '/' },
+    { icon: 'task', label: 'Flujos', badge: '8', href: '/tasks' },
+    { icon: 'calendar', label: 'Calendario', href: '/calendar' },
+    { icon: 'analytics', label: 'Indicadores', href: '/analytics' },
+    { icon: 'users', label: 'Equipo', href: '/team' }
   ];
 
   readonly generalItems: NavItem[] = [
-    { icon: 'settings', label: 'Settings', href: '/settings' },
-    { icon: 'help', label: 'Help', href: '/help' },
-    { icon: 'logout', label: 'Logout', href: '/logout' }
+    { icon: 'settings', label: 'Configuración', href: '/settings' },
+    { icon: 'help', label: 'Soporte', href: '/help' },
+    { icon: 'logout', label: 'Salir', href: '/logout' }
   ];
 
   readonly statsCards = [
-    { title: 'Total Projects', value: '24', increase: 'Increased from last month', bg: 'bg-primary text-primary-foreground' },
-    { title: 'Ended Projects', value: '10', increase: 'Increased from last month', bg: 'bg-card text-foreground' },
-    { title: 'Running Projects', value: '12', increase: 'Increased from last month', bg: 'bg-card text-foreground' },
-    { title: 'Pending Project', value: '2', increase: 'On Discuss', bg: 'bg-card text-foreground' }
+    { title: 'Honoristas activos', value: '1,248', increase: '+7% vs periodo anterior', bg: 'bg-primary text-primary-foreground' },
+    { title: 'Pagos timbrados', value: '932', increase: 'Cierre parcial del mes', bg: 'bg-card text-foreground' },
+    { title: 'Validaciones fiscales', value: '184', increase: 'Sin incidencias críticas', bg: 'bg-card text-foreground' },
+    { title: 'Pendientes de autorización', value: '27', increase: 'En revisión de Finanzas', bg: 'bg-card text-foreground' }
   ];
 
   readonly tasks = [
-    { id: 1, title: 'Design landing page mockup', project: 'Website Redesign', priority: 'High', dueDate: 'Nov 24, 2024', completed: false, tags: ['Design', 'UI/UX'] },
-    { id: 2, title: 'Implement authentication flow', project: 'Mobile App', priority: 'High', dueDate: 'Nov 25, 2024', completed: false, tags: ['Backend', 'Security'] },
-    { id: 3, title: 'Review pull requests', project: 'Github Project', priority: 'Medium', dueDate: 'Nov 23, 2024', completed: true, tags: ['Code Review'] },
-    { id: 4, title: 'Update documentation', project: 'API Development', priority: 'Low', dueDate: 'Nov 26, 2024', completed: false, tags: ['Documentation'] }
+    { id: 1, title: 'Sincronizar asignaciones con Banner', project: 'Módulo 2 · Planeación', priority: 'High', dueDate: '24 Nov, 2024', completed: false, tags: ['Integración', 'Académico'] },
+    { id: 2, title: 'Validar constancias fiscales vigentes', project: 'Módulo 5 · Cumplimiento', priority: 'High', dueDate: '25 Nov, 2024', completed: false, tags: ['Fiscal', 'SAT'] },
+    { id: 3, title: 'Aprobar reglas de cálculo de honorarios', project: 'Módulo 4 · Motor de cálculo', priority: 'Medium', dueDate: '23 Nov, 2024', completed: true, tags: ['Finanzas', 'Reglas'] },
+    { id: 4, title: 'Publicar layout bancario para dispersión', project: 'Módulo 7 · Pagos', priority: 'Low', dueDate: '26 Nov, 2024', completed: false, tags: ['Tesorería', 'SPEI'] }
   ];
 
-  readonly teamMembers = ['Alexandra Deff', 'Edwin Adenike', 'Isaac Oluwatemilorun', 'David Oshodi'];
-  readonly helpCategories = ['Documentation', 'Video Tutorials', 'Community Forum', 'Contact Support'];
+  readonly teamMembers = ['Coordinación Académica', 'Finanzas', 'Fiscal y Legal', 'TI Institucional'];
+  readonly helpCategories = ['Guía de módulos', 'Capacitación en video', 'Mesa de control', 'Contacto operativo'];
   readonly daysInMonth = Array.from({ length: 30 }, (_, i) => i + 1);
   readonly monthData = [45, 52, 48, 61, 55, 67];
 
@@ -59,14 +59,14 @@ export class DashboardShellComponent {
   readonly isRunning = signal(true);
 
   readonly pageMap: Record<string, { title: string; description: string; cta?: string; secondary?: string; ctaOutline?: boolean }> = {
-    '/': { title: 'Dashboard', description: 'Plan, prioritize, and accomplish your tasks with ease.', cta: '+ Add Project', secondary: 'Import Data' },
-    '/tasks': { title: 'Tasks', description: 'Manage and organize your tasks efficiently.', cta: '+ Add Task' },
-    '/calendar': { title: 'Calendar', description: 'Schedule and track your events and meetings.', cta: '+ Add Event' },
-    '/analytics': { title: 'Analytics', description: 'Track your performance and productivity metrics.', cta: 'Export Report', ctaOutline: true },
-    '/team': { title: 'Team', description: 'Manage your team members and their roles.', cta: '+ Add Member' },
-    '/settings': { title: 'Settings', description: 'Manage your account preferences and application settings.' },
-    '/help': { title: 'Help & Support', description: 'Get help with using Tasko and find answers to common questions.' },
-    '/logout': { title: 'Logout', description: '' }
+    '/': { title: 'Plataforma Pago a Honoristas', description: 'Orquesta todo el ciclo de pago: asignación académica, validación fiscal, CFDI, dispersión bancaria y cierre contable.', cta: '+ Registrar periodo', secondary: 'Importar insumos' },
+    '/tasks': { title: 'Flujos operativos', description: 'Da seguimiento al avance de los 8 módulos críticos del proceso de pago.', cta: '+ Nueva gestión' },
+    '/calendar': { title: 'Calendario de cierre', description: 'Controla hitos clave por periodo: validaciones, timbrado, dispersión y póliza contable.', cta: '+ Agendar hito' },
+    '/analytics': { title: 'Indicadores de operación', description: 'Monitorea productividad, cumplimiento fiscal y tiempos de procesamiento.', cta: 'Exportar reporte', ctaOutline: true },
+    '/team': { title: 'Áreas participantes', description: 'Visualiza responsables, estatus y carga operativa por área.', cta: '+ Asignar responsable' },
+    '/settings': { title: 'Configuración', description: 'Administra parámetros de negocio, seguridad y catálogos de operación.' },
+    '/help': { title: 'Soporte y adopción', description: 'Consulta guías rápidas para operar la plataforma y resolver incidencias.' },
+    '/logout': { title: 'Cerrar sesión', description: '' }
   };
 
   readonly pageInfo = computed(() => this.pageMap[this.routePath()] ?? this.pageMap['/']);
