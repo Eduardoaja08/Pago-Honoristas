@@ -1,0 +1,353 @@
+<div class="flex min-h-screen bg-background text-foreground">
+  <div class="fixed inset-0 z-30 bg-black/40 lg:hidden" [class.hidden]="!isMobileMenuOpen()" (click)="isMobileMenuOpen.set(false)"></div>
+
+  <aside
+    class="fixed top-0 left-0 z-40 h-screen w-64 -translate-x-full border-r border-border bg-card p-4 transition-transform duration-300 lg:translate-x-0"
+    [class.-translate-x-full]="!isMobileMenuOpen()"
+    [class.translate-x-0]="isMobileMenuOpen()"
+      >
+    <div class="group mb-6 flex cursor-pointer items-center gap-2">
+      <a routerLink="/" class="flex items-center gap-2">
+        <div class="relative flex h-8 w-8 items-center justify-center rounded-full bg-primary transition-transform duration-300 group-hover:scale-110">
+          <div class="absolute left-[30%] top-[30%] h-1.5 w-1.5 rounded-full bg-primary-foreground"></div>
+          <div class="absolute right-[30%] top-[30%] h-1.5 w-1.5 rounded-full bg-primary-foreground"></div>
+          <div class="absolute bottom-2.5 h-1.5 w-3 rounded-full border-b-2 border-primary-foreground"></div>
+        </div>
+        <span class="text-lg font-semibold">Tasko</span>
+      </a>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <p class="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Menu</p>
+        <nav class="space-y-0.5">
+          @for (item of menuItems; track item.href) {
+            <a
+              [routerLink]="item.href"
+              [routerLinkActiveOptions]="{ exact: item.href === '/' }"
+              routerLinkActive="bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+              class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground"
+            >
+              <app-icon [name]="item.icon" [size]="16"></app-icon>
+              <span class="text-sm">{{ item.label }}</span>
+              @if (item.badge) {
+                <span class="ml-auto animate-pulse rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">{{ item.badge }}</span>
+              }
+            </a>
+          }
+        </nav>
+      </div>
+
+      <div>
+        <p class="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">General</p>
+        <nav class="space-y-0.5">
+          @for (item of generalItems; track item.href) {
+            <a
+              [routerLink]="item.href"
+              routerLinkActive="bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+              class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground"
+            >
+              <app-icon [name]="item.icon" [size]="16"></app-icon>
+              <span class="text-sm">{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+      </div>
+    </div>
+  </aside>
+
+  <main class="flex-1 p-3 md:p-4 lg:ml-64 lg:p-5">
+    <header class="animate-slide-in-up space-y-3 md:space-y-4">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex flex-1 items-center gap-2">
+          <button class="h-8 w-8 rounded-md p-1 hover:bg-secondary lg:hidden" (click)="isMobileMenuOpen.set(true)">
+            <app-icon name="menu" [size]="22"></app-icon>
+          </button>
+
+          <div class="relative max-w-md flex-1">
+            <app-icon name="search" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" [size]="16"></app-icon>
+            <input class="h-9 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Search task" />
+            <kbd class="absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground md:inline-block">⌘F</kbd>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 md:gap-2">
+          <button class="relative flex h-8 w-8 items-center justify-center rounded-md hover:bg-secondary">
+            <app-icon name="mail" [size]="16"></app-icon>
+          </button>
+          <button class="relative flex h-8 w-8 items-center justify-center rounded-md hover:bg-secondary">
+            <app-icon name="bell" [size]="16"></app-icon>
+            <span class="absolute right-1.5 top-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-destructive"></span>
+          </button>
+          <div class="hidden items-center gap-2 border-l border-border pl-3 sm:flex">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">JS</div>
+            <div class="text-xs">
+              <p class="font-semibold">Jessin Sam</p>
+              <p class="text-[10px] text-muted-foreground">jessin@gmail.com</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h1 class="mb-1 text-xl font-bold md:text-2xl lg:text-3xl">{{ pageInfo().title }}</h1>
+        <p class="text-xs text-muted-foreground md:text-sm">{{ pageInfo().description }}</p>
+      </div>
+
+      @if (pageInfo().cta) {
+        <div class="flex flex-col gap-2 sm:flex-row">
+          <button
+            class="h-9 w-full rounded-lg px-4 text-sm font-medium sm:w-auto"
+            [class.bg-primary]="!pageInfo().ctaOutline"
+            [class.text-primary-foreground]="!pageInfo().ctaOutline"
+            [class.hover:bg-primary/90]="!pageInfo().ctaOutline"
+            [class.border]="pageInfo().ctaOutline"
+            [class.border-border]="pageInfo().ctaOutline"
+            [class.bg-transparent]="pageInfo().ctaOutline"
+          >
+            {{ pageInfo().cta }}
+          </button>
+          @if (pageInfo().secondary) {
+            <button class="h-9 w-full rounded-lg border border-border bg-transparent px-4 text-sm font-medium sm:w-auto">{{ pageInfo().secondary }}</button>
+          }
+        </div>
+      }
+    </header>
+
+    <section class="mt-4 md:mt-5">
+      @switch (routePath()) {
+        @case ('/') {
+          <div class="space-y-3 md:space-y-4">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              @for (stat of statsCards; track stat.title; let i = $index) {
+                <article class="animate-slide-in-up cursor-pointer rounded-2xl p-4 shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl" [ngClass]="stat.bg" [style.animation-delay]="(i * 100) + 'ms'">
+                  <div class="mb-3 flex items-start justify-between">
+                    <h3 class="text-xs font-medium opacity-90">{{ stat.title }}</h3>
+                    <div class="flex h-6 w-6 items-center justify-center rounded-full" [class.bg-primary]="stat.bg.includes('bg-card')" [class.bg-primary-foreground]="stat.bg.includes('bg-primary')" [class.text-primary-foreground]="stat.bg.includes('bg-card')">
+                      <app-icon name="upRight" [size]="12"></app-icon>
+                    </div>
+                  </div>
+                  <p class="mb-2 text-3xl font-bold">{{ stat.value }}</p>
+                  <div class="flex items-center gap-1.5 text-xs opacity-80">
+                    <app-icon name="trendUp" [size]="12"></app-icon>
+                    <span>{{ stat.increase }}</span>
+                  </div>
+                </article>
+              }
+            </div>
+
+            <div class="grid grid-cols-1 gap-3 md:gap-4 lg:grid-cols-3">
+              <div class="space-y-3 md:space-y-4 lg:col-span-2">
+                <article class="animate-slide-in-up rounded-2xl border border-border bg-card p-6" style="animation-delay: 400ms">
+                  <div class="mb-6 flex items-center justify-between">
+                    <h2 class="text-xl font-semibold">Project Analytics</h2>
+                    <div class="flex items-center gap-2 text-xs text-muted-foreground"><span class="h-2 w-2 rounded-full bg-emerald-600"></span>Weekly Activity</div>
+                  </div>
+                  <div class="mb-4 grid h-64 grid-cols-7 items-end gap-3">
+                    @for (value of [45,75,74,92,35,60,50]; track $index; let i = $index) {
+                      <div class="flex h-full flex-col items-center justify-end gap-2">
+                        <div class="w-full rounded-xl bg-gradient-to-t from-emerald-700 to-emerald-500 transition-all duration-500" [style.height.%]="value"></div>
+                        <span class="text-sm text-muted-foreground">{{ ['S','M','T','W','T','F','S'][i] }}</span>
+                      </div>
+                    }
+                  </div>
+                  <div class="flex items-center justify-between border-t border-border pt-4 text-sm">
+                    <span class="text-muted-foreground">Average: <strong class="text-foreground">62%</strong></span>
+                    <span class="text-muted-foreground">Peak: <strong class="text-emerald-600">92%</strong></span>
+                  </div>
+                </article>
+
+                <article class="animate-slide-in-up rounded-2xl border border-border bg-card p-6" style="animation-delay: 600ms">
+                  <div class="mb-6 flex items-center justify-between">
+                    <h2 class="text-xl font-semibold">Team Collaboration</h2>
+                    <button class="inline-flex items-center rounded-lg border border-border bg-transparent px-3 py-1.5 text-sm"><app-icon name="plus" [size]="14" className="mr-1"></app-icon>Add Member</button>
+                  </div>
+                  <div class="space-y-3">
+                    @for (name of teamMembers; track name) {
+                      <div class="group flex cursor-pointer items-center gap-4 rounded-lg p-3 transition hover:bg-secondary">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">{{ name.split(' ')[0][0] }}{{ name.split(' ')[1][0] }}</div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-semibold">{{ name }}</p>
+                          <p class="truncate text-xs text-muted-foreground">Working on <span class="font-medium">Github Project Repository</span></p>
+                        </div>
+                        <span class="whitespace-nowrap rounded-full bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-700">In Progress</span>
+                      </div>
+                    }
+                  </div>
+                </article>
+              </div>
+
+              <div class="space-y-3 md:space-y-4">
+                <article class="animate-slide-in-up rounded-2xl border border-border bg-card p-6" style="animation-delay: 500ms">
+                  <h2 class="mb-6 text-xl font-semibold">Reminders</h2>
+                  <div class="rounded-xl border border-border bg-card p-4">
+                    <h3 class="mb-1 font-semibold">Meeting with Arc Company</h3>
+                    <p class="mb-4 text-sm text-muted-foreground">Time : 02.00 pm - 04.00 pm</p>
+                    <button class="flex w-full items-center justify-center rounded-lg bg-primary px-4 py-2 text-primary-foreground"><app-icon name="video" [size]="14" className="mr-2"></app-icon>Start Meeting</button>
+                  </div>
+                </article>
+
+                <article class="animate-slide-in-up rounded-2xl border border-border bg-card p-6" style="animation-delay: 650ms">
+                  <h2 class="mb-4 text-xl font-semibold">Project Progress</h2>
+                  <div class="space-y-4">
+                    @for (item of [{name:'Design System',value:80},{name:'Mobile App',value:65},{name:'Marketing Site',value:50}]; track item.name) {
+                      <div>
+                        <div class="mb-2 flex justify-between text-sm"><span>{{ item.name }}</span><span>{{ item.value }}%</span></div>
+                        <div class="h-2 rounded-full bg-muted"><div class="h-full rounded-full bg-primary" [style.width.%]="item.value"></div></div>
+                      </div>
+                    }
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 md:gap-4">
+              <article class="animate-slide-in-up rounded-2xl border border-border bg-card p-6" style="animation-delay: 700ms">
+                <div class="mb-6 flex items-center justify-between">
+                  <h2 class="text-xl font-semibold">Project</h2>
+                  <button class="inline-flex items-center rounded-lg border border-border bg-transparent px-3 py-1.5 text-sm"><app-icon name="plus" [size]="14" className="mr-1"></app-icon>New</button>
+                </div>
+                <div class="space-y-3">
+                  @for (project of ['Develop API Endpoints','Onboarding Flow','Build Dashboard','Optimize Page Load']; track project) {
+                    <div class="flex items-center gap-3 rounded-lg p-3 transition hover:bg-secondary"><div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500 text-xl">⚡</div><div><p class="text-sm font-medium">{{ project }}</p><p class="text-xs text-muted-foreground">Due date: Nov 26, 2024</p></div></div>
+                  }
+                </div>
+              </article>
+
+              <article class="animate-slide-in-up relative overflow-hidden rounded-2xl bg-foreground p-4 text-background" style="animation-delay: 900ms">
+                <h2 class="mb-1 text-xl font-bold">Download our Mobile App</h2>
+                <p class="mb-4 text-xs opacity-80">Get easy in another way</p>
+                <div class="mb-4 flex flex-col gap-2">
+                  <button class="flex h-10 items-center gap-2 rounded-lg bg-background px-3 text-foreground"><app-icon name="apple" [size]="18"></app-icon><div class="text-left"><p class="text-[10px] leading-none">Download on the</p><p class="text-sm font-semibold leading-none">App Store</p></div></button>
+                  <button class="flex h-10 items-center gap-2 rounded-lg bg-background px-3 text-foreground"><app-icon name="play" [size]="18"></app-icon><div class="text-left"><p class="text-[10px] leading-none">Get it on</p><p class="text-sm font-semibold leading-none">Google Play</p></div></button>
+                </div>
+              </article>
+
+              <article class="animate-slide-in-up relative overflow-hidden rounded-2xl bg-foreground p-4 text-background" style="animation-delay: 1000ms">
+                <h2 class="mb-4 text-lg font-semibold">Time Tracker</h2>
+                <div class="mb-4 break-all font-mono text-4xl font-bold sm:text-5xl">{{ timerText() }}</div>
+                <div class="flex gap-3">
+                  <button class="flex h-10 w-10 items-center justify-center rounded-full bg-background text-foreground" (click)="toggleTimer()"><app-icon [name]="isRunning() ? 'pause' : 'play'" [size]="14"></app-icon></button>
+                  <button class="flex h-10 w-10 items-center justify-center rounded-full bg-destructive text-destructive-foreground" (click)="resetTimer()"><app-icon name="square" [size]="14"></app-icon></button>
+                </div>
+              </article>
+            </div>
+          </div>
+        }
+
+        @case ('/tasks') {
+          <div class="animate-fade-in space-y-6">
+            <div class="flex flex-col gap-4 lg:flex-row">
+              <div class="relative flex-1">
+                <app-icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" [size]="18"></app-icon>
+                <input class="h-10 w-full rounded-lg border border-border bg-card pl-10" placeholder="Search tasks..." />
+              </div>
+              <div class="flex gap-2">
+                <button class="inline-flex items-center gap-2 rounded-lg border border-border bg-transparent px-3 py-2 text-sm"><app-icon name="filter" [size]="14"></app-icon>Filter</button>
+                <button class="inline-flex items-center gap-2 rounded-lg border border-border bg-transparent px-3 py-2 text-sm"><app-icon name="calendar" [size]="14"></app-icon>Date</button>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <button class="rounded-lg px-3 py-1.5 text-sm" [ngClass]="taskFilter()==='all' ? 'bg-primary text-primary-foreground':'border border-border'" (click)="setFilter('all')">All ({{ tasks.length }})</button>
+              <button class="rounded-lg px-3 py-1.5 text-sm" [ngClass]="taskFilter()==='active' ? 'bg-primary text-primary-foreground':'border border-border'" (click)="setFilter('active')">Active ({{ tasks.length - 1 }})</button>
+              <button class="rounded-lg px-3 py-1.5 text-sm" [ngClass]="taskFilter()==='completed' ? 'bg-primary text-primary-foreground':'border border-border'" (click)="setFilter('completed')">Completed (1)</button>
+            </div>
+
+            <div class="grid gap-4">
+              @for (task of filteredTasks(); track task.id; let i = $index) {
+                <article class="animate-slide-in rounded-2xl border border-border bg-card p-4 hover:shadow-lg" [style.animation-delay]="(i * 50) + 'ms'">
+                  <div class="flex items-start gap-4">
+                    <input type="checkbox" [checked]="task.completed" class="mt-1 h-4 w-4 accent-primary" />
+                    <div class="flex-1 space-y-2">
+                      <div class="flex items-start justify-between gap-4">
+                        <h3 class="font-semibold" [class.line-through]="task.completed" [class.opacity-60]="task.completed">{{ task.title }}</h3>
+                        <span class="shrink-0 rounded-full px-2 py-0.5 text-xs" [ngClass]="task.priority==='High' ? 'bg-red-100 text-red-700' : task.priority==='Medium' ? 'bg-primary text-primary-foreground' : 'bg-secondary'">{{ task.priority }}</span>
+                      </div>
+                      <div class="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                        <span class="inline-flex items-center gap-1"><app-icon name="tag" [size]="14"></app-icon>{{ task.project }}</span>
+                        <span class="inline-flex items-center gap-1"><app-icon name="calendar" [size]="14"></app-icon>{{ task.dueDate }}</span>
+                      </div>
+                      <div class="flex gap-2">@for (tag of task.tags; track tag) {<span class="rounded-full border border-border px-2 py-0.5 text-xs">{{ tag }}</span>}</div>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          </div>
+        }
+
+        @case ('/calendar') {
+          <div class="animate-fade-in space-y-6">
+            <div class="flex items-center gap-3">
+              <button class="rounded-lg border border-border p-2"><app-icon name="chevronLeft" [size]="16"></app-icon></button>
+              <span class="min-w-[120px] text-center font-semibold">November 2024</span>
+              <button class="rounded-lg border border-border p-2"><app-icon name="chevronRight" [size]="16"></app-icon></button>
+            </div>
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <article class="rounded-2xl border border-border bg-card p-6 lg:col-span-2">
+                <div class="mb-4 grid grid-cols-7 gap-2">@for (d of ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']; track d){<div class="py-2 text-center text-sm font-semibold text-muted-foreground">{{ d }}</div>}</div>
+                <div class="grid grid-cols-7 gap-2">@for (day of daysInMonth; track day){<button class="aspect-square rounded-lg text-sm font-medium transition hover:scale-110" [ngClass]="day===17 ? 'bg-primary text-primary-foreground shadow-lg': 'text-foreground hover:bg-secondary'" [class.opacity-40]="day < 17">{{ day }}</button>}</div>
+              </article>
+              <article class="rounded-2xl border border-border bg-card p-6">
+                <h3 class="mb-4 text-lg font-semibold">Today's Events</h3>
+                <div class="space-y-3">@for (event of [{title:'Team Standup',time:'09:00 AM',duration:'30 min'},{title:'Design Review',time:'11:00 AM',duration:'1 hour'},{title:'Client Presentation',time:'02:00 PM',duration:'2 hours'}]; track event.title){<div class="rounded-lg border border-border p-3"><p class="text-sm font-medium">{{ event.title }}</p><p class="text-xs text-muted-foreground">{{ event.time }}</p><span class="mt-1 inline-block rounded-full bg-secondary px-2 py-0.5 text-xs">{{ event.duration }}</span></div>}</div>
+              </article>
+            </div>
+          </div>
+        }
+
+        @case ('/analytics') {
+          <div class="animate-fade-in space-y-6">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              @for (stat of [{t:'Total Tasks Completed',v:'247',c:'+12%'},{t:'Active Projects',v:'12',c:'+3'},{t:'Team Members',v:'24',c:'-2'},{t:'Avg. Completion Time',v:'2.3',c:'-0.5'}]; track stat.t) {
+                <article class="rounded-2xl border border-border bg-card p-4 shadow-lg"><div class="mb-3 flex items-start justify-between"><h3 class="text-xs font-medium opacity-90">{{ stat.t }}</h3><div class="flex h-6 w-6 items-center justify-center rounded-full bg-primary"><app-icon name="upRight" [size]="12" className="text-primary-foreground"></app-icon></div></div><p class="mb-2 text-3xl font-bold">{{ stat.v }}</p><p class="text-xs text-emerald-600">{{ stat.c }}</p></article>
+              }
+            </div>
+          </div>
+        }
+
+        @case ('/team') {
+          <div class="animate-fade-in grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            @for (member of teamMembers; track member) {
+              <article class="rounded-2xl border border-border bg-card p-6">
+                <div class="mb-4 flex items-start justify-between"><div class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-primary/20 bg-primary/10 font-semibold text-primary">{{ member.split(' ')[0][0] }}{{ member.split(' ')[1][0] }}</div><button class="rounded-md p-1 hover:bg-secondary"><app-icon name="more" [size]="16"></app-icon></button></div>
+                <h3 class="text-lg font-semibold">{{ member }}</h3>
+                <p class="text-sm text-muted-foreground">Team Member</p>
+                <span class="mt-3 inline-block rounded-full bg-primary px-2 py-1 text-xs text-primary-foreground">Active</span>
+                <div class="mt-3 border-t border-border pt-2 text-sm"><span class="text-muted-foreground">Active Tasks</span><span class="float-right font-semibold">12</span></div>
+                <div class="mt-3 flex gap-2"><button class="flex-1 rounded-lg border border-border px-2 py-1 text-sm"><app-icon name="mail" [size]="14" className="mr-1 inline"></app-icon>Email</button><button class="flex-1 rounded-lg border border-border px-2 py-1 text-sm"><app-icon name="phone" [size]="14" className="mr-1 inline"></app-icon>Call</button></div>
+              </article>
+            }
+          </div>
+        }
+
+        @case ('/settings') {
+          <div class="animate-fade-in max-w-4xl space-y-6">
+            <article class="rounded-2xl border border-border bg-card p-6"><h3 class="mb-6 text-lg font-semibold">Profile Information</h3><div class="space-y-6"><div class="flex items-center gap-4"><div class="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-xl font-bold text-primary">JS</div><div><button class="rounded-lg border border-border px-3 py-2 text-sm">Change Photo</button><p class="mt-2 text-xs text-muted-foreground">JPG, PNG or GIF. Max size 2MB</p></div></div><div class="grid grid-cols-1 gap-4 md:grid-cols-2"><input class="h-10 rounded-lg border border-border px-3" value="Jessin Sam" /><input class="h-10 rounded-lg border border-border px-3" value="jessin@gmail.com" /></div><button class="rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">Save Changes</button></div></article>
+            <article class="rounded-2xl border border-border bg-card p-6"><h3 class="mb-6 text-lg font-semibold">Notifications</h3><div class="space-y-4">@for (item of ['Email notifications','Push notifications','Task reminders','Team updates']; track item){<div class="flex items-center justify-between border-b border-border py-3 last:border-0"><div><p class="font-medium">{{ item }}</p><p class="text-sm text-muted-foreground">Receive updates from your account activity</p></div><input type="checkbox" checked class="h-4 w-4 accent-primary" /></div>}</div></article>
+            <article class="rounded-2xl border border-border bg-card p-6"><h3 class="mb-6 text-lg font-semibold">Appearance</h3><div class="flex items-center justify-between"><div><p class="font-medium">Dark Mode</p><p class="text-sm text-muted-foreground">Enable dark mode theme</p></div><input type="checkbox" class="h-4 w-4 accent-primary" /></div></article>
+          </div>
+        }
+
+        @case ('/help') {
+          <div class="animate-fade-in max-w-4xl space-y-6">
+            <div class="relative"><app-icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" [size]="20"></app-icon><input class="h-12 w-full rounded-lg border border-border pl-10" placeholder="Search for help..." /></div>
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">@for (category of helpCategories; track category){<article class="cursor-pointer rounded-2xl border border-border bg-card p-6 transition hover:shadow-lg"><div class="flex items-start gap-4"><div class="rounded-lg bg-primary p-3 text-primary-foreground"><app-icon [name]="category==='Documentation' ? 'book' : category==='Video Tutorials' ? 'video' : category==='Community Forum' ? 'message' : 'mail'" [size]="24"></app-icon></div><div><h3 class="mb-1 text-lg font-semibold">{{ category }}</h3><p class="text-sm text-muted-foreground">Browse our comprehensive guides and tutorials</p></div></div></article>}</div>
+            <article class="rounded-2xl border border-border bg-card p-6"><h3 class="mb-6 text-lg font-semibold">Frequently Asked Questions</h3><div class="space-y-4">@for (faq of [{q:'How do I create a new project?',a:'Click the Add Project button on the dashboard.'},{q:'Can I invite team members?',a:'Yes, go to Team and click Add Member.'},{q:'How do I track time on tasks?',a:'Use the Time Tracker widget on dashboard.'}]; track faq.q){<div class="rounded-lg border border-border p-4 transition hover:bg-secondary"><h4 class="mb-2 font-medium">{{ faq.q }}</h4><p class="text-sm text-muted-foreground">{{ faq.a }}</p></div>}</div></article>
+          </div>
+        }
+
+        @case ('/logout') {
+          <div class="flex min-h-[calc(100vh-100px)] items-center justify-center">
+            <article class="w-full max-w-md animate-fade-in space-y-6 rounded-2xl border border-border bg-card p-8 text-center">
+              <div class="flex justify-center"><div class="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary"><app-icon name="logout" [size]="32"></app-icon></div></div>
+              <div><h1 class="mb-2 text-2xl font-bold">Logout</h1><p class="text-muted-foreground">Are you sure you want to logout?</p></div>
+              <div class="flex gap-3"><button class="flex-1 rounded-lg border border-border bg-transparent px-4 py-2">Cancel</button><button class="flex-1 rounded-lg bg-primary px-4 py-2 text-primary-foreground">Logout</button></div>
+            </article>
+          </div>
+        }
+      }
+    </section>
+  </main>
+</div>
