@@ -1,0 +1,22 @@
+/* src/styles.css */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+/* Para CSS plano */
+@reference "tailwindcss";
+/* Si usas un archivo CSS personalizado con capas, puedes hacer: */
+/* @reference "./tu-archivo-base.css"; */
+/* O simplemente, la forma más directa: */
+@reference "tailwindcss/theme" theme;
+/* Tus estilos personalizados tipo Next.js */
+
+@layer components {
+    .container-next {
+        @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    }
+
+    .btn-primary {
+        @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+    }
+}
