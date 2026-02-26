@@ -3,6 +3,13 @@ import { Component, computed, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { IconComponent } from './icon.component';
+import { PeriodoSelectorComponent } from './shared/periodo-selector/periodo-selector.component';
+import { BusquedaGlobalComponent } from './shared/busqueda-global/busqueda-global.component';
+import { DashboardComponent } from './modules/dashboard/dashboard.component';
+import { ProfesoresListComponent } from './modules/profesores/profesores-list.component';
+import { ProfesorDetailComponent } from './modules/profesores/profesor-detail.component';
+import { ProfesorWizardComponent } from './modules/profesores/profesor-wizard.component';
+import { AsignacionAcademicaComponent } from './modules/asignacion-academica/asignacion-academica.component';
 
 interface NavItem {
   icon: string;
@@ -14,17 +21,32 @@ interface NavItem {
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, IconComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterLinkActive,
+    IconComponent,
+    PeriodoSelectorComponent,
+    BusquedaGlobalComponent,
+    DashboardComponent,
+    ProfesoresListComponent,
+    ProfesorDetailComponent,
+    ProfesorWizardComponent,
+    AsignacionAcademicaComponent
+  ],
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss'
 })
 export class DashboardShellComponent {
   readonly menuItems: NavItem[] = [
-    { icon: 'dashboard', label: 'Resumen', href: '/' },
-    { icon: 'task', label: 'Flujos', badge: '8', href: '/tasks' },
-    { icon: 'calendar', label: 'Calendario', href: '/calendar' },
-    { icon: 'analytics', label: 'Indicadores', href: '/analytics' },
-    { icon: 'users', label: 'Equipo', href: '/team' }
+    { icon: 'dashboard', label: 'Dashboard / Inicio', href: '/' },
+    { icon: 'users', label: 'Profesores', href: '/profesores' },
+    { icon: 'book', label: 'Asignación Académica', href: '/asignacion-academica' },
+    { icon: 'analytics', label: 'Cálculo y Pagos', href: '/calculo-pagos' },
+    { icon: 'settings', label: 'Cumplimiento Fiscal', href: '/cumplimiento-fiscal' },
+    { icon: 'phone', label: 'Operación Bancaria', href: '/operacion-bancaria' },
+    { icon: 'analytics', label: 'Contabilidad y Reportes', href: '/contabilidad-reportes' },
+    { icon: 'settings', label: 'Administración', href: '/administracion' }
   ];
 
   readonly generalItems: NavItem[] = [
@@ -59,14 +81,67 @@ export class DashboardShellComponent {
   readonly isRunning = signal(true);
 
   readonly pageMap: Record<string, { title: string; description: string; cta?: string; secondary?: string; ctaOutline?: boolean }> = {
-    '/': { title: 'Plataforma Pago a Honoristas', description: 'Orquesta todo el ciclo de pago: asignación académica, validación fiscal, CFDI, dispersión bancaria y cierre contable.', cta: '+ Registrar periodo', secondary: 'Importar insumos' },
-    '/tasks': { title: 'Flujos operativos', description: 'Da seguimiento al avance de los 8 módulos críticos del proceso de pago.', cta: '+ Nueva gestión' },
-    '/calendar': { title: 'Calendario de cierre', description: 'Controla hitos clave por periodo: validaciones, timbrado, dispersión y póliza contable.', cta: '+ Agendar hito' },
-    '/analytics': { title: 'Indicadores de operación', description: 'Monitorea productividad, cumplimiento fiscal y tiempos de procesamiento.', cta: 'Exportar reporte', ctaOutline: true },
-    '/team': { title: 'Áreas participantes', description: 'Visualiza responsables, estatus y carga operativa por área.', cta: '+ Asignar responsable' },
-    '/settings': { title: 'Configuración', description: 'Administra parámetros de negocio, seguridad y catálogos de operación.' },
-    '/help': { title: 'Soporte y adopción', description: 'Consulta guías rápidas para operar la plataforma y resolver incidencias.' },
-    '/logout': { title: 'Cerrar sesión', description: '' }
+    '/': {
+      title: 'Plataforma Pago a Honoristas',
+      description: 'Orquesta todo el ciclo de pago: asignación académica, validación fiscal, CFDI, dispersión bancaria y cierre contable.',
+      cta: '+ Registrar periodo',
+      secondary: 'Importar insumos'
+    },
+    '/profesores': {
+      title: 'Profesores',
+      description: 'Gestiona el catálogo maestro de profesores.',
+      cta: '+ Alta de profesor',
+      secondary: 'Exportar a Excel'
+    },
+    '/profesor': {
+      title: 'Ficha del profesor',
+      description: 'Consulta la vista integral de datos, asignaciones, pagos y auditoría del profesor.'
+    },
+    '/profesores/nuevo': {
+      title: 'Alta de profesor',
+      description: 'Registra un nuevo profesor mediante un asistente guiado.'
+    },
+    '/profesor/editar': {
+      title: 'Editar profesor',
+      description: 'Modifica los datos del profesor.'
+    },
+    '/asignacion-academica': {
+      title: 'Asignación Académica',
+      description: 'Carga, mapa de asignaciones, consolidación y historial de versiones de insumo.'
+    },
+    '/tasks': {
+      title: 'Flujos operativos',
+      description: 'Da seguimiento al avance de los 8 módulos críticos del proceso de pago.',
+      cta: '+ Nueva gestión'
+    },
+    '/calendar': {
+      title: 'Calendario de cierre',
+      description: 'Controla hitos clave por periodo: validaciones, timbrado, dispersión y póliza contable.',
+      cta: '+ Agendar hito'
+    },
+    '/analytics': {
+      title: 'Indicadores de operación',
+      description: 'Monitorea productividad, cumplimiento fiscal y tiempos de procesamiento.',
+      cta: 'Exportar reporte',
+      ctaOutline: true
+    },
+    '/team': {
+      title: 'Áreas participantes',
+      description: 'Visualiza responsables, estatus y carga operativa por área.',
+      cta: '+ Asignar responsable'
+    },
+    '/settings': {
+      title: 'Configuración',
+      description: 'Administra parámetros de negocio, seguridad y catálogos de operación.'
+    },
+    '/help': {
+      title: 'Soporte y adopción',
+      description: 'Consulta guías rápidas para operar la plataforma y resolver incidencias.'
+    },
+    '/logout': {
+      title: 'Cerrar sesión',
+      description: ''
+    }
   };
 
   readonly pageInfo = computed(() => this.pageMap[this.routePath()] ?? this.pageMap['/']);
@@ -91,9 +166,9 @@ export class DashboardShellComponent {
   });
 
   constructor(private readonly router: Router) {
-    this.routePath.set(this.router.url.split('?')[0] || '/');
+    this.routePath.set(this.normalizePath(this.router.url));
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
-      this.routePath.set(this.router.url.split('?')[0] || '/');
+      this.routePath.set(this.normalizePath(this.router.url));
       this.isMobileMenuOpen.set(false);
     });
 
@@ -115,5 +190,38 @@ export class DashboardShellComponent {
   resetTimer(): void {
     this.elapsedSeconds.set(0);
     this.isRunning.set(false);
+  }
+
+  private normalizePath(url: string): string {
+    const path = url.split('?')[0] || '/';
+    const segments = path.split('/').filter(Boolean);
+    if (!segments.length) {
+      return '/';
+    }
+
+    if (segments[0] === 'profesor' && segments[2] === 'editar') {
+      return '/profesor/editar';
+    }
+
+    if (segments[0] === 'profesor') {
+      return '/profesor';
+    }
+
+    if (segments[0] === 'profesores' && segments[1] === 'nuevo') {
+      return '/profesores/nuevo';
+    }
+
+    return `/${segments[0]}`;
+  }
+
+  onPeriodoChange(periodoId: number): void {
+    // Actualizar período global - afecta todas las vistas
+    console.log('Período cambiado:', periodoId);
+    // Aquí se actualizaría el servicio de período global
+  }
+
+  onBuscar(termino: string): void {
+    // Manejar búsqueda global
+    console.log('Buscando:', termino);
   }
 }

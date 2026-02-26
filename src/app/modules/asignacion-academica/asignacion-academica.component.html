@@ -1,0 +1,348 @@
+<div class="space-y-5">
+  <!-- Tabs -->
+  <div class="flex flex-wrap gap-2 border-b border-border pb-2">
+    <button type="button" class="rounded-full px-4 py-2 text-sm font-medium transition"
+      [class.bg-primary]="tab === 'carga'" [class.text-primary-foreground]="tab === 'carga'"
+      [class.bg-muted]="tab !== 'carga'" [class.text-muted-foreground]="tab !== 'carga'" (click)="tab = 'carga'">
+      Carga / Sincronización
+    </button>
+    <button type="button" class="rounded-full px-4 py-2 text-sm font-medium transition"
+      [class.bg-primary]="tab === 'mapa'" [class.text-primary-foreground]="tab === 'mapa'"
+      [class.bg-muted]="tab !== 'mapa'" [class.text-muted-foreground]="tab !== 'mapa'" (click)="tab = 'mapa'">
+      Mapa de asignaciones
+    </button>
+    <button type="button" class="rounded-full px-4 py-2 text-sm font-medium transition"
+      [class.bg-primary]="tab === 'consolidacion'" [class.text-primary-foreground]="tab === 'consolidacion'"
+      [class.bg-muted]="tab !== 'consolidacion'" [class.text-muted-foreground]="tab !== 'consolidacion'"
+      (click)="tab = 'consolidacion'; ejecutarValidaciones()">
+      Consolidación y validación
+    </button>
+    <button type="button" class="rounded-full px-4 py-2 text-sm font-medium transition"
+      [class.bg-primary]="tab === 'historial'" [class.text-primary-foreground]="tab === 'historial'"
+      [class.bg-muted]="tab !== 'historial'" [class.text-muted-foreground]="tab !== 'historial'"
+      (click)="irAHistorial()">
+      Historial de versiones
+    </button>
+  </div>
+
+  <!-- Carga / Sincronización -->
+  @if (tab === 'carga') {
+  <div class="space-y-6">
+    <div class="grid gap-4 md:grid-cols-2">
+      <article class="rounded-2xl border border-border bg-card p-6">
+        <h3 class="mb-2 text-lg font-semibold">Integración automática</h3>
+        <p class="mb-4 text-sm text-muted-foreground">Sincroniza las asignaciones desde Banner.</p>
+        <button type="button"
+          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+          [disabled]="sincronizando()" (click)="sincronizarConBanner()">
+          {{ sincronizando() ? 'Sincronizando...' : 'Sincronizar con Banner' }}
+        </button>
+        @if (sincronizando()) {
+        <p class="mt-2 text-xs text-muted-foreground">Conectando y procesando asignaciones...</p>
+        }
+      </article>
+      <article class="rounded-2xl border border-border bg-card p-6">
+        <h3 class="mb-2 text-lg font-semibold">Carga manual</h3>
+        <p class="mb-4 text-sm text-muted-foreground">Sube un archivo Excel o CSV con validación de formato.</p>
+        <input #fileInput type="file" accept=".xlsx,.xls,.csv" class="hidden" (change)="subirArchivo($event)" />
+        <button type="button"
+          class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium disabled:opacity-50"
+          [disabled]="cargandoArchivo()" (click)="fileInput.click()">
+          {{ cargandoArchivo() ? 'Procesando...' : 'Subir archivo Excel/CSV' }}
+        </button>
+      </article>
+    </div>
+    <article class="rounded-2xl border border-border bg-card p-6">
+      <h3 class="mb-4 text-lg font-semibold">Últimas cargas</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="border-b border-border text-left text-muted-foreground">
+            <tr>
+              <th class="pb-2 pr-4">Fecha</th>
+              <th class="pb-2 pr-4">Usuario</th>
+              <th class="pb-2 pr-4">Tipo</th>
+              <th class="pb-2 pr-4">Resultado</th>
+              <th class="pb-2 pr-4">Registros</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @for (s of sincronizaciones; track s.id) {
+            <tr>
+              <td class="py-2 pr-4">{{ s.fecha | date:'short' }}</td>
+              <td class="py-2 pr-4">{{ s.usuario }}</td>
+              <td class="py-2 pr-4">{{ s.tipo === 'automatica' ? 'Automática' : 'Manual' }}</td>
+              <td class="py-2 pr-4">
+                <span class="rounded-full px-2 py-0.5 text-xs" [ngClass]="{
+                      'bg-emerald-100 text-emerald-700': s.resultado === 'exitoso',
+                      'bg-amber-100 text-amber-700': s.resultado === 'con_errores',
+                      'bg-red-100 text-red-700': s.resultado === 'fallido'
+                    }">{{ s.resultado }}</span>
+              </td>
+              <td class="py-2 pr-4">{{ s.registrosProcesados }} / {{ s.totalRegistros }}</td>
+            </tr>
+            }
+            @if (sincronizaciones.length === 0) {
+            <tr>
+              <td colspan="5" class="py-4 text-center text-muted-foreground">Aún no hay sincronizaciones.</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </div>
+  }
+
+  <!-- Mapa de asignaciones -->
+  @if (tab === 'mapa') {
+  <div class="space-y-4">
+    <div class="flex flex-wrap items-center gap-3">
+      <input type="text" class="h-9 rounded-lg border border-border bg-card px-3 text-sm w-40" placeholder="Programa"
+        [(ngModel)]="filtroPrograma" />
+      <input type="text" class="h-9 rounded-lg border border-border bg-card px-3 text-sm w-40" placeholder="Materia"
+        [(ngModel)]="filtroMateria" />
+      <select class="h-9 rounded-lg border border-border bg-card px-3 text-sm w-36" [(ngModel)]="filtroEstatus">
+        <option value="">Estatus</option>
+        <option value="asignado">Asignado</option>
+        <option value="validado">Validado</option>
+        <option value="calculado">Calculado</option>
+        <option value="pagado">Pagado</option>
+      </select>
+    </div>
+    <div class="overflow-x-auto rounded-xl border border-border bg-card">
+      <table class="min-w-full text-sm">
+        <thead class="bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground">
+          <tr>
+            <th class="px-3 py-2 text-left">CRN</th>
+            <th class="px-3 py-2 text-left">Materia</th>
+            <th class="px-3 py-2 text-left">Profesor ID</th>
+            <th class="px-3 py-2 text-left">Estatus prof.</th>
+            <th class="px-3 py-2 text-left">Alumnos</th>
+            <th class="px-3 py-2 text-left">Programa</th>
+            <th class="px-3 py-2 text-left">Centro costos</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          @for (a of asignacionesFiltradas; track a.id) {
+          <tr [class.bg-red-50]="tieneConflicto(a)" [class.border-l-4]="tieneConflicto(a)"
+            [class.border-red-500]="tieneConflicto(a)">
+            <td class="px-3 py-2 font-mono">
+              @if (editandoId === a.id && editandoCampo === 'crn') {
+              <input class="w-full rounded border border-border px-2 py-1 text-xs" [(ngModel)]="valorEdit"
+                (blur)="guardarEdicion()" (keyup.enter)="guardarEdicion()" (keyup.escape)="cancelarEdicion()" />
+              } @else {
+              <span (dblclick)="iniciarEdicion(a, 'crn')">{{ a.crn }}</span>
+              }
+            </td>
+            <td class="px-3 py-2">
+              @if (editandoId === a.id && editandoCampo === 'materia') {
+              <input class="w-full rounded border border-border px-2 py-1 text-xs" [(ngModel)]="valorEdit"
+                (blur)="guardarEdicion()" (keyup.enter)="guardarEdicion()" (keyup.escape)="cancelarEdicion()" />
+              } @else {
+              <span (dblclick)="iniciarEdicion(a, 'materia')">{{ a.materia }}</span>
+              }
+            </td>
+            <td class="px-3 py-2">{{ a.profesorId }}</td>
+            <td class="px-3 py-2">
+              <span class="rounded-full px-2 py-0.5 text-xs bg-muted">{{ a.estatus }}</span>
+            </td>
+            <td class="px-3 py-2">
+              @if (editandoId === a.id && editandoCampo === 'alumnos') {
+              <input type="number" class="w-16 rounded border border-border px-2 py-1 text-xs" [(ngModel)]="valorEdit"
+                (blur)="guardarEdicion()" (keyup.enter)="guardarEdicion()" (keyup.escape)="cancelarEdicion()" />
+              } @else {
+              <span (dblclick)="iniciarEdicion(a, 'alumnos')">{{ a.alumnos }}</span>
+              }
+            </td>
+            <td class="px-3 py-2">{{ a.programa }}</td>
+            <td class="px-3 py-2">{{ a.centroCostos }}</td>
+          </tr>
+          }
+          @if (asignacionesFiltradas.length === 0) {
+          <tr>
+            <td colspan="7" class="px-3 py-6 text-center text-muted-foreground">No hay asignaciones o no coinciden los
+              filtros.</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (conflictos.length > 0) {
+    <div class="rounded-2xl border border-red-200 bg-red-50 p-4">
+      <h4 class="mb-2 font-semibold text-red-900">Conflictos detectados ({{ conflictos.length }})</h4>
+      <ul class="list-inside list-disc text-sm text-red-800">
+        @for (c of conflictos; track c.asignacion.id + c.tipo) {
+        <li>CRN {{ c.asignacion.crn }}: {{ c.mensaje }}</li>
+        }
+      </ul>
+    </div>
+    }
+  </div>
+  }
+
+  <!-- Consolidación y validación -->
+  @if (tab === 'consolidacion') {
+  <div class="space-y-6">
+    <div class="flex flex-wrap items-center gap-3">
+      <button type="button" class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+        (click)="ejecutarValidaciones()">
+        Ejecutar validaciones
+      </button>
+      <button type="button" class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium"
+        (click)="descargarReporteIncidencias()">
+        Descargar reporte de incidencias
+      </button>
+    </div>
+    @if (validaciones.length > 0) {
+    <article class="rounded-2xl border border-border bg-card p-6">
+      <h3 class="mb-4 text-lg font-semibold">Resultados de validación</h3>
+      <!-- <div class="mb-4 flex gap-4 text-sm">
+        <span class="text-emerald-600">Válidos: {{ validaciones.filter(v => v.valida).length }}</span>
+        <span class="text-amber-600">Con advertencias: {{ validaciones.filter(v => v.advertencias.length > 0).length
+          }}</span>
+        <span class="text-red-600">Con errores: {{ validaciones.filter(v => !v.valida).length }}</span>
+      </div> -->
+      <div class="max-h-64 overflow-y-auto rounded-lg border border-border">
+        <table class="min-w-full text-sm">
+          <thead class="sticky top-0 bg-muted/80">
+            <tr>
+              <th class="px-3 py-2 text-left">CRN</th>
+              <th class="px-3 py-2 text-left">Materia</th>
+              <th class="px-3 py-2 text-left">Valida</th>
+              <th class="px-3 py-2 text-left">Errores / Advertencias</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @for (v of validaciones.slice(0, 20); track v.asignacion.id) {
+            <tr>
+              <td class="px-3 py-2 font-mono">{{ v.asignacion.crn }}</td>
+              <td class="px-3 py-2">{{ v.asignacion.materia }}</td>
+              <td class="px-3 py-2">
+                <span class="rounded-full px-2 py-0.5 text-xs"
+                  [ngClass]="v.valida ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'">{{ v.valida ?
+                  'Sí' : 'No' }}</span>
+              </td>
+              <td class="px-3 py-2 text-xs text-muted-foreground">{{ (v.errores || []).concat(v.advertencias ||
+                []).join('; ') || '—' }}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+        @if (validaciones.length > 20) {
+        <p class="px-3 py-2 text-xs text-muted-foreground">Mostrando 20 de {{ validaciones.length }}</p>
+        }
+      </div>
+    </article>
+    <article class="rounded-2xl border border-border bg-card p-6">
+      <h3 class="mb-4 text-lg font-semibold">Generar insumo base</h3>
+      <p class="mb-4 text-sm text-muted-foreground">Congela la versión actual para pasar a cálculo. Indica nombre y
+        comentario.</p>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div class="flex-1">
+          <label class="mb-1 block text-xs font-medium text-muted-foreground">Nombre de versión</label>
+          <input type="text" class="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm"
+            [(ngModel)]="nombreVersion" placeholder="Ej. Insumo 2024-1 v1" />
+        </div>
+        <div class="flex-1">
+          <label class="mb-1 block text-xs font-medium text-muted-foreground">Comentario</label>
+          <input type="text" class="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm"
+            [(ngModel)]="comentarioVersion" placeholder="Opcional" />
+        </div>
+        <button type="button" class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          [disabled]="!nombreVersion.trim()" (click)="generarInsumoBase()">
+          Generar insumo base
+        </button>
+      </div>
+    </article>
+    }
+  </div>
+  }
+
+  <!-- Historial de versiones -->
+  @if (tab === 'historial') {
+  <div class="space-y-6">
+    <article class="rounded-2xl border border-border bg-card p-6">
+      <h3 class="mb-4 text-lg font-semibold">Versiones de insumo</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="border-b border-border text-left text-muted-foreground">
+            <tr>
+              <th class="pb-2 pr-4">Nombre</th>
+              <th class="pb-2 pr-4">Fecha</th>
+              <th class="pb-2 pr-4">Usuario</th>
+              <th class="pb-2 pr-4">Estatus</th>
+              <th class="pb-2 pr-4">Registros</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @for (v of versiones; track v.id) {
+            <tr>
+              <td class="py-2 pr-4 font-medium">{{ v.nombre }}</td>
+              <td class="py-2 pr-4">{{ v.fechaCreacion | date:'short' }}</td>
+              <td class="py-2 pr-4">{{ v.usuario }}</td>
+              <td class="py-2 pr-4">
+                <span class="rounded-full px-2 py-0.5 text-xs bg-muted">{{ v.estatus }}</span>
+              </td>
+              <td class="py-2 pr-4">{{ v.registrosValidos }} válidos / {{ v.totalRegistros }} total</td>
+            </tr>
+            }
+            @if (versiones.length === 0) {
+            <tr>
+              <td colspan="5" class="py-4 text-center text-muted-foreground">Aún no hay versiones generadas.</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+    <article class="rounded-2xl border border-border bg-card p-6">
+      <h3 class="mb-4 text-lg font-semibold">Comparar dos versiones</h3>
+      <div class="flex flex-wrap items-end gap-3">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-muted-foreground">Versión A</label>
+          <select class="h-9 rounded-lg border border-border bg-card px-3 text-sm min-w-[200px]"
+            [(ngModel)]="versionSeleccionadaId">
+            <option [ngValue]="null">Seleccionar</option>
+            @for (v of versiones; track v.id) {
+            <option [ngValue]="v.id">{{ v.nombre }} ({{ v.fechaCreacion | date:'shortDate' }})</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-muted-foreground">Versión B</label>
+          <select class="h-9 rounded-lg border border-border bg-card px-3 text-sm min-w-[200px]"
+            [(ngModel)]="versionCompararId">
+            <option [ngValue]="null">Seleccionar</option>
+            @for (v of versiones; track v.id) {
+            <option [ngValue]="v.id">{{ v.nombre }} ({{ v.fechaCreacion | date:'shortDate' }})</option>
+            }
+          </select>
+        </div>
+        <button type="button" class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          [disabled]="versionSeleccionadaId == null || versionCompararId == null || versionSeleccionadaId === versionCompararId"
+          (click)="compararVersiones()">
+          Comparar
+        </button>
+      </div>
+      @if (resultadoComparacion) {
+      <div class="mt-4 rounded-lg border border-border bg-muted/30 p-4">
+        <h4 class="mb-2 font-medium">Resumen</h4>
+        <p class="text-sm text-muted-foreground">Agregados: {{ resultadoComparacion.resumen.agregados }} · Eliminados:
+          {{ resultadoComparacion.resumen.eliminados }} · Modificados: {{ resultadoComparacion.resumen.modificados }}
+        </p>
+        @if (resultadoComparacion.diferencias.length > 0) {
+        <ul class="mt-2 list-inside list-disc text-sm">
+          @for (d of resultadoComparacion.diferencias.slice(0, 10); track d.asignacion.crn + d.tipo) {
+          <li>{{ d.tipo }}: {{ d.asignacion.crn }} - {{ d.asignacion.materia }}</li>
+          }
+        </ul>
+        @if (resultadoComparacion.diferencias.length > 10) {
+        <p class="mt-1 text-xs text-muted-foreground">Y {{ resultadoComparacion.diferencias.length - 10 }} más.</p>
+        }
+        }
+      </div>
+      }
+    </article>
+  </div>
+  }
+</div>

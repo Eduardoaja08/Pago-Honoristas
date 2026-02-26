@@ -34,6 +34,7 @@ import { Component, Input } from '@angular/core';
         <ng-container *ngSwitchCase="'video'"><path d="m22 8-6 4 6 4V8Z"></path><rect width="14" height="12" x="2" y="6" rx="2"></rect></ng-container>
         <ng-container *ngSwitchCase="'chevronLeft'"><path d="m15 18-6-6 6-6"></path></ng-container>
         <ng-container *ngSwitchCase="'chevronRight'"><path d="m9 18 6-6-6-6"></path></ng-container>
+        <ng-container *ngSwitchCase="'chevronDown'"><path d="m6 9 6 6 6-6"></path></ng-container>
         <ng-container *ngSwitchCase="'filter'"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path></ng-container>
         <ng-container *ngSwitchCase="'tag'"><path d="M20.59 13.41 11 3H4v7l9.59 9.59a2 2 0 0 0 2.82 0l4.18-4.18a2 2 0 0 0 0-2.82Z"></path><path d="M7 7h.01"></path></ng-container>
         <ng-container *ngSwitchCase="'phone'"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.35 1.77.68 2.59a2 2 0 0 1-.45 2.11L8.1 9.91a16 16 0 0 0 6 6l1.49-1.19a2 2 0 0 1 2.11-.45c.82.33 1.69.56 2.59.68A2 2 0 0 1 22 16.92z"></path></ng-container>
@@ -47,6 +48,7 @@ import { Component, Input } from '@angular/core';
         <ng-container *ngSwitchCase="'play'"><path d="M8 5v14l11-7z"></path></ng-container>
         <ng-container *ngSwitchCase="'pause'"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></ng-container>
         <ng-container *ngSwitchCase="'square'"><rect width="14" height="14" x="5" y="5" rx="2"></rect></ng-container>
+        <ng-container *ngSwitchCase="'trendDown'"><path d="m22 17-8.5-8.5-5 5L2 7"></path><path d="M16 17h6v-6"></path></ng-container>
         <ng-container *ngSwitchDefault><circle cx="12" cy="12" r="10"></circle></ng-container>
       </ng-container>
     </svg>
