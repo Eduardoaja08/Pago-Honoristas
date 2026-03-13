@@ -232,9 +232,6 @@ export class DashboardShellComponent {
       this.currentPath.set(normalizedPath);
       this.isMobileMenuOpen.set(false);
 
-      if (this.sesionActiva() && !this.tieneAcceso(normalizedPath)) {
-        this.router.navigateByUrl('/');
-      }
     });
   }
 
@@ -320,9 +317,4 @@ export class DashboardShellComponent {
     }
   }
 
-  private tieneAcceso(path: string): boolean {
-    const rol = this.rolActual();
-    if (!rol) return true; // Let them see the landing/login if not logged in
-    return this.puedeVer(path);
-  }
 }
