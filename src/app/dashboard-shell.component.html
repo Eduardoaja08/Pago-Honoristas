@@ -1,26 +1,83 @@
-@if (!usuarioActual()) {
-<div class="min-h-screen bg-slate-50 px-4 py-10 text-slate-900">
-  <div class="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
-    <section class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-      <p class="text-sm font-semibold text-orange-600">Pago Honoristas · Demo front-end</p>
-      <h1 class="mt-2 text-3xl font-bold">Inicio de sesión por rol</h1>
-      <p class="mt-3 text-sm text-slate-600">Maquetación profesional basada en propuesta comercial y última sesión del proceso.
-      </p>
+<div class="flex min-h-screen bg-background text-foreground">
+  @if (!sesionActiva()) {
+  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+    <div class="grid w-full max-w-6xl gap-5 lg:grid-cols-2">
+      <section class="rounded-2xl border border-border bg-card p-6 shadow-2xl">
+        <p class="text-xs font-semibold uppercase tracking-wider text-primary">Acceso por rol</p>
+        <h2 class="mt-2 text-2xl font-bold">Inicio de sesión</h2>
+        <p class="mt-1 text-sm text-muted-foreground">Mantuvimos el diseño original del sistema y agregamos acceso por perfil para validar flujo completo.</p>
 
-      <div class="mt-8 space-y-4">
-        <label class="block text-sm font-medium">Usuario</label>
-        <input class="h-11 w-full rounded-xl border border-slate-300 px-3" [value]="credenciales().usuario"
-          (input)="updateUsuario($any($event.target).value)" placeholder="admin.sandra" />
-        <label class="block text-sm font-medium">Contraseña</label>
-        <input type="password" class="h-11 w-full rounded-xl border border-slate-300 px-3" [value]="credenciales().password"
-          (input)="updatePassword($any($event.target).value)" placeholder="••••••••" />
+        <div class="mt-5 space-y-3">
+          <label class="text-xs font-semibold">Usuario</label>
+          <input class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" placeholder="admin.sandra"
+            [value]="usuarioInput()" (input)="setUsuario($any($event.target).value)" />
 
-        @if (errorLogin()) {
-        <p class="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{{ errorLogin() }}</p>
-        }
+          <label class="text-xs font-semibold">Contraseña</label>
+          <input type="password" class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" placeholder="••••••••"
+            [value]="passwordInput()" (input)="setPassword($any($event.target).value)" />
 
-        <button class="mt-2 h-11 w-full rounded-xl bg-orange-600 font-semibold text-white" (click)="login()">Entrar al
-          sistema</button>
+          @if (errorLogin()) {
+          <p class="rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">{{ errorLogin() }}</p>
+          }
+
+          <button class="mt-2 h-10 w-full rounded-lg bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+            (click)="login()">Entrar al sistema</button>
+        </div>
+      </section>
+
+      <section class="rounded-2xl border border-border bg-card p-6 shadow-2xl">
+        <h3 class="text-lg font-semibold">Usuarios dummy</h3>
+        <p class="mb-4 text-xs text-muted-foreground">Usa estas cuentas para revisar permisos y pantallas por rol.</p>
+        <div class="space-y-3">
+          @for (user of usuariosDemo; track user.usuario) {
+          <article class="rounded-xl border border-border bg-background p-3 text-sm">
+            <p class="font-semibold">{{ user.nombre }} · {{ user.rol | titlecase }}</p>
+            <p class="text-xs text-muted-foreground">Usuario: <span class="font-mono text-foreground">{{ user.usuario }}</span></p>
+            <p class="text-xs text-muted-foreground">Password: <span class="font-mono text-foreground">{{ user.password }}</span></p>
+          </article>
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+  }
+
+  <div class="fixed inset-0 z-30 bg-black/40 lg:hidden" [class.hidden]="!isMobileMenuOpen()"
+    (click)="isMobileMenuOpen.set(false)"></div>
+
+  <aside
+    class="fixed top-0 left-0 z-40 h-screen w-64 -translate-x-full border-r border-border bg-card p-4 transition-transform duration-300 lg:translate-x-0"
+    [class.-translate-x-full]="!isMobileMenuOpen()" [class.translate-x-0]="isMobileMenuOpen()">
+    <div class="group mb-6 flex cursor-pointer items-center gap-2">
+      <a routerLink="/" class="flex items-center gap-2">
+        <div
+          class="relative flex h-8 w-8 items-center justify-center rounded-full bg-primary transition-transform duration-300 group-hover:scale-110">
+          <div class="absolute left-[30%] top-[30%] h-1.5 w-1.5 rounded-full bg-primary-foreground"></div>
+          <div class="absolute right-[30%] top-[30%] h-1.5 w-1.5 rounded-full bg-primary-foreground"></div>
+          <div class="absolute bottom-2.5 h-1.5 w-3 rounded-full border-b-2 border-primary-foreground"></div>
+        </div>
+        <span class="text-lg font-semibold">Honoristas UA</span>
+      </a>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <p class="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Módulos</p>
+        <nav class="space-y-0.5">
+          @for (item of menuItems(); track item.href) {
+          <a [routerLink]="item.href" [routerLinkActiveOptions]="{ exact: item.href === '/' }"
+            routerLinkActive="bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+            class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground">
+            <app-icon [name]="item.icon" [size]="16"></app-icon>
+            <span class="text-sm">{{ item.label }}</span>
+            @if (item.badge) {
+            <span
+              class="ml-auto animate-pulse rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">{{
+              item.badge }}</span>
+            }
+          </a>
+          }
+        </nav>
       </div>
     </section>
 
@@ -42,35 +99,80 @@
   <header class="border-b border-slate-200 bg-white px-4 py-3">
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
       <div>
-        <p class="text-xs uppercase tracking-wide text-slate-500">Plataforma integral de pago honoristas</p>
-        <p class="font-semibold">{{ usuarioActual()?.nombre }} · {{ usuarioActual()?.rol | titlecase }}</p>
+        <p class="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Sistema</p>
+        <nav class="space-y-0.5">
+          @for (item of generalItems; track item.href) {
+          @if (item.href !== '/logout') {
+          <a [routerLink]="item.href" routerLinkActive="bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+            class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground">
+            <app-icon [name]="item.icon" [size]="16"></app-icon>
+            <span class="text-sm">{{ item.label }}</span>
+          </a>
+          } @else {
+          <button type="button" (click)="logout()"
+            class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground">
+            <app-icon [name]="item.icon" [size]="16"></app-icon>
+            <span class="text-sm">{{ item.label }}</span>
+          </button>
+          }
+          }
+        </nav>
       </div>
       <button class="rounded-lg border border-slate-300 px-3 py-2 text-sm" (click)="logout()">Cerrar sesión</button>
     </div>
-  </header>
+  </aside>
 
-  <div class="mx-auto grid max-w-7xl gap-4 px-4 py-6 lg:grid-cols-[240px_1fr]">
-    <aside class="space-y-2 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200">
-      @for (item of menuActual(); track item.href) {
-      <a [routerLink]="item.href" routerLinkActive="bg-orange-600 text-white"
-        class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">{{ item.label }}</a>
-      }
-    </aside>
+  <main class="flex-1 p-3 md:p-4 lg:ml-64 lg:p-5">
+    <header class="animate-slide-in-up space-y-3 md:space-y-4">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex flex-1 items-center gap-2">
+          <button class="h-8 w-8 rounded-md p-1 hover:bg-secondary lg:hidden" (click)="isMobileMenuOpen.set(true)">
+            <app-icon name="menu" [size]="22"></app-icon>
+          </button>
 
-    <main class="space-y-4">
-      <section class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-        <p class="text-sm text-slate-600">Vista actual:</p>
-        <h2 class="text-xl font-semibold">{{ rutaActivaTexto() }}</h2>
-      </section>
+          <!-- Selector de Período Global -->
+          <!-- <app-periodo-selector (periodoChange)="onPeriodoChange($event)"></app-periodo-selector> -->
 
-      @if (currentPath() === '/') {
-      <section class="grid gap-4 md:grid-cols-2">
-        @for (etapa of resumenFlujo; track etapa.etapa) {
-        <article class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <p class="text-xs font-semibold text-orange-600">{{ etapa.owner }}</p>
-          <h3 class="mt-1 font-semibold">{{ etapa.etapa }}</h3>
-          <p class="mt-2 text-sm text-slate-600">{{ etapa.detalle }}</p>
-        </article>
+          <!-- Búsqueda Global -->
+          <app-busqueda-global (buscarEvent)="onBuscar($event)"></app-busqueda-global>
+        </div>
+
+        <div class="flex items-center gap-1.5 md:gap-2">
+          <button class="relative flex h-8 w-8 items-center justify-center rounded-md hover:bg-secondary">
+            <app-icon name="mail" [size]="16"></app-icon>
+          </button>
+          <button class="relative flex h-8 w-8 items-center justify-center rounded-md hover:bg-secondary">
+            <app-icon name="bell" [size]="16"></app-icon>
+            <span class="absolute right-1.5 top-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-destructive"></span>
+          </button>
+          <div class="hidden items-center gap-2 border-l border-border pl-3 sm:flex">
+            <div
+              class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+              {{ usuarioActual() ? usuarioActual()!.nombre.split(' ')[0][0] + usuarioActual()!.nombre.split(' ')[1][0] : 'UA' }}</div>
+            <div class="text-xs">
+              <p class="font-semibold">{{ usuarioActual()?.nombre || 'Mesa Operativa' }}</p>
+              <p class="text-[10px] text-muted-foreground">{{ usuarioActual()?.correo || 'operacion.honoristas@anahuac.mx' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h1 class="mb-1 text-xl font-bold md:text-2xl lg:text-3xl">{{ pageInfo().title }}</h1>
+        <p class="text-xs text-muted-foreground md:text-sm">{{ pageInfo().description }}</p>
+      </div>
+
+      @if (pageInfo().cta) {
+      <div class="flex flex-col gap-2 sm:flex-row">
+        <button class="h-9 w-full rounded-lg px-4 text-sm font-medium sm:w-auto"
+          [class.bg-primary]="!pageInfo().ctaOutline" [class.text-primary-foreground]="!pageInfo().ctaOutline"
+          [class.hover:bg-primary/90]="!pageInfo().ctaOutline" [class.border]="pageInfo().ctaOutline"
+          [class.border-border]="pageInfo().ctaOutline" [class.bg-transparent]="pageInfo().ctaOutline">
+          {{ pageInfo().cta }}
+        </button>
+        @if (pageInfo().secondary) {
+        <button class="h-9 w-full rounded-lg border border-border bg-transparent px-4 text-sm font-medium sm:w-auto">{{
+          pageInfo().secondary }}</button>
         }
       </section>
       }
@@ -156,7 +258,6 @@
       @if (currentPath() === '/profesor/1' && puedeVer('/profesor/1')) {
       <app-profesor-detail></app-profesor-detail>
       }
-    </main>
-  </div>
+    </section>
+  </main>
 </div>
-}
