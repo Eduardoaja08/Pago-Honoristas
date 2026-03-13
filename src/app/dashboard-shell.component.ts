@@ -3,21 +3,7 @@ import { Component, computed, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { ProfesorDetailComponent } from './modules/profesores/profesor-detail.component';
-
-type Rol = 'administracion' | 'finanzas' | 'profesor' | 'tesoreria';
-
-interface UsuarioDemo {
-  nombre: string;
-  usuario: string;
-  password: string;
-  rol: Rol;
-  profesorId?: number;
-}
-
-interface NavItem {
-  label: string;
-  href: string;
-}
+import { IconComponent } from './icon.component';
 
 type RolSistema = 'administracion' | 'finanzas' | 'profesor' | 'tesoreria';
 
@@ -27,12 +13,20 @@ interface UsuarioDemo {
   password: string;
   rol: RolSistema;
   correo: string;
+  profesorId?: number;
+}
+
+interface NavItem {
+  icon: string;
+  label: string;
+  href: string;
+  badge?: string;
 }
 
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ProfesorDetailComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, ProfesorDetailComponent, IconComponent],
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss'
 })
@@ -68,12 +62,6 @@ export class DashboardShellComponent {
     { icon: 'logout', label: 'Salir', href: '/logout' }
   ];
 
-  readonly rolActual = signal<Rol | null>(null);
-  readonly usuarioActual = signal<UsuarioDemo | null>(null);
-  readonly currentPath = signal('/');
-  readonly credenciales = signal({ usuario: '', password: '' });
-  readonly errorLogin = signal('');
-
   readonly resumenFlujo = [
     { etapa: '1. SAPO + Layout', owner: 'Administración', detalle: 'Se recuperan datos básicos del profesor desde SAPO y se carga layout de alumnos/centros de costo.' },
     { etapa: '2. Monto y contrato', owner: 'Finanzas', detalle: 'Se calcula monto por tabulador, se valida expediente y se genera contrato para firma.' },
@@ -98,13 +86,13 @@ export class DashboardShellComponent {
   readonly monthData = [45, 52, 48, 61, 55, 67];
 
   readonly routePath = signal('/');
+  readonly currentPath = signal('/');
   readonly sesionActiva = signal(false);
   readonly usuarioActual = signal<UsuarioDemo | null>(null);
   readonly rolActual = signal<RolSistema | null>(null);
   readonly usuarioInput = signal('');
   readonly passwordInput = signal('');
   readonly errorLogin = signal('');
-  readonly taskFilter = signal<'all' | 'active' | 'completed'>('all');
   readonly isMobileMenuOpen = signal(false);
   readonly elapsedSeconds = signal(24 * 3600 + 8);
   readonly isRunning = signal(true);
@@ -142,7 +130,9 @@ export class DashboardShellComponent {
     },
     '/asignacion-academica': {
       title: 'Asignación Académica',
-      description: 'Carga, mapa de asignaciones, consolidación y historial de versiones de insumo.'
+      description: 'Carga, mapa de asignaciones, consolidación y historial de versiones de insumo.',
+      cta: 'Cargar asignación',
+      secondary: 'Ver historial'
     },
     '/calculo-pagos': {
       title: 'Cálculo y Pagos',
@@ -168,27 +158,6 @@ export class DashboardShellComponent {
       cta: '+ Agregar usuario',
       secondary: 'Configurar ERP'
     },
-    '/tasks': {
-      title: 'Flujos operativos',
-      description: 'Da seguimiento al avance de los 8 módulos críticos del proceso de pago.',
-      cta: '+ Nueva gestión'
-    },
-    '/calendar': {
-      title: 'Calendario de cierre',
-      description: 'Controla hitos clave por periodo: validaciones, timbrado, dispersión y póliza contable.',
-      cta: '+ Agendar hito'
-    },
-    '/analytics': {
-      title: 'Indicadores de operación',
-      description: 'Monitorea productividad, cumplimiento fiscal y tiempos de procesamiento.',
-      cta: 'Exportar reporte',
-      ctaOutline: true
-    },
-    '/team': {
-      title: 'Áreas participantes',
-      description: 'Visualiza responsables, estatus y carga operativa por área.',
-      cta: '+ Asignar responsable'
-    },
     '/settings': {
       title: 'Configuración',
       description: 'Administra parámetros de negocio, seguridad y catálogos de operación.'
@@ -210,17 +179,7 @@ export class DashboardShellComponent {
       return this.menuItemsBase;
     }
     const permitidos = this.accesosPorRol[rol];
-    return this.menuItemsBase.filter(item => permitidos.includes(item.href));
-  });
-
-  readonly filteredTasks = computed(() => {
-    if (this.taskFilter() === 'completed') {
-      return this.tasks.filter((task) => task.completed);
-    }
-    if (this.taskFilter() === 'active') {
-      return this.tasks.filter((task) => !task.completed);
-    }
-    return this.tasks;
+    return this.menuItemsBase.filter(item => permitidos.some(p => item.href === p || item.href.startsWith(p + '/')));
   });
 
   readonly timerText = computed(() => {
@@ -235,69 +194,18 @@ export class DashboardShellComponent {
   constructor(private readonly router: Router) {
     this.recuperarSesion();
     this.routePath.set(this.normalizePath(this.router.url));
+    this.currentPath.set(this.normalizePath(this.router.url));
+
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
-      this.routePath.set(this.normalizePath(this.router.url));
+      const normalizedPath = this.normalizePath(this.router.url);
+      this.routePath.set(normalizedPath);
+      this.currentPath.set(normalizedPath);
       this.isMobileMenuOpen.set(false);
 
-      const actual = this.routePath();
-      if (this.sesionActiva() && !this.tieneAcceso(actual)) {
+      if (this.sesionActiva() && !this.tieneAcceso(normalizedPath)) {
         this.router.navigateByUrl('/');
       }
     });
-
-    this.currentPath.set(this.router.url || '/');
-  }
-
-  updateUsuario(valor: string): void {
-    this.credenciales.update(item => ({ ...item, usuario: valor }));
-  }
-
-  updatePassword(valor: string): void {
-    this.credenciales.update(item => ({ ...item, password: valor }));
-  }
-
-  login(): void {
-    const cred = this.credenciales();
-    const usuario = this.usuariosDemo.find(
-      u => u.usuario === cred.usuario.trim() && u.password === cred.password.trim()
-    );
-
-    if (!usuario) {
-      this.errorLogin.set('Usuario o contraseña incorrectos. Usa los accesos demo disponibles.');
-      return;
-    }
-
-    this.errorLogin.set('');
-    this.usuarioActual.set(usuario);
-    this.rolActual.set(usuario.rol);
-
-    const destino = usuario.rol === 'administracion'
-      ? '/administracion'
-      : usuario.rol === 'finanzas'
-      ? '/calculo-pagos'
-      : usuario.rol === 'profesor'
-      ? '/cumplimiento-fiscal'
-      : '/operacion-bancaria';
-
-    this.router.navigateByUrl(destino);
-  }
-
-  logout(): void {
-    this.usuarioActual.set(null);
-    this.rolActual.set(null);
-    this.credenciales.set({ usuario: '', password: '' });
-    this.router.navigateByUrl('/');
-  }
-
-  puedeVer(ruta: string): boolean {
-    const rol = this.rolActual();
-    if (!rol) return false;
-    return this.menuPorRol[rol].some(item => item.href === ruta);
-  }
-
-  menuActual(): NavItem[] {
-    const rol = this.rolActual();
-    return rol ? this.menuPorRol[rol] : [];
   }
 
   login(): void {
@@ -345,11 +253,27 @@ export class DashboardShellComponent {
     this.passwordInput.set(valor);
   }
 
+  puedeVer(ruta: string): boolean {
+    const rol = this.rolActual();
+    if (!rol) return false;
+    const permitidos = this.accesosPorRol[rol];
+    return permitidos.some(p => ruta === p || ruta.startsWith(p + '/'));
+  }
+
+  private normalizePath(url: string): string {
+    if (!url) return '/';
+    // Remove query params and fragments
+    let path = url.split('?')[0].split('#')[0];
+    // Remove trailing slash except for root
+    if (path.length > 1 && path.endsWith('/')) {
+      path = path.slice(0, -1);
+    }
+    return path;
+  }
+
   private recuperarSesion(): void {
     const raw = localStorage.getItem('honoristas-demo-session');
-    if (!raw) {
-      return;
-    }
+    if (!raw) return;
 
     try {
       const usuario = JSON.parse(raw) as UsuarioDemo;
@@ -368,9 +292,7 @@ export class DashboardShellComponent {
 
   private tieneAcceso(path: string): boolean {
     const rol = this.rolActual();
-    if (!rol) {
-      return false;
-    }
-    return this.accesosPorRol[rol].includes(path);
+    if (!rol) return true; // Let them see the landing/login if not logged in
+    return this.puedeVer(path);
   }
 }
