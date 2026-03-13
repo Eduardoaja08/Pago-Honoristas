@@ -162,6 +162,19 @@
       </header>
 
       <div class="mt-6 space-y-6">
+        @if (currentPath() === '/' && rolActual()) {
+          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wider text-primary">Resumen por rol</p>
+            <h3 class="mt-1 text-lg font-semibold">{{ panelesRol[rolActual()!].titulo }}</h3>
+            <p class="mt-2 text-sm text-muted-foreground">{{ panelesRol[rolActual()!].descripcion }}</p>
+            <ul class="mt-4 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
+              @for (tarea of panelesRol[rolActual()!].tareas; track tarea) {
+                <li class="rounded-lg border border-border bg-background px-3 py-2">• {{ tarea }}</li>
+              }
+            </ul>
+          </section>
+        }
+
         @if (currentPath() === '/administracion' && puedeVer('/administracion')) {
           <section class="rounded-2xl bg-card border border-border p-5 shadow-sm">
             <h3 class="text-lg font-semibold">Alta inicial desde SAPO + layout académico</h3>
@@ -177,7 +190,7 @@
 
         @if (currentPath() === '/calculo-pagos' && puedeVer('/calculo-pagos')) {
           <section class="rounded-2xl bg-card border border-border p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Seguimiento financiero de contratos</h3>
+            <h3 class="text-lg font-semibold">Seguimiento financiero de contratos (solo visualización)</h3>
             <div class="mt-3 overflow-auto">
               <table class="w-full text-sm">
                 <thead class="text-left text-muted-foreground">
@@ -189,8 +202,8 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
-                  <tr><td class="py-3">Dra. Ana Torres</td><td>$42,500</td><td><span class="rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] text-green-500">Firmado</span></td><td>Pendiente carga CFDI</td></tr>
-                  <tr><td class="py-3">Mtro. Luis Meza</td><td>$28,900</td><td><span class="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] text-blue-500">Enviado</span></td><td>No habilitado</td></tr>
+                  <tr><td class="py-3">Dra. Ana Torres</td><td>$42,500</td><td><span class="rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] text-green-500">Firmado</span></td><td>Contrato firmado · Listo para notificar factura</td></tr>
+                  <tr><td class="py-3">Mtro. Luis Meza</td><td>$28,900</td><td><span class="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] text-blue-500">Enviado</span></td><td>Pendiente firma de contrato</td></tr>
                 </tbody>
               </table>
             </div>
@@ -208,7 +221,7 @@
               </div>
             </article>
             <article class="rounded-2xl bg-card border border-border p-5 shadow-sm">
-              <h3 class="text-lg font-semibold">Checklist documental</h3>
+              <h3 class="text-lg font-semibold">Checklist documental base</h3>
               <ul class="mt-2 space-y-2 text-sm text-muted-foreground">
                 @for (doc of checklistBase; track doc) {
                   <li class="flex items-center gap-2">
@@ -218,6 +231,22 @@
                 }
               </ul>
               <button class="mt-4 w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium">Subir CFDI/XML y anexos</button>
+            </article>
+            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm md:col-span-2">
+              <h3 class="text-lg font-semibold">Requisitos adicionales por tipo de pago</h3>
+              <p class="mt-2 text-sm text-muted-foreground">El sistema habilita la carga según el registro fiscal del profesor: asimilados, empresa/honorarios o extranjero.</p>
+              <div class="mt-3 grid gap-3 md:grid-cols-3">
+                @for (grupo of requisitosPorTipoPago; track grupo.tipo) {
+                  <div class="rounded-xl border border-border bg-background p-3">
+                    <p class="text-sm font-semibold">{{ grupo.tipo }}</p>
+                    <ul class="mt-2 space-y-1 text-xs text-muted-foreground">
+                      @for (documento of grupo.documentos; track documento) {
+                        <li>• {{ documento }}</li>
+                      }
+                    </ul>
+                  </div>
+                }
+              </div>
             </article>
           </section>
         }
