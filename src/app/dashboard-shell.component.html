@@ -387,6 +387,32 @@
                 <p class="mt-3 text-sm text-muted-foreground">Aún no se ha generado ningún lote ZIP en esta sesión.</p>
               }
             </article>
+
+            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h4 class="font-semibold">Resultado de proceso</h4>
+              @if (loteZipActual()) {
+                <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
+                  <li><span class="font-semibold text-foreground">Periodo:</span> {{ loteZipActual()!.periodo }}</li>
+                  <li><span class="font-semibold text-foreground">Origen:</span> {{ loteZipActual()!.origen }}</li>
+                  <li><span class="font-semibold text-foreground">Comprobantes recibidos:</span> {{ loteZipActual()!.totalComprobantes }}</li>
+                  <li><span class="font-semibold text-foreground">Renombrados:</span> {{ loteZipActual()!.renombrados }}</li>
+                  <li><span class="font-semibold text-foreground">Incidencias:</span> {{ loteZipActual()!.incidencias }}</li>
+                </ul>
+              } @else {
+                <p class="mt-3 text-sm text-muted-foreground">Aún no se ha generado ningún lote ZIP en esta sesión.</p>
+              }
+            </article>
+          </section>
+        }
+
+
+
+        @if (currentPath() === '/profesor/dashboard' && puedeVer('/profesor/dashboard')) {
+          <section class="grid gap-4 md:grid-cols-4">
+            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Contratos activos</p><p class="mt-2 text-2xl font-bold">2</p><p class="text-xs text-primary">1 firmado / 1 pendiente validación</p></article>
+            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Estatus expediente</p><p class="mt-2 text-2xl font-bold">85%</p><p class="text-xs text-amber-500">Faltan 2 documentos</p></article>
+            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Monto pendiente por cobrar</p><p class="mt-2 text-2xl font-bold">$42,500</p><p class="text-xs text-green-500">Periodo 2026-1</p></article>
+            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Facturación</p><p class="mt-2 text-2xl font-bold">Habilitada</p><p class="text-xs text-primary">Lista para carga CFDI/XML</p></article>
           </section>
         }
 
