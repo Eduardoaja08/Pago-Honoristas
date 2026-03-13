@@ -1,0 +1,82 @@
+Inicia el proceso con Sandra Viña
+
+ - Se recupera la información de contacto desde SAPO (Conexión del sistema con SAPO)
+
+ - Pantalla para la carga layout con información de los profesores (ID - Nombre profesor - Correo electrónico - Cantidad de alumnos - Centro de costos) (Rol Administración)
+
+ 	- Base a la cantidad de alumnos se compara base al tabulador y se determina la cantidad a pagar (Sistema).
+ 
+ - Pantalla con información del profesor donde se muestra el monto a pagar a cada uno de acuerdo al resultado que arroja el flujo anterior además se muestra el estatus (Del flujo del pago) (Solo visualiza). (Rol Finanzas)
+ 	
+	- Ya en base al resultado se generan los contratos el cual contiene módulo, actividad, monto, número de alumnos, etc. (Sistema)
+	
+ 	- Se envían correos con la confirmación de que ya esta disponible su contrato a los profesores. (Sistema)
+ 
+ 	- Antes de enviar contratos se debe verificar que el profesor desde su perfil de la plataforma cumpla con estos documentos. (Sistema)
+	
+		- Currículum vitae (CV): Actualizado.
+		- Solicitud de empleo
+		- Acta de nacimiento: Generalmente actualizada.
+		- Comprobante de domicilio: Recibo reciente de luz, agua o teléfono.		
+		- Identificación oficial vigente: INE o Pasaporte.
+		- Cedula profesional Licenciatura
+		- Cedula profesional Maestría
+		- Cedula profesional Doctorado
+		- Comprobante de ingresos adiciones
+		- Constancia de situación fiscal
+		- Cumplimiento del SAT
+
+ 		Existen 4 tipos de pagos dependiendo de la forma que este registrado el profesor (Asimilados, Empresa, Extranjero, Honorarios) se deberá solicitar lo siguiente además de los documentos anteriores para los 3 casos siguientes
+		
+		- Requisitos para pago por asimilados
+			- Dos recibos de nomina
+			- Una constancia laboral del otro lugar donde esta trabajando
+			- Carta firmada que indique que la empresa no es la única fuente de ingresos (Fecha, nombre, firma, domicilio, rfc, CURP)
+		- Requisitos para pago a factura (Pago a empresa)
+			- Acta constitutiva
+			- Comprobante de domicilio 
+			- Carátula bancaria de la empresa
+		- Pagos al extranjero 
+			- Acta de nacimiento
+			- Pasaporte
+			- Constancia de residencia Fiscal (Comprobar que es residente extranjero).
+
+
+ - Pantalla para que el profesor donde el profesor descargar y visualizar su contrato para posteriormente firmarlo (Rol Profesor)
+
+ - Pantalla donde se carga el contrato ya firmado (Este flujo puede cambiar por firma digital). (Rol Profesor)
+
+ - Pantalla para la visualización de todos los profesores con su estatus si ya fue cargado o no el contrato ya firmado. (Sistema confirma que todo este correcto) (Solo visualiza rol finanzas (Lista de profesores con sus contratos))
+
+	- Cuando el estatus ya cambio por que ya fue cargado el contrato firmado por el profesor, se verifica el archivo cargado (Contrato), se le envía un correo con la notificación de que ya puede generar su factura y sus datos fiscales. (Sistema)
+
+ - Pantalla donde se muestra si tiene más de un contrato listo para pago se agrupan todo y se muestra el desglose de los montos pendientes por cobrar, para realizar su factura o para solicitar su pago. Pero depende del tipo de pago en base a la constancia de situación fiscal o si es por asimilados, extranjeros o empresa. Si es por asimilados debe de cumplirse ciertos requisitos. 
+	
+	- Pago de asimilados
+		- Constancia de situación fiscal
+	- Pagos al extranjero
+		- Factura del extranjero
+	- Pago por honorarios o empresa
+		- CFDI pdf
+		- xml
+		- Constancia de situación fiscal
+		- Opinión de cumplimiento
+
+ - Cumplidos esos requisitos obtiene el desglose correcto para su pago y entonces ahora si pueden subir su factura junto con los documentos anteriores mencionados.
+
+ - El sistema hace un layout base a los profesores que cargaron factura o solicitaron su pago. (Sistema)
+
+ - Pantalla para descargar archivo txt(layout) con la información para subir al banco para realizar los pagos (Rol Tesorería)
+
+ - El banco realiza los pagos y se descargan de la plataforma del banco los comprobantes - No interviene el sistema
+
+ - Pantalla para la carga de bank report para renombrar los archivos pdf y XML ya anterior cargados. (En este caso puede existir la posibilidad que se cargue el bank report o se que suban los comprobantes de pago para generar el bank report y se renombren los archivos). (Tesorería)
+
+ - Pantalla para la descarga de los archivos renombrados en zip, el sistema renombra los archivos y los deja listo para la descarga. (Rol de Finanzas) 
+
+ - El archivo se subirá en un carpeta compartida con los de contabilidad. (Forma manual, interactúa Finanzas) - No interviene el sistema
+
+ - Contabilidad realiza conciliación y si existen cdfis a cancelar se regresa una lista con los cfdis que se deben cancelar. (Contabilidad y finanzas) - No interviene el sistema
+
+ - Se contactan con los profesores para sean canceladas. (Finanzas)
+
