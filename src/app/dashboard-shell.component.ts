@@ -81,6 +81,43 @@ export class DashboardShellComponent {
     { icon: 'logout', label: 'Salir', href: '/logout' }
   ];
 
+  readonly checklistDocumentalBase = [
+    'Currículum vitae (CV): Actualizado',
+    'Solicitud de empleo',
+    'Acta de nacimiento',
+    'Comprobante de domicilio',
+    'Identificación oficial vigente',
+    'Cédula profesional Licenciatura',
+    'Cédula profesional Maestría',
+    'Cédula profesional Doctorado',
+    'Comprobante de ingresos adicionales',
+    'Constancia de situación fiscal',
+    'Cumplimiento del SAT'
+  ];
+
+  readonly requisitosTipoPago = [
+    {
+      tipo: 'Asimilados',
+      requisitos: [
+        'Dos recibos de nómina',
+        'Constancia laboral del otro empleo',
+        'Carta firmada de ingresos complementarios (fecha, firma, domicilio, RFC, CURP)'
+      ]
+    },
+    {
+      tipo: 'Empresa',
+      requisitos: ['Acta constitutiva', 'Comprobante de domicilio', 'Carátula bancaria de la empresa']
+    },
+    {
+      tipo: 'Extranjero',
+      requisitos: ['Acta de nacimiento', 'Pasaporte', 'Constancia de residencia fiscal (residente extranjero)']
+    },
+    {
+      tipo: 'Honorarios',
+      requisitos: ['CFDI PDF', 'XML', 'Constancia de situación fiscal', 'Opinión de cumplimiento']
+    }
+  ];
+
   readonly profesoresFinanzas: ProfesorFinanzas[] = [
     {
       id: 'PR-1001',
@@ -111,6 +148,36 @@ export class DashboardShellComponent {
         { folio: 'CNT-2026-01012', modulo: 'Seminario Especial', actividad: 'Asesoría', monto: '$10,500', estatus: 'Firmado', firma: '10/03/2026' }
       ]
     },
+    {
+      id: 'PR-1098',
+      nombre: 'Ing. Carlos Rivera',
+      tipoPago: 'Empresa',
+      montoPeriodo: '$31,200',
+      alumnos: 30,
+      centroCosto: 'CC-ADM-06',
+      contratoEstatus: 'Firmado',
+      facturaEstatus: 'CFDI en validación',
+      pagoEstatus: 'En revisión de comprobantes',
+      ultimoMovimiento: '13/03/2026 12:40',
+      datosFiscales: { rfc: 'CRI990101AB3', regimen: 'Persona moral general', usoCfdi: 'G03', cuentaClabe: '014180567890123456' },
+      documentos: [
+        { nombre: 'Currículum vitae (CV): Actualizado', estatus: 'Vigente', vencimiento: '12/2026' },
+        { nombre: 'Solicitud de empleo', estatus: 'Cargado' },
+        { nombre: 'Acta constitutiva', estatus: 'Cargado' },
+        { nombre: 'Comprobante de domicilio', estatus: 'Vigente', vencimiento: '07/2026' },
+        { nombre: 'Carátula bancaria de la empresa', estatus: 'Cargado' },
+        { nombre: 'Constancia de situación fiscal', estatus: 'Vigente', vencimiento: '11/2026' },
+        { nombre: 'Cumplimiento del SAT', estatus: 'Vigente', vencimiento: '09/2026' }
+      ],
+      correos: [
+        { fecha: '10/03/2026 11:20', asunto: 'Contrato disponible para firma', resultado: 'Entregado' },
+        { fecha: '12/03/2026 13:10', asunto: 'Habilitación para carga de CFDI', resultado: 'Entregado' }
+      ],
+      contratos: [
+        { folio: 'CNT-2026-01103', modulo: 'Licenciatura', actividad: 'Docencia', monto: '$31,200', estatus: 'Firmado', firma: '11/03/2026' }
+      ]
+    },
+
     {
       id: 'PR-1032',
       nombre: 'Mtro. Luis Meza',
@@ -415,6 +482,25 @@ export class DashboardShellComponent {
       this.zipComprobantesListo.set(true);
       this.procesamientoZip.set(false);
     }, 1200);
+  }
+
+
+  obtenerEstatusDocumento(nombre: string): string {
+    const profesor = this.profesorDetalle();
+    if (!profesor) return 'No aplica';
+    const doc = profesor.documentos.find((item) => item.nombre.toLowerCase() === nombre.toLowerCase());
+    return doc?.estatus ?? 'No cargado';
+  }
+
+  obtenerVigenciaDocumento(nombre: string): string {
+    const profesor = this.profesorDetalle();
+    if (!profesor) return 'N/A';
+    const doc = profesor.documentos.find((item) => item.nombre.toLowerCase() === nombre.toLowerCase());
+    return doc?.vencimiento ?? 'N/A';
+  }
+
+  esTipoPagoActual(tipo: string): boolean {
+    return this.profesorDetalle()?.tipoPago.toLowerCase() === tipo.toLowerCase();
   }
 
   private normalizePath(url: string): string {
