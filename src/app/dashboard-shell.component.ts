@@ -61,10 +61,17 @@ export class DashboardShellComponent {
     { icon: 'analytics', label: 'Comprobantes y ZIP', href: '/finanzas/comprobantes' }
   ];
 
+  readonly menuProfesor: NavItem[] = [
+    { icon: 'dashboard', label: 'Dashboard Profesor', href: '/profesor/dashboard' },
+    { icon: 'users', label: 'Mi perfil y documentos', href: '/profesor/perfil' },
+    { icon: 'book', label: 'Mis contratos', href: '/profesor/contratos' },
+    { icon: 'analytics', label: 'Facturación y pago', href: '/profesor/facturacion' }
+  ];
+
   readonly accesosPorRol: Record<RolSistema, string[]> = {
     administracion: ['/', '/administracion/dashboard', '/administracion/insumo-pagos', '/administracion/insumo-profesores', '/administracion/reportes', '/settings', '/help'],
     finanzas: ['/', '/finanzas/dashboard', '/finanzas/profesores', '/finanzas/profesor', '/finanzas/contratos', '/finanzas/seguimiento', '/finanzas/comprobantes', '/settings', '/help'],
-    profesor: ['/', '/settings', '/help'],
+    profesor: ['/', '/profesor/dashboard', '/profesor/perfil', '/profesor/contratos', '/profesor/facturacion', '/settings', '/help'],
     tesoreria: ['/', '/settings', '/help']
   };
 
@@ -309,6 +316,23 @@ export class DashboardShellComponent {
     archivo: string;
   } | null>(null);
 
+  readonly documentosProfesor = signal([
+    { nombre: 'Currículum vitae (CV): Actualizado', archivo: 'cv_ana_torres.pdf', estatus: 'Vigente' },
+    { nombre: 'Solicitud de empleo', archivo: 'solicitud_empleo.pdf', estatus: 'Cargado' },
+    { nombre: 'Acta de nacimiento', archivo: 'acta_nacimiento.pdf', estatus: 'Cargado' },
+    { nombre: 'Comprobante de domicilio', archivo: 'domicilio_marzo_2026.pdf', estatus: 'Vigente' },
+    { nombre: 'Identificación oficial vigente', archivo: 'ine_frente_reverso.pdf', estatus: 'Vigente' },
+    { nombre: 'Constancia de situación fiscal', archivo: 'csf_2026.pdf', estatus: 'Vigente' },
+    { nombre: 'Cumplimiento del SAT', archivo: 'opinion_cumplimiento.pdf', estatus: 'Vigente' }
+  ]);
+  readonly contratoProfesorFirmado = signal(false);
+  readonly archivoContratoFirmado = signal('');
+  readonly cargandoContrato = signal(false);
+  readonly cargandoFacturaProfesor = signal(false);
+  readonly facturaProfesorCargada = signal(false);
+  readonly archivoFacturaPdf = signal('');
+  readonly archivoFacturaXml = signal('');
+
 
   readonly archivoPagos = signal('');
   readonly archivoProfesores = signal('');
@@ -338,6 +362,9 @@ export class DashboardShellComponent {
     }
     if (rol === 'finanzas') {
       return this.menuFinanzas;
+    }
+    if (rol === 'profesor') {
+      return this.menuProfesor;
     }
     return [] as NavItem[];
   });
@@ -383,6 +410,8 @@ export class DashboardShellComponent {
       ? '/administracion/dashboard'
       : usuario.rol === 'finanzas'
       ? '/finanzas/dashboard'
+      : usuario.rol === 'profesor'
+      ? '/profesor/dashboard'
       : '/';
 
     this.router.navigateByUrl(destino);
@@ -501,6 +530,45 @@ export class DashboardShellComponent {
 
   esTipoPagoActual(tipo: string): boolean {
     return this.profesorDetalle()?.tipoPago.toLowerCase() === tipo.toLowerCase();
+  }
+
+
+  seleccionarContratoFirmado(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.archivoContratoFirmado.set(file.name);
+    this.contratoProfesorFirmado.set(false);
+  }
+
+  subirContratoFirmado(): void {
+    if (!this.archivoContratoFirmado()) return;
+    this.cargandoContrato.set(true);
+    setTimeout(() => {
+      this.contratoProfesorFirmado.set(true);
+      this.cargandoContrato.set(false);
+    }, 1000);
+  }
+
+  seleccionarFacturaProfesor(tipo: 'pdf' | 'xml', event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (tipo === 'pdf') {
+      this.archivoFacturaPdf.set(file.name);
+    } else {
+      this.archivoFacturaXml.set(file.name);
+    }
+    this.facturaProfesorCargada.set(false);
+  }
+
+  subirFacturaProfesor(): void {
+    if (!this.archivoFacturaPdf() || !this.archivoFacturaXml()) return;
+    this.cargandoFacturaProfesor.set(true);
+    setTimeout(() => {
+      this.facturaProfesorCargada.set(true);
+      this.cargandoFacturaProfesor.set(false);
+    }, 1000);
   }
 
   private normalizePath(url: string): string {

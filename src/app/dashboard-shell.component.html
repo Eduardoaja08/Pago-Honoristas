@@ -5,7 +5,7 @@
         <section class="rounded-2xl border border-border bg-card p-6 shadow-2xl">
           <p class="text-xs font-semibold uppercase tracking-wider text-primary">Acceso por rol</p>
           <h2 class="mt-2 text-2xl font-bold">Inicio de sesión</h2>
-          <p class="mt-1 text-sm text-muted-foreground">Fase activa: Administración y Finanzas con vistas operativas por rol.</p>
+          <p class="mt-1 text-sm text-muted-foreground">Fase activa: Administración, Finanzas y Profesor con vistas operativas por rol.</p>
 
           <div class="mt-5 space-y-3">
             <label class="text-xs font-semibold">Usuario</label>
@@ -27,7 +27,7 @@
 
         <section class="rounded-2xl border border-border bg-card p-6 shadow-2xl">
           <h3 class="text-lg font-semibold">Usuarios dummy</h3>
-          <p class="mb-4 text-xs text-muted-foreground">Administración y Finanzas ya tienen módulos operativos.</p>
+          <p class="mb-4 text-xs text-muted-foreground">Administración, Finanzas y Profesor ya tienen módulos operativos.</p>
           <div class="space-y-3">
             @for (user of usuariosDemo; track user.usuario) {
               <article class="rounded-xl border border-border bg-background p-3 text-sm">
@@ -141,7 +141,7 @@
       </header>
 
       <div class="mt-6 space-y-6">
-        @if (currentPath() === '/' && rolActual() !== 'administracion' && rolActual() !== 'finanzas') {
+        @if (currentPath() === '/' && rolActual() !== 'administracion' && rolActual() !== 'finanzas' && rolActual() !== 'profesor') {
           <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
             <h3 class="text-lg font-semibold">Módulos en preparación</h3>
             <p class="mt-2 text-sm text-muted-foreground">En esta fase dejamos habilitadas pantallas operativas para Administración y Finanzas. Para tu rol, por ahora están disponibles Configuración, Soporte y Salir.</p>
@@ -306,55 +306,30 @@
                 <table class="w-full text-sm"><thead class="text-left text-muted-foreground"><tr><th class="pb-2">Folio</th><th class="pb-2">Módulo</th><th class="pb-2">Actividad</th><th class="pb-2">Monto</th><th class="pb-2">Estatus</th><th class="pb-2">Firma</th></tr></thead><tbody class="divide-y divide-border">@for (contrato of profesorDetalle()!.contratos; track contrato.folio) {<tr><td class="py-2">{{ contrato.folio }}</td><td>{{ contrato.modulo }}</td><td>{{ contrato.actividad }}</td><td>{{ contrato.monto }}</td><td>{{ contrato.estatus }}</td><td>{{ contrato.firma }}</td></tr>}</tbody></table>
               </div>
             </article>
-
-            <article class="rounded-2xl border border-border bg-card p-5 md:col-span-2">
-              <h3 class="text-lg font-semibold">Documentos del profesor</h3>
-              <div class="mt-3 overflow-auto">
-                <table class="w-full text-sm"><thead class="text-left text-muted-foreground"><tr><th class="pb-2">Documento</th><th class="pb-2">Estatus</th><th class="pb-2">Vigencia</th></tr></thead><tbody class="divide-y divide-border">@for (doc of profesorDetalle()!.documentos; track doc.nombre) {<tr><td class="py-2">{{ doc.nombre }}</td><td>{{ doc.estatus }}</td><td>{{ doc.vencimiento || 'N/A' }}</td></tr>}</tbody></table>
-              </div>
-            </article>
-
-            <article class="rounded-2xl border border-border bg-card p-5 md:col-span-1">
-              <h3 class="text-lg font-semibold">Correos enviados</h3>
-              <ul class="mt-3 space-y-2 text-sm text-muted-foreground">@for (mail of profesorDetalle()!.correos; track mail.fecha + mail.asunto) {<li class="rounded-lg border border-border bg-background p-2"><p class="font-medium text-foreground">{{ mail.asunto }}</p><p>{{ mail.fecha }} · {{ mail.resultado }}</p></li>}</ul>
-            </article>
-
-            <article class="rounded-2xl border border-border bg-card p-5 md:col-span-3">
-              <h3 class="text-lg font-semibold">Contratos asociados</h3>
-              <div class="mt-3 overflow-auto">
-                <table class="w-full text-sm"><thead class="text-left text-muted-foreground"><tr><th class="pb-2">Folio</th><th class="pb-2">Módulo</th><th class="pb-2">Actividad</th><th class="pb-2">Monto</th><th class="pb-2">Estatus</th><th class="pb-2">Firma</th></tr></thead><tbody class="divide-y divide-border">@for (contrato of profesorDetalle()!.contratos; track contrato.folio) {<tr><td class="py-2">{{ contrato.folio }}</td><td>{{ contrato.modulo }}</td><td>{{ contrato.actividad }}</td><td>{{ contrato.monto }}</td><td>{{ contrato.estatus }}</td><td>{{ contrato.firma }}</td></tr>}</tbody></table>
-              </div>
-            </article>
           </section>
         }
 
         @if (currentPath() === '/finanzas/contratos' && puedeVer('/finanzas/contratos')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Seguimiento de contratos y notificaciones</h3>
-            <div class="mt-4 overflow-auto">
-              <table class="w-full text-sm"><thead class="text-left text-muted-foreground"><tr><th class="pb-2">Profesor</th><th class="pb-2">Contrato</th><th class="pb-2">Último correo</th><th class="pb-2">Resultado</th><th class="pb-2">Siguiente acción</th></tr></thead><tbody class="divide-y divide-border"><tr><td class="py-2">Dra. Ana Torres</td><td>Firmado</td><td>Habilitación para carga de factura</td><td>Entregado</td><td>Revisión de CFDI</td></tr><tr><td class="py-2">Mtro. Luis Meza</td><td>Enviado</td><td>Recordatorio firma de contrato</td><td>Entregado</td><td>Escalamiento con coordinación</td></tr><tr><td class="py-2">Mtra. Laura Neri</td><td>Firmado</td><td>Solicitud de factura extranjera</td><td>Entregado</td><td>Validación fiscal internacional</td></tr></tbody></table>
-            </div>
-          </section>
-        }
-
-        @if (currentPath() === '/finanzas/seguimiento' && puedeVer('/finanzas/seguimiento')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Embudo operativo de pagos (Finanzas)</h3>
-            <div class="mt-4 grid gap-3 md:grid-cols-4 text-sm">
-              <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">Profesores cargados por Administración</p><p class="mt-1 text-xl font-bold">3</p></div>
-              <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">Contratos firmados</p><p class="mt-1 text-xl font-bold">2</p></div>
-              <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">CFDI / requisitos completos</p><p class="mt-1 text-xl font-bold">1</p></div>
-              <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">Listos para pago</p><p class="mt-1 text-xl font-bold">1</p></div>
-            </div>
-          </section>
-        }
-
-        @if (currentPath() === '/finanzas/contratos' && puedeVer('/finanzas/contratos')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Seguimiento de contratos y notificaciones</h3>
-            <div class="mt-4 overflow-auto">
-              <table class="w-full text-sm"><thead class="text-left text-muted-foreground"><tr><th class="pb-2">Profesor</th><th class="pb-2">Contrato</th><th class="pb-2">Último correo</th><th class="pb-2">Resultado</th><th class="pb-2">Siguiente acción</th></tr></thead><tbody class="divide-y divide-border"><tr><td class="py-2">Dra. Ana Torres</td><td>Firmado</td><td>Habilitación para carga de factura</td><td>Entregado</td><td>Revisión de CFDI</td></tr><tr><td class="py-2">Mtro. Luis Meza</td><td>Enviado</td><td>Recordatorio firma de contrato</td><td>Entregado</td><td>Escalamiento con coordinación</td></tr><tr><td class="py-2">Mtra. Laura Neri</td><td>Firmado</td><td>Solicitud de factura extranjera</td><td>Entregado</td><td>Validación fiscal internacional</td></tr></tbody></table>
-            </div>
+          <section class="space-y-4">
+            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h3 class="text-lg font-semibold">Seguimiento de contratos y notificaciones</h3>
+              <p class="mt-2 text-sm text-muted-foreground">Control único de contratos enviados/firma y correos asociados (sin duplicidad de tabla).</p>
+            </article>
+            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <div class="overflow-auto">
+                <table class="w-full text-sm">
+                  <thead class="text-left text-muted-foreground">
+                    <tr><th class="pb-2">Profesor</th><th class="pb-2">Contrato</th><th class="pb-2">Último correo</th><th class="pb-2">Resultado</th><th class="pb-2">Siguiente acción</th></tr>
+                  </thead>
+                  <tbody class="divide-y divide-border">
+                    <tr><td class="py-2">Dra. Ana Torres</td><td>Firmado</td><td>Habilitación para carga de factura</td><td>Entregado</td><td>Revisión de CFDI</td></tr>
+                    <tr><td class="py-2">Mtro. Luis Meza</td><td>Enviado</td><td>Recordatorio firma de contrato</td><td>Entregado</td><td>Escalamiento con coordinación</td></tr>
+                    <tr><td class="py-2">Ing. Carlos Rivera</td><td>Firmado</td><td>Confirmación de contrato firmado</td><td>Entregado</td><td>Validación documental empresa</td></tr>
+                    <tr><td class="py-2">Mtra. Laura Neri</td><td>Firmado</td><td>Solicitud de factura extranjera</td><td>Entregado</td><td>Validación fiscal internacional</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
           </section>
         }
 
@@ -384,6 +359,113 @@
                 </button>
                 @if (zipComprobantesListo() && loteZipActual()) {
                   <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium">Descargar {{ loteZipActual()!.archivo }}</button>
+                }
+              </div>
+            </article>
+
+            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h4 class="font-semibold">Insumo del lote</h4>
+              <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
+                <li>• Origen: Bank report del banco</li>
+                <li>• Fuente alterna: comprobantes de pago cargados</li>
+                <li>• Regla de renombrado: RFC + folio + periodo</li>
+                <li>• Entregable: ZIP para carpeta compartida con Contabilidad</li>
+              </ul>
+            </article>
+
+            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h4 class="font-semibold">Resultado de proceso</h4>
+              @if (loteZipActual()) {
+                <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
+                  <li><span class="font-semibold text-foreground">Periodo:</span> {{ loteZipActual()!.periodo }}</li>
+                  <li><span class="font-semibold text-foreground">Origen:</span> {{ loteZipActual()!.origen }}</li>
+                  <li><span class="font-semibold text-foreground">Comprobantes recibidos:</span> {{ loteZipActual()!.totalComprobantes }}</li>
+                  <li><span class="font-semibold text-foreground">Renombrados:</span> {{ loteZipActual()!.renombrados }}</li>
+                  <li><span class="font-semibold text-foreground">Incidencias:</span> {{ loteZipActual()!.incidencias }}</li>
+                </ul>
+              } @else {
+                <p class="mt-3 text-sm text-muted-foreground">Aún no se ha generado ningún lote ZIP en esta sesión.</p>
+              }
+            </article>
+          </section>
+        }
+
+
+
+        @if (currentPath() === '/profesor/dashboard' && puedeVer('/profesor/dashboard')) {
+          <section class="grid gap-4 md:grid-cols-4">
+            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Contratos activos</p><p class="mt-2 text-2xl font-bold">2</p><p class="text-xs text-primary">1 firmado / 1 pendiente validación</p></article>
+            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Estatus expediente</p><p class="mt-2 text-2xl font-bold">85%</p><p class="text-xs text-amber-500">Faltan 2 documentos</p></article>
+            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Monto pendiente por cobrar</p><p class="mt-2 text-2xl font-bold">$42,500</p><p class="text-xs text-green-500">Periodo 2026-1</p></article>
+            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Facturación</p><p class="mt-2 text-2xl font-bold">Habilitada</p><p class="text-xs text-primary">Lista para carga CFDI/XML</p></article>
+          </section>
+        }
+
+        @if (currentPath() === '/profesor/perfil' && puedeVer('/profesor/perfil')) {
+          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <h3 class="text-lg font-semibold">Mi expediente documental</h3>
+            <p class="mt-2 text-sm text-muted-foreground">Carga y consulta tus documentos obligatorios para mantener habilitado el flujo de pago.</p>
+            <div class="mt-4 overflow-auto">
+              <table class="w-full text-sm">
+                <thead class="text-left text-muted-foreground"><tr><th class="pb-2">Documento</th><th class="pb-2">Archivo</th><th class="pb-2">Estatus</th><th class="pb-2">Acción</th></tr></thead>
+                <tbody class="divide-y divide-border">
+                  @for (doc of documentosProfesor(); track doc.nombre) {
+                    <tr>
+                      <td class="py-2">{{ doc.nombre }}</td>
+                      <td>{{ doc.archivo }}</td>
+                      <td>{{ doc.estatus }}</td>
+                      <td><button class="rounded-md border border-border px-2 py-1 text-xs">Reemplazar</button></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        }
+
+        @if (currentPath() === '/profesor/contratos' && puedeVer('/profesor/contratos')) {
+          <section class="grid gap-4 md:grid-cols-2">
+            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h3 class="text-lg font-semibold">Mis contratos</h3>
+              <p class="mt-2 text-sm text-muted-foreground">Descarga y revisa tus contratos generados por Finanzas.</p>
+              <div class="mt-4 space-y-2 text-sm">
+                <div class="rounded-lg border border-border bg-background p-3 flex items-center justify-between"><span>CNT-2026-01011.pdf</span><button class="rounded-md border border-border px-2 py-1 text-xs">Descargar</button></div>
+                <div class="rounded-lg border border-border bg-background p-3 flex items-center justify-between"><span>CNT-2026-01012.pdf</span><button class="rounded-md border border-border px-2 py-1 text-xs">Descargar</button></div>
+              </div>
+            </article>
+            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h3 class="text-lg font-semibold">Carga de contrato firmado</h3>
+              <p class="mt-2 text-sm text-muted-foreground">Sube tu contrato firmado para habilitar la siguiente etapa.</p>
+              <div class="mt-4 space-y-3">
+                <input type="file" accept=".pdf" (change)="seleccionarContratoFirmado($event)" class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" />
+                <button class="w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50" [disabled]="!archivoContratoFirmado() || cargandoContrato()" (click)="subirContratoFirmado()">{{ cargandoContrato() ? 'Subiendo...' : 'Subir contrato firmado' }}</button>
+                @if (contratoProfesorFirmado()) {
+                  <p class="rounded-lg bg-green-500/10 px-3 py-2 text-xs text-green-600">Contrato firmado cargado correctamente y notificado a Finanzas.</p>
+                }
+              </div>
+            </article>
+          </section>
+        }
+
+        @if (currentPath() === '/profesor/facturacion' && puedeVer('/profesor/facturacion')) {
+          <section class="grid gap-4 md:grid-cols-2">
+            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h3 class="text-lg font-semibold">Desglose de montos pendientes por cobrar</h3>
+              <div class="mt-3 space-y-2 text-sm text-muted-foreground">
+                <div class="flex items-center justify-between rounded-lg border border-border bg-background p-3"><span>Contrato CNT-2026-01011</span><strong class="text-foreground">$32,000</strong></div>
+                <div class="flex items-center justify-between rounded-lg border border-border bg-background p-3"><span>Contrato CNT-2026-01012</span><strong class="text-foreground">$10,500</strong></div>
+                <div class="flex items-center justify-between rounded-lg border border-border bg-background p-3"><span>Total</span><strong class="text-foreground">$42,500</strong></div>
+              </div>
+            </article>
+            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <h3 class="text-lg font-semibold">Carga de factura y anexos</h3>
+              <p class="mt-2 text-sm text-muted-foreground">Para honorarios/empresa carga PDF, XML, constancia fiscal y opinión de cumplimiento.</p>
+              <div class="mt-4 space-y-3">
+                <input type="file" accept=".pdf" (change)="seleccionarFacturaProfesor('pdf', $event)" class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" />
+                <input type="file" accept=".xml" (change)="seleccionarFacturaProfesor('xml', $event)" class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" />
+                <button class="w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50" [disabled]="!archivoFacturaPdf() || !archivoFacturaXml() || cargandoFacturaProfesor()" (click)="subirFacturaProfesor()">{{ cargandoFacturaProfesor() ? 'Subiendo CFDI...' : 'Subir CFDI/XML' }}</button>
+                @if (facturaProfesorCargada()) {
+                  <p class="rounded-lg bg-green-500/10 px-3 py-2 text-xs text-green-600">Factura y XML cargados correctamente. Finanzas validará RFC, monto y folio.</p>
                 }
               </div>
             </article>
