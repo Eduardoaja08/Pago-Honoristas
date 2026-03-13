@@ -2,25 +2,21 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
-import { IconComponent } from './icon.component';
-// import { PeriodoSelectorComponent } from './shared/periodo-selector/periodo-selector.component';
-import { BusquedaGlobalComponent } from './shared/busqueda-global/busqueda-global.component';
-import { DashboardComponent } from './modules/dashboard/dashboard.component';
-import { ProfesoresListComponent } from './modules/profesores/profesores-list.component';
 import { ProfesorDetailComponent } from './modules/profesores/profesor-detail.component';
-import { ProfesorWizardComponent } from './modules/profesores/profesor-wizard.component';
-import { AsignacionAcademicaComponent } from './modules/asignacion-academica/asignacion-academica.component';
-import { OperacionBancariaComponent } from './modules/operacion-bancaria/operacion-bancaria.component';
-import { CalculoPagosComponent } from './modules/calculo-pagos/calculo-pagos.component';
-import { CumplimientoFiscalComponent } from './modules/cumplimiento-fiscal/cumplimiento-fiscal.component';
-import { ContabilidadReportesComponent } from './modules/contabilidad-reportes/contabilidad-reportes.component';
-import { AdministracionComponent } from './modules/administracion/administracion.component';
+
+type Rol = 'administracion' | 'finanzas' | 'profesor' | 'tesoreria';
+
+interface UsuarioDemo {
+  nombre: string;
+  usuario: string;
+  password: string;
+  rol: Rol;
+  profesorId?: number;
+}
 
 interface NavItem {
-  icon: string;
   label: string;
   href: string;
-  badge?: string;
 }
 
 type RolSistema = 'administracion' | 'finanzas' | 'profesor' | 'tesoreria';
@@ -36,24 +32,7 @@ interface UsuarioDemo {
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    RouterLinkActive,
-    IconComponent,
-    // PeriodoSelectorComponent,
-    BusquedaGlobalComponent,
-    DashboardComponent,
-    ProfesoresListComponent,
-    ProfesorDetailComponent,
-    ProfesorWizardComponent,
-    AsignacionAcademicaComponent,
-    OperacionBancariaComponent,
-    CalculoPagosComponent,
-    CumplimientoFiscalComponent,
-    ContabilidadReportesComponent,
-    AdministracionComponent
-  ],
+  imports: [CommonModule, RouterLink, RouterLinkActive, ProfesorDetailComponent],
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss'
 })
@@ -89,18 +68,28 @@ export class DashboardShellComponent {
     { icon: 'logout', label: 'Salir', href: '/logout' }
   ];
 
-  readonly statsCards = [
-    { title: 'Honoristas activos', value: '1,248', increase: '+7% vs periodo anterior', bg: 'bg-primary text-primary-foreground' },
-    { title: 'Pagos timbrados', value: '932', increase: 'Cierre parcial del mes', bg: 'bg-card text-foreground' },
-    { title: 'Validaciones fiscales', value: '184', increase: 'Sin incidencias críticas', bg: 'bg-card text-foreground' },
-    { title: 'Pendientes de autorización', value: '27', increase: 'En revisión de Finanzas', bg: 'bg-card text-foreground' }
+  readonly rolActual = signal<Rol | null>(null);
+  readonly usuarioActual = signal<UsuarioDemo | null>(null);
+  readonly currentPath = signal('/');
+  readonly credenciales = signal({ usuario: '', password: '' });
+  readonly errorLogin = signal('');
+
+  readonly resumenFlujo = [
+    { etapa: '1. SAPO + Layout', owner: 'Administración', detalle: 'Se recuperan datos básicos del profesor desde SAPO y se carga layout de alumnos/centros de costo.' },
+    { etapa: '2. Monto y contrato', owner: 'Finanzas', detalle: 'Se calcula monto por tabulador, se valida expediente y se genera contrato para firma.' },
+    { etapa: '3. Firma y factura', owner: 'Profesor', detalle: 'El profesor descarga contrato, sube contrato firmado y después CFDI/XML/documentación fiscal.' },
+    { etapa: '4. Pago y conciliación', owner: 'Tesorería / Finanzas', detalle: 'Tesorería descarga layout TXT, sube bank report y Finanzas descarga ZIP renombrado para contabilidad.' }
   ];
 
-  readonly tasks = [
-    { id: 1, title: 'Sincronizar asignaciones con Banner', project: 'Módulo 2 · Planeación', priority: 'High', dueDate: '24 Nov, 2024', completed: false, tags: ['Integración', 'Académico'] },
-    { id: 2, title: 'Validar constancias fiscales vigentes', project: 'Módulo 5 · Cumplimiento', priority: 'High', dueDate: '25 Nov, 2024', completed: false, tags: ['Fiscal', 'SAT'] },
-    { id: 3, title: 'Aprobar reglas de cálculo de honorarios', project: 'Módulo 4 · Motor de cálculo', priority: 'Medium', dueDate: '23 Nov, 2024', completed: true, tags: ['Finanzas', 'Reglas'] },
-    { id: 4, title: 'Publicar layout bancario para dispersión', project: 'Módulo 7 · Pagos', priority: 'Low', dueDate: '26 Nov, 2024', completed: false, tags: ['Tesorería', 'SPEI'] }
+  readonly checklistBase = [
+    'CV actualizado',
+    'Solicitud de empleo',
+    'Acta de nacimiento',
+    'Comprobante de domicilio',
+    'Identificación oficial vigente',
+    'Cédulas profesionales (licenciatura/maestría/doctorado)',
+    'Constancia de situación fiscal',
+    'Opinión de cumplimiento SAT'
   ];
 
   readonly teamMembers = ['Coordinación Académica', 'Finanzas', 'Fiscal y Legal', 'TI Institucional'];
@@ -256,57 +245,59 @@ export class DashboardShellComponent {
       }
     });
 
-    setInterval(() => {
-      if (this.isRunning()) {
-        this.elapsedSeconds.update((value) => value + 1);
-      }
-    }, 1000);
+    this.currentPath.set(this.router.url || '/');
   }
 
-  setFilter(filterValue: 'all' | 'active' | 'completed'): void {
-    this.taskFilter.set(filterValue);
+  updateUsuario(valor: string): void {
+    this.credenciales.update(item => ({ ...item, usuario: valor }));
   }
 
-  toggleTimer(): void {
-    this.isRunning.update((value) => !value);
+  updatePassword(valor: string): void {
+    this.credenciales.update(item => ({ ...item, password: valor }));
   }
 
-  resetTimer(): void {
-    this.elapsedSeconds.set(0);
-    this.isRunning.set(false);
-  }
+  login(): void {
+    const cred = this.credenciales();
+    const usuario = this.usuariosDemo.find(
+      u => u.usuario === cred.usuario.trim() && u.password === cred.password.trim()
+    );
 
-  private normalizePath(url: string): string {
-    const path = url.split('?')[0] || '/';
-    const segments = path.split('/').filter(Boolean);
-    if (!segments.length) {
-      return '/';
+    if (!usuario) {
+      this.errorLogin.set('Usuario o contraseña incorrectos. Usa los accesos demo disponibles.');
+      return;
     }
 
-    if (segments[0] === 'profesor' && segments[2] === 'editar') {
-      return '/profesor/editar';
-    }
+    this.errorLogin.set('');
+    this.usuarioActual.set(usuario);
+    this.rolActual.set(usuario.rol);
 
-    if (segments[0] === 'profesor') {
-      return '/profesor';
-    }
+    const destino = usuario.rol === 'administracion'
+      ? '/administracion'
+      : usuario.rol === 'finanzas'
+      ? '/calculo-pagos'
+      : usuario.rol === 'profesor'
+      ? '/cumplimiento-fiscal'
+      : '/operacion-bancaria';
 
-    if (segments[0] === 'profesores' && segments[1] === 'nuevo') {
-      return '/profesores/nuevo';
-    }
-
-    return `/${segments[0]}`;
+    this.router.navigateByUrl(destino);
   }
 
-  onPeriodoChange(periodoId: number): void {
-    // Actualizar período global - afecta todas las vistas
-    console.log('Período cambiado:', periodoId);
-    // Aquí se actualizaría el servicio de período global
+  logout(): void {
+    this.usuarioActual.set(null);
+    this.rolActual.set(null);
+    this.credenciales.set({ usuario: '', password: '' });
+    this.router.navigateByUrl('/');
   }
 
-  onBuscar(termino: string): void {
-    // Manejar búsqueda global
-    console.log('Buscando:', termino);
+  puedeVer(ruta: string): boolean {
+    const rol = this.rolActual();
+    if (!rol) return false;
+    return this.menuPorRol[rol].some(item => item.href === ruta);
+  }
+
+  menuActual(): NavItem[] {
+    const rol = this.rolActual();
+    return rol ? this.menuPorRol[rol] : [];
   }
 
   login(): void {
