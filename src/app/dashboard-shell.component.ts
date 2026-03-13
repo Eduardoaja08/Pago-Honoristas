@@ -68,11 +68,17 @@ export class DashboardShellComponent {
     { icon: 'analytics', label: 'Facturación y pago', href: '/profesor/facturacion' }
   ];
 
+  readonly menuTesoreria: NavItem[] = [
+    { icon: 'dashboard', label: 'Dashboard Tesorería', href: '/tesoreria/dashboard' },
+    { icon: 'book', label: 'Layout bancario TXT', href: '/tesoreria/dispersion' },
+    { icon: 'analytics', label: 'Bank report y renombrado', href: '/tesoreria/bank-report' }
+  ];
+
   readonly accesosPorRol: Record<RolSistema, string[]> = {
     administracion: ['/', '/administracion/dashboard', '/administracion/insumo-pagos', '/administracion/insumo-profesores', '/administracion/reportes', '/settings', '/help'],
     finanzas: ['/', '/finanzas/dashboard', '/finanzas/profesores', '/finanzas/profesor', '/finanzas/contratos', '/finanzas/seguimiento', '/finanzas/comprobantes', '/settings', '/help'],
     profesor: ['/', '/profesor/dashboard', '/profesor/perfil', '/profesor/contratos', '/profesor/facturacion', '/settings', '/help'],
-    tesoreria: ['/', '/settings', '/help']
+    tesoreria: ['/', '/tesoreria/dashboard', '/tesoreria/dispersion', '/tesoreria/bank-report', '/settings', '/help']
   };
 
   readonly usuariosDemo: UsuarioDemo[] = [
@@ -333,6 +339,19 @@ export class DashboardShellComponent {
   readonly archivoFacturaPdf = signal('');
   readonly archivoFacturaXml = signal('');
 
+  readonly layoutTesoreriaGenerado = signal(false);
+  readonly archivoLayoutTesoreria = signal('layout_pago_2026_1.txt');
+  readonly archivoBankReport = signal('');
+  readonly archivoComprobanteZip = signal('');
+  readonly procesandoBankReport = signal(false);
+  readonly renombradoCompletado = signal(false);
+  readonly resumenRenombradoTesoreria = signal<{
+    total: number;
+    renombrados: number;
+    incidencias: number;
+    lote: string;
+  } | null>(null);
+
 
   readonly archivoPagos = signal('');
   readonly archivoProfesores = signal('');
@@ -365,6 +384,9 @@ export class DashboardShellComponent {
     }
     if (rol === 'profesor') {
       return this.menuProfesor;
+    }
+    if (rol === 'tesoreria') {
+      return this.menuTesoreria;
     }
     return [] as NavItem[];
   });
@@ -412,6 +434,8 @@ export class DashboardShellComponent {
       ? '/finanzas/dashboard'
       : usuario.rol === 'profesor'
       ? '/profesor/dashboard'
+      : usuario.rol === 'tesoreria'
+      ? '/tesoreria/dashboard'
       : '/';
 
     this.router.navigateByUrl(destino);
@@ -569,6 +593,42 @@ export class DashboardShellComponent {
       this.facturaProfesorCargada.set(true);
       this.cargandoFacturaProfesor.set(false);
     }, 1000);
+  }
+
+
+  generarLayoutTesoreria(): void {
+    this.layoutTesoreriaGenerado.set(true);
+    this.archivoLayoutTesoreria.set('layout_pago_2026_1.txt');
+  }
+
+  seleccionarArchivoTesoreria(tipo: 'bankReport' | 'comprobantes', event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (tipo === 'bankReport') {
+      this.archivoBankReport.set(file.name);
+    } else {
+      this.archivoComprobanteZip.set(file.name);
+    }
+
+    this.renombradoCompletado.set(false);
+    this.resumenRenombradoTesoreria.set(null);
+  }
+
+  procesarBankReportTesoreria(): void {
+    if (!this.archivoBankReport() && !this.archivoComprobanteZip()) return;
+    this.procesandoBankReport.set(true);
+    setTimeout(() => {
+      this.resumenRenombradoTesoreria.set({
+        total: 42,
+        renombrados: 40,
+        incidencias: 2,
+        lote: 'lote_tesoreria_2026_1'
+      });
+      this.renombradoCompletado.set(true);
+      this.procesandoBankReport.set(false);
+    }, 1200);
   }
 
   private normalizePath(url: string): string {
