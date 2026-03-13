@@ -12,6 +12,7 @@ export const routes: Routes = [
   { path: 'finanzas/profesor/:id', component: DashboardShellComponent },
   { path: 'finanzas/contratos', component: DashboardShellComponent },
   { path: 'finanzas/seguimiento', component: DashboardShellComponent },
+  { path: 'finanzas/comprobantes', component: DashboardShellComponent },
   { path: 'settings', component: DashboardShellComponent },
   { path: 'help', component: DashboardShellComponent },
   { path: 'logout', component: DashboardShellComponent },

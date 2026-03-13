@@ -57,12 +57,13 @@ export class DashboardShellComponent {
     { icon: 'dashboard', label: 'Dashboard Finanzas', href: '/finanzas/dashboard' },
     { icon: 'users', label: 'Profesores para pago', href: '/finanzas/profesores' },
     { icon: 'book', label: 'Contratos y correos', href: '/finanzas/contratos' },
-    { icon: 'analytics', label: 'Seguimiento de pagos', href: '/finanzas/seguimiento' }
+    { icon: 'analytics', label: 'Seguimiento de pagos', href: '/finanzas/seguimiento' },
+    { icon: 'analytics', label: 'Comprobantes y ZIP', href: '/finanzas/comprobantes' }
   ];
 
   readonly accesosPorRol: Record<RolSistema, string[]> = {
     administracion: ['/', '/administracion/dashboard', '/administracion/insumo-pagos', '/administracion/insumo-profesores', '/administracion/reportes', '/settings', '/help'],
-    finanzas: ['/', '/finanzas/dashboard', '/finanzas/profesores', '/finanzas/profesor', '/finanzas/contratos', '/finanzas/seguimiento', '/settings', '/help'],
+    finanzas: ['/', '/finanzas/dashboard', '/finanzas/profesores', '/finanzas/profesor', '/finanzas/contratos', '/finanzas/seguimiento', '/finanzas/comprobantes', '/settings', '/help'],
     profesor: ['/', '/settings', '/help'],
     tesoreria: ['/', '/settings', '/help']
   };
@@ -201,6 +202,11 @@ export class DashboardShellComponent {
       title: 'Seguimiento de estatus de pago',
       description: 'Controla el avance: contrato, requisitos fiscales, CFDI y estado de pago.'
     },
+
+    '/finanzas/comprobantes': {
+      title: 'Comprobantes renombrados y descarga ZIP',
+      description: 'Finanzas descarga el ZIP final de comprobantes (PDF/XML) renombrados con base en bank report y resultados de pago.'
+    },
     '/settings': {
       title: 'Configuración',
       description: 'Administra parámetros generales del sistema.'
@@ -224,6 +230,18 @@ export class DashboardShellComponent {
   readonly passwordInput = signal('');
   readonly errorLogin = signal('');
   readonly isMobileMenuOpen = signal(false);
+
+  readonly procesamientoZip = signal(false);
+  readonly zipComprobantesListo = signal(false);
+  readonly loteZipActual = signal<{
+    periodo: string;
+    origen: string;
+    totalComprobantes: number;
+    renombrados: number;
+    incidencias: number;
+    archivo: string;
+  } | null>(null);
+
 
   readonly archivoPagos = signal('');
   readonly archivoProfesores = signal('');
@@ -378,6 +396,25 @@ export class DashboardShellComponent {
 
   verProfesorFinanzas(id: string): void {
     this.router.navigateByUrl(`/finanzas/profesor/${id}`);
+  }
+
+
+  prepararZipComprobantes(): void {
+    this.procesamientoZip.set(true);
+    this.zipComprobantesListo.set(false);
+
+    setTimeout(() => {
+      this.loteZipActual.set({
+        periodo: '2026-1',
+        origen: 'Bank report + comprobantes de pago',
+        totalComprobantes: 42,
+        renombrados: 40,
+        incidencias: 2,
+        archivo: 'comprobantes_renombrados_2026_1.zip'
+      });
+      this.zipComprobantesListo.set(true);
+      this.procesamientoZip.set(false);
+    }, 1200);
   }
 
   private normalizePath(url: string): string {
