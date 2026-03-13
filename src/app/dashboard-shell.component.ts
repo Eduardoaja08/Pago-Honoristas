@@ -69,6 +69,36 @@ export class DashboardShellComponent {
     { etapa: '4. Pago y conciliación', owner: 'Tesorería / Finanzas', detalle: 'Tesorería descarga layout TXT, sube bank report y Finanzas descarga ZIP renombrado para contabilidad.' }
   ];
 
+
+  readonly panelesRol = {
+    administracion: {
+      titulo: 'Rol Administración · Carga inicial y validación académica',
+      descripcion: 'Sincroniza SAPO, carga layout de profesores y valida alumnos/centros de costo antes del cálculo de pagos.',
+      tareas: ['Sincronizar datos de contacto desde SAPO', 'Cargar layout (ID, nombre, correo, alumnos, centro de costos)', 'Detectar errores de estructura y duplicados', 'Liberar insumo validado para Finanzas']
+    },
+    finanzas: {
+      titulo: 'Rol Finanzas · Contratos, estatus y control de facturación',
+      descripcion: 'Visualiza montos calculados, monitorea firma de contratos y habilita carga de CFDI/documentación fiscal.',
+      tareas: ['Revisar montos por profesor (solo visualización)', 'Validar expediente documental y estatus de contrato', 'Notificar al profesor cuando puede facturar', 'Descargar ZIP renombrado para contabilidad']
+    },
+    profesor: {
+      titulo: 'Rol Profesor · Firma de contrato y carga fiscal',
+      descripcion: 'Descarga contrato, carga contrato firmado y sube CFDI/XML según su tipo de pago.',
+      tareas: ['Descargar contrato disponible', 'Subir contrato firmado', 'Consultar desglose de montos pendientes por cobrar', 'Adjuntar CFDI/XML y anexos fiscales obligatorios']
+    },
+    tesoreria: {
+      titulo: 'Rol Tesorería · Dispersión y bank report',
+      descripcion: 'Genera el TXT de dispersión bancaria, sube bank report y renombra comprobantes para cierre operativo.',
+      tareas: ['Descargar layout TXT para banco', 'Subir bank report o comprobantes', 'Renombrar XML/PDF en lote', 'Entregar evidencia para Finanzas y Contabilidad']
+    }
+  };
+
+  readonly requisitosPorTipoPago = [
+    { tipo: 'Asimilados', documentos: ['Constancia de situación fiscal', 'Dos recibos de nómina', 'Constancia laboral externa', 'Carta firmada de ingresos complementarios'] },
+    { tipo: 'Empresa / Factura', documentos: ['CFDI PDF y XML', 'Constancia de situación fiscal', 'Opinión de cumplimiento', 'Acta constitutiva y carátula bancaria'] },
+    { tipo: 'Extranjero', documentos: ['Factura del extranjero', 'Pasaporte', 'Constancia de residencia fiscal'] }
+  ];
+
   readonly checklistBase = [
     'CV actualizado',
     'Solicitud de empleo',
@@ -202,9 +232,6 @@ export class DashboardShellComponent {
       this.currentPath.set(normalizedPath);
       this.isMobileMenuOpen.set(false);
 
-      if (this.sesionActiva() && !this.tieneAcceso(normalizedPath)) {
-        this.router.navigateByUrl('/');
-      }
     });
   }
 
@@ -290,9 +317,4 @@ export class DashboardShellComponent {
     }
   }
 
-  private tieneAcceso(path: string): boolean {
-    const rol = this.rolActual();
-    if (!rol) return true; // Let them see the landing/login if not logged in
-    return this.puedeVer(path);
-  }
 }
