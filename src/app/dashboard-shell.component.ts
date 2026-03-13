@@ -23,6 +23,16 @@ interface NavItem {
   badge?: string;
 }
 
+type RolSistema = 'administracion' | 'finanzas' | 'profesor' | 'tesoreria';
+
+interface UsuarioDemo {
+  nombre: string;
+  usuario: string;
+  password: string;
+  rol: RolSistema;
+  correo: string;
+}
+
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
@@ -48,7 +58,7 @@ interface NavItem {
   styleUrl: './dashboard-shell.component.scss'
 })
 export class DashboardShellComponent {
-  readonly menuItems: NavItem[] = [
+  readonly menuItemsBase: NavItem[] = [
     { icon: 'dashboard', label: 'Dashboard / Inicio', href: '/' },
     { icon: 'users', label: 'Profesores', href: '/profesores' },
     { icon: 'book', label: 'Asignación Académica', href: '/asignacion-academica' },
@@ -57,6 +67,20 @@ export class DashboardShellComponent {
     { icon: 'phone', label: 'Operación Bancaria', href: '/operacion-bancaria' },
     { icon: 'analytics', label: 'Contabilidad y Reportes', href: '/contabilidad-reportes' },
     { icon: 'settings', label: 'Administración', href: '/administracion' }
+  ];
+
+  readonly accesosPorRol: Record<RolSistema, string[]> = {
+    administracion: ['/', '/profesores', '/profesor', '/profesores/nuevo', '/profesor/editar', '/asignacion-academica', '/administracion'],
+    finanzas: ['/', '/profesores', '/profesor', '/calculo-pagos', '/cumplimiento-fiscal', '/contabilidad-reportes'],
+    profesor: ['/', '/profesor', '/cumplimiento-fiscal'],
+    tesoreria: ['/', '/profesor', '/operacion-bancaria', '/contabilidad-reportes']
+  };
+
+  readonly usuariosDemo: UsuarioDemo[] = [
+    { nombre: 'Sandra Viña', usuario: 'admin.sandra', password: 'Admin2026*', rol: 'administracion', correo: 'sandra.vina@anahuac.mx' },
+    { nombre: 'Marco Salas', usuario: 'finanzas.marco', password: 'Finanzas2026*', rol: 'finanzas', correo: 'marco.salas@anahuac.mx' },
+    { nombre: 'Dra. Ana Torres', usuario: 'profesor.ana', password: 'Profesor2026*', rol: 'profesor', correo: 'ana.torres@anahuac.mx' },
+    { nombre: 'Lucía Paredes', usuario: 'tesoreria.lucia', password: 'Tesoreria2026*', rol: 'tesoreria', correo: 'lucia.paredes@anahuac.mx' }
   ];
 
   readonly generalItems: NavItem[] = [
@@ -85,6 +109,12 @@ export class DashboardShellComponent {
   readonly monthData = [45, 52, 48, 61, 55, 67];
 
   readonly routePath = signal('/');
+  readonly sesionActiva = signal(false);
+  readonly usuarioActual = signal<UsuarioDemo | null>(null);
+  readonly rolActual = signal<RolSistema | null>(null);
+  readonly usuarioInput = signal('');
+  readonly passwordInput = signal('');
+  readonly errorLogin = signal('');
   readonly taskFilter = signal<'all' | 'active' | 'completed'>('all');
   readonly isMobileMenuOpen = signal(false);
   readonly elapsedSeconds = signal(24 * 3600 + 8);
@@ -185,6 +215,14 @@ export class DashboardShellComponent {
   };
 
   readonly pageInfo = computed(() => this.pageMap[this.routePath()] ?? this.pageMap['/']);
+  readonly menuItems = computed(() => {
+    const rol = this.rolActual();
+    if (!rol) {
+      return this.menuItemsBase;
+    }
+    const permitidos = this.accesosPorRol[rol];
+    return this.menuItemsBase.filter(item => permitidos.includes(item.href));
+  });
 
   readonly filteredTasks = computed(() => {
     if (this.taskFilter() === 'completed') {
@@ -206,10 +244,16 @@ export class DashboardShellComponent {
   });
 
   constructor(private readonly router: Router) {
+    this.recuperarSesion();
     this.routePath.set(this.normalizePath(this.router.url));
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       this.routePath.set(this.normalizePath(this.router.url));
       this.isMobileMenuOpen.set(false);
+
+      const actual = this.routePath();
+      if (this.sesionActiva() && !this.tieneAcceso(actual)) {
+        this.router.navigateByUrl('/');
+      }
     });
 
     setInterval(() => {
@@ -263,5 +307,79 @@ export class DashboardShellComponent {
   onBuscar(termino: string): void {
     // Manejar búsqueda global
     console.log('Buscando:', termino);
+  }
+
+  login(): void {
+    const usuario = this.usuariosDemo.find(
+      item => item.usuario === this.usuarioInput().trim() && item.password === this.passwordInput().trim()
+    );
+
+    if (!usuario) {
+      this.errorLogin.set('Credenciales inválidas. Usa uno de los usuarios demo publicados.');
+      return;
+    }
+
+    this.errorLogin.set('');
+    this.sesionActiva.set(true);
+    this.usuarioActual.set(usuario);
+    this.rolActual.set(usuario.rol);
+    localStorage.setItem('honoristas-demo-session', JSON.stringify(usuario));
+
+    const destino = usuario.rol === 'administracion'
+      ? '/administracion'
+      : usuario.rol === 'finanzas'
+      ? '/calculo-pagos'
+      : usuario.rol === 'profesor'
+      ? '/cumplimiento-fiscal'
+      : '/operacion-bancaria';
+
+    this.router.navigateByUrl(destino);
+  }
+
+  logout(): void {
+    this.sesionActiva.set(false);
+    this.usuarioActual.set(null);
+    this.rolActual.set(null);
+    this.usuarioInput.set('');
+    this.passwordInput.set('');
+    localStorage.removeItem('honoristas-demo-session');
+    this.router.navigateByUrl('/');
+  }
+
+  setUsuario(valor: string): void {
+    this.usuarioInput.set(valor);
+  }
+
+  setPassword(valor: string): void {
+    this.passwordInput.set(valor);
+  }
+
+  private recuperarSesion(): void {
+    const raw = localStorage.getItem('honoristas-demo-session');
+    if (!raw) {
+      return;
+    }
+
+    try {
+      const usuario = JSON.parse(raw) as UsuarioDemo;
+      const existe = this.usuariosDemo.find(item => item.usuario === usuario.usuario);
+      if (!existe) {
+        localStorage.removeItem('honoristas-demo-session');
+        return;
+      }
+      this.sesionActiva.set(true);
+      this.usuarioActual.set(existe);
+      this.rolActual.set(existe.rol);
+    } catch {
+      localStorage.removeItem('honoristas-demo-session');
+    }
+  }
+
+  private tieneAcceso(path: string): boolean {
+    const rol = this.rolActual();
+    if (!rol) {
+      return false;
+    }
+    return this.accesosPorRol[rol].includes(path);
   }
 }
