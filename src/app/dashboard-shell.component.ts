@@ -21,6 +21,23 @@ interface NavItem {
   href: string;
 }
 
+interface ProfesorFinanzas {
+  id: string;
+  nombre: string;
+  tipoPago: string;
+  montoPeriodo: string;
+  alumnos: number;
+  centroCosto: string;
+  contratoEstatus: string;
+  facturaEstatus: string;
+  pagoEstatus: string;
+  ultimoMovimiento: string;
+  datosFiscales: { rfc: string; regimen: string; usoCfdi: string; cuentaClabe: string };
+  documentos: Array<{ nombre: string; estatus: string; vencimiento?: string }>;
+  correos: Array<{ fecha: string; asunto: string; resultado: string }>;
+  contratos: Array<{ folio: string; modulo: string; actividad: string; monto: string; estatus: string; firma: string }>;
+}
+
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
@@ -36,9 +53,16 @@ export class DashboardShellComponent {
     { icon: 'analytics', label: 'Reportes', href: '/administracion/reportes' }
   ];
 
+  readonly menuFinanzas: NavItem[] = [
+    { icon: 'dashboard', label: 'Dashboard Finanzas', href: '/finanzas/dashboard' },
+    { icon: 'users', label: 'Profesores para pago', href: '/finanzas/profesores' },
+    { icon: 'book', label: 'Contratos y correos', href: '/finanzas/contratos' },
+    { icon: 'analytics', label: 'Seguimiento de pagos', href: '/finanzas/seguimiento' }
+  ];
+
   readonly accesosPorRol: Record<RolSistema, string[]> = {
     administracion: ['/', '/administracion/dashboard', '/administracion/insumo-pagos', '/administracion/insumo-profesores', '/administracion/reportes', '/settings', '/help'],
-    finanzas: ['/', '/settings', '/help'],
+    finanzas: ['/', '/finanzas/dashboard', '/finanzas/profesores', '/finanzas/profesor', '/finanzas/contratos', '/finanzas/seguimiento', '/settings', '/help'],
     profesor: ['/', '/settings', '/help'],
     tesoreria: ['/', '/settings', '/help']
   };
@@ -56,30 +80,126 @@ export class DashboardShellComponent {
     { icon: 'logout', label: 'Salir', href: '/logout' }
   ];
 
-  readonly pageMap: Record<string, { title: string; description: string; cta?: string; secondary?: string }> = {
+  readonly profesoresFinanzas: ProfesorFinanzas[] = [
+    {
+      id: 'PR-1001',
+      nombre: 'Dra. Ana Torres',
+      tipoPago: 'Honorarios',
+      montoPeriodo: '$42,500',
+      alumnos: 36,
+      centroCosto: 'CC-ADM-01',
+      contratoEstatus: 'Firmado',
+      facturaEstatus: 'CFDI recibido y validado',
+      pagoEstatus: 'Listo para dispersión',
+      ultimoMovimiento: '13/03/2026 11:35',
+      datosFiscales: { rfc: 'TOAA850101XX1', regimen: 'Régimen Simplificado de Confianza', usoCfdi: 'G03', cuentaClabe: '002180700111223344' },
+      documentos: [
+        { nombre: 'CV actualizado', estatus: 'Vigente', vencimiento: '12/2026' },
+        { nombre: 'Constancia de situación fiscal', estatus: 'Vigente', vencimiento: '09/2026' },
+        { nombre: 'Opinión de cumplimiento SAT', estatus: 'Vigente', vencimiento: '08/2026' },
+        { nombre: 'Contrato firmado', estatus: 'Cargado' },
+        { nombre: 'CFDI XML/PDF', estatus: 'Validado' }
+      ],
+      correos: [
+        { fecha: '08/03/2026 10:12', asunto: 'Contrato disponible para firma', resultado: 'Entregado' },
+        { fecha: '10/03/2026 18:05', asunto: 'Confirmación de contrato firmado', resultado: 'Entregado' },
+        { fecha: '12/03/2026 09:15', asunto: 'Habilitación para carga de factura', resultado: 'Entregado' }
+      ],
+      contratos: [
+        { folio: 'CNT-2026-01011', modulo: 'Módulo Finanzas', actividad: 'Docencia Maestría', monto: '$32,000', estatus: 'Firmado', firma: '10/03/2026' },
+        { folio: 'CNT-2026-01012', modulo: 'Seminario Especial', actividad: 'Asesoría', monto: '$10,500', estatus: 'Firmado', firma: '10/03/2026' }
+      ]
+    },
+    {
+      id: 'PR-1032',
+      nombre: 'Mtro. Luis Meza',
+      tipoPago: 'Asimilados',
+      montoPeriodo: '$28,900',
+      alumnos: 28,
+      centroCosto: 'CC-ADM-04',
+      contratoEstatus: 'Enviado (pendiente firma)',
+      facturaEstatus: 'No habilitado',
+      pagoEstatus: 'En espera de contrato',
+      ultimoMovimiento: '13/03/2026 09:20',
+      datosFiscales: { rfc: 'MELU820505AB2', regimen: 'Sueldos y Salarios', usoCfdi: 'CN01', cuentaClabe: '012180009991234567' },
+      documentos: [
+        { nombre: 'Constancia de situación fiscal', estatus: 'Vigente', vencimiento: '10/2026' },
+        { nombre: 'Recibos de nómina (2)', estatus: 'Cargado' },
+        { nombre: 'Constancia laboral externa', estatus: 'Pendiente' },
+        { nombre: 'Carta firmada de ingresos', estatus: 'Pendiente' }
+      ],
+      correos: [
+        { fecha: '11/03/2026 08:40', asunto: 'Contrato disponible para firma', resultado: 'Entregado' },
+        { fecha: '12/03/2026 17:30', asunto: 'Recordatorio firma de contrato', resultado: 'Entregado' }
+      ],
+      contratos: [
+        { folio: 'CNT-2026-01058', modulo: 'Licenciatura', actividad: 'Docencia', monto: '$28,900', estatus: 'Enviado', firma: 'Pendiente' }
+      ]
+    },
+    {
+      id: 'PR-1045',
+      nombre: 'Mtra. Laura Neri',
+      tipoPago: 'Extranjero',
+      montoPeriodo: '$24,300',
+      alumnos: 24,
+      centroCosto: 'CC-ADM-02',
+      contratoEstatus: 'Firmado',
+      facturaEstatus: 'Factura extranjero pendiente',
+      pagoEstatus: 'En validación fiscal',
+      ultimoMovimiento: '13/03/2026 12:04',
+      datosFiscales: { rfc: 'XEXX010101000', regimen: 'Residente en el extranjero', usoCfdi: 'S01', cuentaClabe: 'No aplica (transferencia internacional)' },
+      documentos: [
+        { nombre: 'Pasaporte', estatus: 'Cargado' },
+        { nombre: 'Constancia de residencia fiscal', estatus: 'Vigente', vencimiento: '11/2026' },
+        { nombre: 'Contrato firmado', estatus: 'Cargado' },
+        { nombre: 'Factura del extranjero', estatus: 'Pendiente' }
+      ],
+      correos: [
+        { fecha: '09/03/2026 09:00', asunto: 'Contrato disponible para firma', resultado: 'Entregado' },
+        { fecha: '11/03/2026 19:12', asunto: 'Solicitud de factura extranjera', resultado: 'Entregado' }
+      ],
+      contratos: [
+        { folio: 'CNT-2026-01077', modulo: 'Doctorado', actividad: 'Docencia', monto: '$24,300', estatus: 'Firmado', firma: '11/03/2026' }
+      ]
+    }
+  ];
+
+  readonly pageMap: Record<string, { title: string; description: string }> = {
     '/': {
       title: 'Plataforma Pago a Honoristas',
       description: 'Accede a los módulos permitidos por tu rol y da seguimiento al proceso operativo.'
     },
     '/administracion/dashboard': {
       title: 'Dashboard de Administración',
-      description: 'Monitorea la carga de insumos, estatus de validación y preparación de información para pago.',
-      cta: 'Ir a insumo de pagos',
-      secondary: 'Ir a datos de profesores'
+      description: 'Monitorea la carga de insumos, estatus de validación y preparación de información para pago.'
     },
     '/administracion/insumo-pagos': {
       title: 'Carga de Insumo para Pago de Profesores',
-      description: 'Sube el archivo base con profesores a pagar, alumnos y centros de costo para validar estructura y disponibilidad.',
-      cta: 'Simular carga de insumo'
+      description: 'Sube el archivo base con profesores a pagar, alumnos y centros de costo para validar estructura y disponibilidad.'
     },
     '/administracion/insumo-profesores': {
       title: 'Carga de Insumo de Datos Personales y Contacto',
-      description: 'Sube el catálogo maestro de información personal y de contacto del profesor para completar expediente operativo.',
-      cta: 'Simular carga de catálogo'
+      description: 'Sube el catálogo maestro de información personal y de contacto del profesor para completar expediente operativo.'
     },
     '/administracion/reportes': {
       title: 'Reportes de Administración',
       description: 'Consulta evidencias de carga, incidencias detectadas y trazabilidad de insumos por periodo.'
+    },
+    '/finanzas/dashboard': {
+      title: 'Dashboard de Finanzas',
+      description: 'Seguimiento del estatus de contratos, facturación y pagos listos para dispersión por periodo.'
+    },
+    '/finanzas/profesores': {
+      title: 'Profesores para pago (vista Finanzas)',
+      description: 'Listado proveniente del insumo cargado por Administración para revisión de estatus y expediente.'
+    },
+    '/finanzas/contratos': {
+      title: 'Contratos y notificaciones',
+      description: 'Monitorea contratos enviados, firma del profesor y correos de confirmación.'
+    },
+    '/finanzas/seguimiento': {
+      title: 'Seguimiento de estatus de pago',
+      description: 'Controla el avance: contrato, requisitos fiscales, CFDI y estado de pago.'
     },
     '/settings': {
       title: 'Configuración',
@@ -115,14 +235,34 @@ export class DashboardShellComponent {
   readonly detallePagos = signal<Array<{ id: string; profesor: string; alumnos: number; centroCosto: string; monto: string; estatus: string }>>([]);
   readonly detalleProfesores = signal<Array<{ id: string; nombre: string; correo: string; telefono: string; rfc: string; estatus: string }>>([]);
 
-  readonly pageInfo = computed(() => this.pageMap[this.routePath()] ?? this.pageMap['/']);
+  readonly pageInfo = computed(() => {
+    const path = this.routePath();
+    if (path.startsWith('/finanzas/profesor/')) {
+      return {
+        title: 'Ficha detallada del profesor (Finanzas)',
+        description: 'Revisión integral de documentos, contratos, correos y estatus de pago del profesor.'
+      };
+    }
+    return this.pageMap[path] ?? this.pageMap['/'];
+  });
 
   readonly menuItems = computed(() => {
     const rol = this.rolActual();
     if (rol === 'administracion') {
       return this.menuAdministracion;
     }
+    if (rol === 'finanzas') {
+      return this.menuFinanzas;
+    }
     return [] as NavItem[];
+  });
+
+  readonly profesorDetalle = computed(() => {
+    const path = this.currentPath();
+    const match = path.match(/^\/finanzas\/profesor\/([^/]+)$/);
+    if (!match) return null;
+    const id = decodeURIComponent(match[1]);
+    return this.profesoresFinanzas.find((item) => item.id === id) ?? null;
   });
 
   constructor(private readonly router: Router) {
@@ -154,7 +294,12 @@ export class DashboardShellComponent {
     this.rolActual.set(usuario.rol);
     localStorage.setItem('honoristas-demo-session', JSON.stringify(usuario));
 
-    const destino = usuario.rol === 'administracion' ? '/administracion/dashboard' : '/';
+    const destino = usuario.rol === 'administracion'
+      ? '/administracion/dashboard'
+      : usuario.rol === 'finanzas'
+      ? '/finanzas/dashboard'
+      : '/';
+
     this.router.navigateByUrl(destino);
   }
 
@@ -231,9 +376,8 @@ export class DashboardShellComponent {
     }, 1200);
   }
 
-  irA(ruta: string): void {
-    if (!this.puedeVer(ruta)) return;
-    this.router.navigateByUrl(ruta);
+  verProfesorFinanzas(id: string): void {
+    this.router.navigateByUrl(`/finanzas/profesor/${id}`);
   }
 
   private normalizePath(url: string): string {
