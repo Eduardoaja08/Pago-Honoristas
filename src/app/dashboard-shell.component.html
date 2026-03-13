@@ -301,29 +301,19 @@
       <app-asignacion-academica></app-asignacion-academica>
       }
       @case ('/calculo-pagos') {
-      <div class="animate-fade-in">
-        <p class="text-muted-foreground">Módulo de Cálculo y Pagos - En construcción</p>
-      </div>
+      <app-calculo-pagos></app-calculo-pagos>
       }
       @case ('/cumplimiento-fiscal') {
-      <div class="animate-fade-in">
-        <p class="text-muted-foreground">Módulo de Cumplimiento Fiscal - En construcción</p>
-      </div>
+      <app-cumplimiento-fiscal></app-cumplimiento-fiscal>
       }
       @case ('/operacion-bancaria') {
-      <div class="animate-fade-in">
-        <p class="text-muted-foreground">Módulo de Operación Bancaria - En construcción</p>
-      </div>
+      <app-operacion-bancaria></app-operacion-bancaria>
       }
       @case ('/contabilidad-reportes') {
-      <div class="animate-fade-in">
-        <p class="text-muted-foreground">Módulo de Contabilidad y Reportes - En construcción</p>
-      </div>
+      <app-contabilidad-reportes></app-contabilidad-reportes>
       }
       @case ('/administracion') {
-      <div class="animate-fade-in">
-        <p class="text-muted-foreground">Módulo de Administración - En construcción</p>
-      </div>
+      <app-administracion></app-administracion>
       }
       @case ('/tasks') {
       <div class="animate-fade-in space-y-6">
@@ -398,7 +388,8 @@
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <article class="rounded-2xl border border-border bg-card p-6 lg:col-span-2">
             <div class="mb-4 grid grid-cols-7 gap-2">@for (d of ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']; track d){
-              <div class="py-2 text-center text-sm font-semibold text-muted-foreground">{{ d }}</div>}</div>
+              <div class="py-2 text-center text-sm font-semibold text-muted-foreground">{{ d }}</div>}
+            </div>
             <div class="grid grid-cols-7 gap-2">@for (day of daysInMonth; track day){<button
                 class="aspect-square rounded-lg text-sm font-medium transition hover:scale-110"
                 [ngClass]="day===17 ? 'bg-primary text-primary-foreground shadow-lg': 'text-foreground hover:bg-secondary'"

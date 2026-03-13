@@ -1,0 +1,211 @@
+<div class="space-y-6">
+    <!-- Navegación de Pestañas -->
+    <div class="flex border-b border-border">
+        <button (click)="setTab('reportes')"
+            [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'reportes' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+            Reportes e Indicadores
+        </button>
+        <button (click)="setTab('polizas')"
+            [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'polizas' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+            Cierre y Pólizas
+        </button>
+        <button (click)="setTab('auditoria')"
+            [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'auditoria' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+            Bitácora de Auditoría
+        </button>
+    </div>
+
+    <!-- Pestaña: Reportes e Indicadores -->
+    <div *ngIf="tab() === 'reportes'" class="animate-in fade-in duration-300 space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Panel de Configuración de Reporte -->
+            <div class="lg:col-span-1 space-y-4">
+                <div class="rounded-xl border border-border bg-card p-5 space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nuevo Reporte</h3>
+
+                    <div class="space-y-3">
+                        <div *ngFor="let tipo of tiposReporte" (click)="reporteSeleccionado.set(tipo.id)"
+                            [class]="'flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ' + (reporteSeleccionado() === tipo.id ? 'bg-primary/10 border-primary/50 border text-primary' : 'bg-muted/50 border border-transparent hover:bg-secondary')">
+                            <app-icon [name]="tipo.icon" [size]="18"></app-icon>
+                            <span class="text-xs font-medium">{{ tipo.label }}</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-border space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-muted-foreground uppercase mb-1">Formato de
+                                Salida</label>
+                            <select [(ngModel)]="parametros.formato"
+                                class="h-9 w-full rounded-lg border border-border bg-background px-3 text-xs focus:ring-2 focus:ring-primary/20">
+                                <option value="pdf">Documento PDF</option>
+                                <option value="excel">Libro de Excel (XLSX)</option>
+                                <option value="csv">Valores por Coma (CSV)</option>
+                            </select>
+                        </div>
+                        <app-button variant="default" class="w-full" (onClick)="ejecutarReporte()"
+                            [disabled]="generandoReporte()">
+                            {{ generandoReporte() ? 'Generando...' : 'Generar Reporte' }}
+                        </app-button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listado de Reportes Generados -->
+            <div class="lg:col-span-3 space-y-4">
+                <h3 class="text-lg font-semibold">Historial de Reportes del Periodo</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div *ngFor="let r of historialReportes()"
+                        class="rounded-xl border border-border bg-card p-4 hover:border-primary/50 transition-all group">
+                        <div class="flex justify-between items-start mb-3">
+                            <div
+                                class="h-10 w-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                <app-icon name="analytics" [size]="20"></app-icon>
+                            </div>
+                            <span class="text-[10px] text-muted-foreground">{{ r.fechaGeneracion | date:'short'
+                                }}</span>
+                        </div>
+                        <h4 class="font-bold text-sm mb-1">{{ r.nombre }}</h4>
+                        <p class="text-[10px] text-muted-foreground uppercase mb-4">Formato: {{ r.parametros.formato }}
+                        </p>
+
+                        <div class="flex gap-2">
+                            <button (click)="descargarReporte(r.id, r.parametros.formato)"
+                                class="flex-1 text-[11px] font-bold py-1.5 rounded bg-secondary hover:bg-primary hover:text-white transition-all">
+                                Descargar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div *ngIf="historialReportes().length === 0"
+                        class="col-span-full py-12 text-center border-2 border-dashed border-border rounded-xl bg-muted/20">
+                        <p class="text-muted-foreground italic text-sm">No has generado reportes todavía.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestaña: Cierre y Pólizas -->
+    <div *ngIf="tab() === 'polizas'" class="animate-in fade-in duration-300 space-y-6">
+        <div class="flex justify-between items-center bg-card p-6 rounded-2xl border border-border shadow-sm">
+            <div>
+                <h3 class="text-lg font-bold">Resumen de Cierre Mensual</h3>
+                <p class="text-sm text-muted-foreground">Periodo actual: <b>Noviembre 2024</b></p>
+            </div>
+            <div class="flex gap-4">
+                <div class="text-right">
+                    <p class="text-xs text-muted-foreground uppercase font-medium">Total de Egresos</p>
+                    <p class="text-xl font-black text-foreground">$1,248,350.00</p>
+                </div>
+                <div class="h-10 w-px bg-border mx-2"></div>
+                <app-button variant="default" (onClick)="generarNuevaPoliza()" [disabled]="generandoPoliza()">
+                    <app-icon name="settings" [size]="16" className="mr-2"></app-icon>
+                    {{ generandoPoliza() ? 'Generando Póliza...' : 'Generar Póliza Contable' }}
+                </app-button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div *ngFor="let p of polizas()" class="rounded-2xl border border-border bg-card p-6 space-y-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span
+                            class="px-2 py-1 rounded bg-slate-100 text-[10px] font-bold text-slate-600 uppercase mb-2 inline-block">Póliza
+                            de {{ p.tipo }}</span>
+                        <h4 class="text-lg font-bold">Folio: P-{{ p.id }}</h4>
+                        <p class="text-xs text-muted-foreground">Generada el {{ p.fechaGeneracion | date:'medium' }}</p>
+                    </div>
+                    <div
+                        [class]="'h-10 w-10 rounded-full flex items-center justify-center ' + (p.cuadre.cuadra ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600')">
+                        <app-icon [name]="p.cuadre.cuadra ? 'task' : 'help'" [size]="20"></app-icon>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div *ngFor="let part of p.partidas"
+                        class="flex justify-between items-center text-xs p-3 rounded-lg bg-muted/50 border border-border/50">
+                        <div>
+                            <p class="font-mono font-bold">{{ part.cuenta }}</p>
+                            <p class="text-muted-foreground">{{ part.concepto }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p *ngIf="part.debe > 0" class="text-emerald-700 font-bold">+ {{ part.debe | currency }}</p>
+                            <p *ngIf="part.haber > 0" class="text-red-700 font-bold">- {{ part.haber | currency }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-border flex justify-between items-center">
+                    <div class="text-xs">
+                        <span class="text-muted-foreground">Formato:</span>
+                        <span class="ml-1 font-bold text-primary">{{ p.formatoExportacion | uppercase }}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <app-button size="sm" variant="outline"
+                            (onClick)="exportarPoliza(p.id, 'excel')">Excel</app-button>
+                        <app-button size="sm" variant="outline" (onClick)="exportarPoliza(p.id, 'sap')">SAP /
+                            ERP</app-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestaña: Auditoría -->
+    <div *ngIf="tab() === 'auditoria'" class="animate-in fade-in duration-300 space-y-6">
+        <!-- Barra de Filtros de Auditoría -->
+        <div class="flex flex-col sm:flex-row gap-4 items-end bg-card p-5 rounded-xl border border-border">
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                <div>
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase mb-1">Usuario</label>
+                    <input type="text" [(ngModel)]="filtroAuditoria.usuario" placeholder="Ej. admin"
+                        class="h-9 w-full rounded-lg border border-border bg-background px-3 text-xs">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase mb-1">Acción</label>
+                    <select [(ngModel)]="filtroAuditoria.tipoAccion"
+                        class="h-9 w-full rounded-lg border border-border bg-background px-3 text-xs">
+                        <option value="">Todas las acciones</option>
+                        <option value="LOGIN">Acceso al Sistema</option>
+                        <option value="CALCULO">Motor de Cálculo</option>
+                        <option value="PAGO">Gestión de Pagos</option>
+                    </select>
+                </div>
+                <div class="flex items-end gap-2">
+                    <app-button variant="outline" class="flex-1" (onClick)="filtrarAuditoria()">Filtrar</app-button>
+                    <app-button variant="ghost" (onClick)="exportarAuditoria()">
+                        <app-icon name="download" [size]="16"></app-icon>
+                    </app-button>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+            <table class="min-w-full divide-y divide-border text-sm">
+                <thead class="bg-muted/50 font-semibold text-muted-foreground uppercase text-[10px]">
+                    <tr>
+                        <th class="px-6 py-3 text-left">Fecha / Hora</th>
+                        <th class="px-6 py-3 text-left">Usuario</th>
+                        <th class="px-6 py-3 text-left">Acción</th>
+                        <th class="px-6 py-3 text-left">Referencia</th>
+                        <th class="px-6 py-3 text-left">Detalles</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border font-mono text-[11px]">
+                    <tr *ngFor="let l of logs()" class="hover:bg-muted/20 transition-colors">
+                        <td class="px-6 py-3 text-muted-foreground whitespace-nowrap">{{ l.fecha | date:'short' }}</td>
+                        <td class="px-6 py-3 font-bold text-primary">{{ l.usuario }}</td>
+                        <td class="px-6 py-3">
+                            <span
+                                class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-600 font-bold">
+                                {{ l.tipoAccion }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-3 text-muted-foreground">{{ l.entidad }}: {{ l.entidadId || 'N/A' }}</td>
+                        <td class="px-6 py-3 text-foreground">{{ l.detalles }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

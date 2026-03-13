@@ -9,7 +9,67 @@ export class ContabilidadService {
   private polizas = signal<PolizaContable[]>([]);
   private logsAuditoria = signal<LogAuditoria[]>([]);
 
-  constructor() {}
+  constructor() {
+    this.sembrarDatosDummy();
+  }
+
+  private sembrarDatosDummy(): void {
+    // Sembrar Reportes Históricos
+    this.reportes.set([
+      {
+        id: 'RPT-1001',
+        nombre: 'Retenciones ISR - Octubre 2024',
+        tipo: 'impuestos',
+        parametros: { formato: 'pdf' },
+        fechaGeneracion: new Date('2024-10-31T23:59:00'),
+        datos: {}
+      },
+      {
+        id: 'RPT-1002',
+        nombre: 'Nómina Honorarios - Septiembre 2024',
+        tipo: 'pago_profesor',
+        parametros: { formato: 'excel' },
+        fechaGeneracion: new Date('2024-09-28T14:20:00'),
+        datos: {}
+      }
+    ]);
+
+    // Sembrar Pólizas
+    this.polizas.set([
+      {
+        id: 9901,
+        periodo: '2024-09',
+        fechaGeneracion: new Date('2024-09-30'),
+        tipo: 'egresos',
+        partidas: [
+          { cuenta: '401.01', concepto: 'Honorarios Licenciatura', debe: 0, haber: 1850000, referencia: 'CC-GEN' },
+          { cuenta: '102.01', concepto: 'Bancos Nacionales', debe: 1850000, haber: 0, referencia: 'CC-GEN' }
+        ],
+        cuadre: { totalDebe: 1850000, totalHaber: 1850000, diferencia: 0, cuadra: true },
+        formatoExportacion: 'sap'
+      },
+      {
+        id: 9902,
+        periodo: '2024-10',
+        fechaGeneracion: new Date('2024-10-30'),
+        tipo: 'egresos',
+        partidas: [
+          { cuenta: '401.02', concepto: 'Honorarios Posgrado', debe: 0, haber: 650000, referencia: 'CC-POS' },
+          { cuenta: '102.01', concepto: 'Bancos Nacionales', debe: 650000, haber: 0, referencia: 'CC-POS' }
+        ],
+        cuadre: { totalDebe: 650000, totalHaber: 650000, diferencia: 0, cuadra: true },
+        formatoExportacion: 'excel'
+      }
+    ]);
+
+    // Sembrar Logs de Auditoría
+    this.logsAuditoria.set([
+      { id: 1, usuario: 'system.bot', fecha: new Date('2024-11-20T08:00:00'), tipoAccion: 'SYNC', entidad: 'BANNER', entidadId: 0, detalles: 'Sincronización de 1,200 asignaciones académicas completada.' },
+      { id: 2, usuario: 'lupita.finanzas', fecha: new Date('2024-11-20T10:15:00'), tipoAccion: 'PAGOS', entidad: 'PAGO', entidadId: 442, detalles: 'Pago de $12,500 autorizado para Dr. García.' },
+      { id: 3, usuario: 'admin.contable', fecha: new Date('2024-11-21T09:30:00'), tipoAccion: 'POLIZA', entidad: 'CIERRE', entidadId: 202410, detalles: 'Exportación de póliza de octubre a formato SAP.' },
+      { id: 4, usuario: 'juan.fiscal', fecha: new Date('2024-11-22T13:00:00'), tipoAccion: 'CFDI', entidad: 'PAGO', entidadId: 501, detalles: 'Cancelación de CFDI por error en RFC del receptor.' }
+    ]);
+  }
 
   generarReporte(tipo: Reporte['tipo'], parametros: ParametrosReporte): Promise<Reporte> {
     return new Promise((resolve) => {

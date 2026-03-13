@@ -48,6 +48,7 @@ import { Component, Input } from '@angular/core';
         <ng-container *ngSwitchCase="'play'"><path d="M8 5v14l11-7z"></path></ng-container>
         <ng-container *ngSwitchCase="'pause'"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></ng-container>
         <ng-container *ngSwitchCase="'square'"><rect width="14" height="14" x="5" y="5" rx="2"></rect></ng-container>
+        <ng-container *ngSwitchCase="'download'"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></ng-container>
         <ng-container *ngSwitchCase="'trendDown'"><path d="m22 17-8.5-8.5-5 5L2 7"></path><path d="M16 17h6v-6"></path></ng-container>
         <ng-container *ngSwitchDefault><circle cx="12" cy="12" r="10"></circle></ng-container>
       </ng-container>

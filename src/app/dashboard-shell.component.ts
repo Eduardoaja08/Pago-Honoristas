@@ -3,13 +3,18 @@ import { Component, computed, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { IconComponent } from './icon.component';
-import { PeriodoSelectorComponent } from './shared/periodo-selector/periodo-selector.component';
+// import { PeriodoSelectorComponent } from './shared/periodo-selector/periodo-selector.component';
 import { BusquedaGlobalComponent } from './shared/busqueda-global/busqueda-global.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { ProfesoresListComponent } from './modules/profesores/profesores-list.component';
 import { ProfesorDetailComponent } from './modules/profesores/profesor-detail.component';
 import { ProfesorWizardComponent } from './modules/profesores/profesor-wizard.component';
 import { AsignacionAcademicaComponent } from './modules/asignacion-academica/asignacion-academica.component';
+import { OperacionBancariaComponent } from './modules/operacion-bancaria/operacion-bancaria.component';
+import { CalculoPagosComponent } from './modules/calculo-pagos/calculo-pagos.component';
+import { CumplimientoFiscalComponent } from './modules/cumplimiento-fiscal/cumplimiento-fiscal.component';
+import { ContabilidadReportesComponent } from './modules/contabilidad-reportes/contabilidad-reportes.component';
+import { AdministracionComponent } from './modules/administracion/administracion.component';
 
 interface NavItem {
   icon: string;
@@ -26,13 +31,18 @@ interface NavItem {
     RouterLink,
     RouterLinkActive,
     IconComponent,
-    PeriodoSelectorComponent,
+    // PeriodoSelectorComponent,
     BusquedaGlobalComponent,
     DashboardComponent,
     ProfesoresListComponent,
     ProfesorDetailComponent,
     ProfesorWizardComponent,
-    AsignacionAcademicaComponent
+    AsignacionAcademicaComponent,
+    OperacionBancariaComponent,
+    CalculoPagosComponent,
+    CumplimientoFiscalComponent,
+    ContabilidadReportesComponent,
+    AdministracionComponent
   ],
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss'
@@ -105,9 +115,39 @@ export class DashboardShellComponent {
       title: 'Editar profesor',
       description: 'Modifica los datos del profesor.'
     },
+    '/operacion-bancaria': {
+      title: 'Operación Bancaria',
+      description: 'Gestión de cuentas bancarias, generación de layouts para dispersión y conciliación con el banco.',
+      cta: 'Generar dispersión',
+      secondary: 'Conciliar archivo'
+    },
     '/asignacion-academica': {
       title: 'Asignación Académica',
       description: 'Carga, mapa de asignaciones, consolidación y historial de versiones de insumo.'
+    },
+    '/calculo-pagos': {
+      title: 'Cálculo y Pagos',
+      description: 'Motor de cálculo para procesar pagos ordinarios y extraordinarios.',
+      cta: 'Ejecutar cálculo',
+      secondary: 'Ver bandeja'
+    },
+    '/cumplimiento-fiscal': {
+      title: 'Cumplimiento Fiscal',
+      description: 'Gestión de requisitos fiscales, contratos y timbrado de CFDIs.',
+      cta: 'Validación masiva',
+      secondary: 'Timbrar seleccionados'
+    },
+    '/contabilidad-reportes': {
+      title: 'Contabilidad y Reportes',
+      description: 'Cierre mensual, generación de pólizas contables y reportes ejecutivos.',
+      cta: 'Generar reporte',
+      secondary: 'Cerrar periodo'
+    },
+    '/administracion': {
+      title: 'Administración y Configuración',
+      description: 'Gestión de usuarios, roles, catálogos maestros y reglas de negocio del sistema.',
+      cta: '+ Agregar usuario',
+      secondary: 'Configurar ERP'
     },
     '/tasks': {
       title: 'Flujos operativos',

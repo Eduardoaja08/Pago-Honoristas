@@ -1,0 +1,353 @@
+<div class="space-y-6">
+    <!-- Tabs Navigation Principal -->
+    <div class="flex border-b border-border">
+        <button (click)="setTab('procesamiento')"
+            [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'procesamiento' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+            Procesamiento de Cálculo
+        </button>
+        <button (click)="setTab('bandeja')"
+            [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'bandeja' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+            Bandeja de Pagos
+        </button>
+    </div>
+
+    <!-- Tab Content: Procesamiento de Cálculo -->
+    <div *ngIf="tab() === 'procesamiento'" class="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Panel de Control de Cálculo -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold mb-4">Ejecutar Motor de Cálculo</h3>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-muted-foreground mb-1">Versión de Insumo
+                                Base</label>
+                            <select [(ngModel)]="versionSeleccionadaId"
+                                class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                <option [ngValue]="null">Seleccione una versión...</option>
+                                <option *ngFor="let v of versionesInsumo()" [ngValue]="v.id">
+                                    {{ v.nombre }} ({{ v.fechaCreacion | date:'shortDate' }})
+                                </option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <app-button variant="default" (onClick)="ejecutarCalculo()"
+                                [disabled]="!versionSeleccionadaId() || procesoEjecutandose() !== null">
+                                <span class="flex items-center gap-2">
+                                    <app-icon name="analytics" [size]="16"></app-icon>
+                                    Calcular Pagos
+                                </span>
+                            </app-button>
+                        </div>
+                    </div>
+
+                    <!-- Estado del Proceso Actual -->
+                    <div *ngIf="procesoEjecutandose()" class="mt-8 space-y-4 animate-in fade-in duration-300">
+                        <div class="flex justify-between items-end mb-1">
+                            <div>
+                                <p class="text-sm font-semibold">Procesando cálculo...</p>
+                                <p class="text-xs text-muted-foreground">Version: {{ versionesInsumo()[0]?.nombre }}</p>
+                            </div>
+                            <span class="text-sm font-bold text-primary">{{ procesoEjecutandose()?.progreso }}%</span>
+                        </div>
+                        <div class="h-2.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div class="h-full bg-primary transition-all duration-300"
+                                [style.width.%]="procesoEjecutandose()?.progreso"></div>
+                        </div>
+                        <div
+                            class="rounded-lg bg-slate-950 p-4 font-mono text-[10px] text-emerald-400 h-32 overflow-y-auto space-y-1">
+                            <p *ngFor="let log of procesoEjecutandose()?.log">{{ log }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de Último Proceso -->
+                <div *ngIf="historialProcesos().length > 0 && !procesoEjecutandose()"
+                    class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="rounded-xl border border-border bg-card p-4">
+                        <p class="text-xs text-muted-foreground uppercase font-medium">Total Calculado</p>
+                        <p class="text-2xl font-bold">{{ historialProcesos()[0].montoTotal | currency }}</p>
+                    </div>
+                    <div class="rounded-xl border border-border bg-card p-4">
+                        <p class="text-xs text-muted-foreground uppercase font-medium">Profesores Impactados</p>
+                        <p class="text-2xl font-bold">{{ historialProcesos()[0].profesoresImpactados }}</p>
+                    </div>
+                    <div class="rounded-xl border border-border bg-card p-4">
+                        <p class="text-xs text-muted-foreground uppercase font-medium">Pagos Generados</p>
+                        <p class="text-2xl font-bold">{{ historialProcesos()[0].totalPagos }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historial de Ejecuciones -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold">Historial de Ejecuciones</h3>
+                <div class="space-y-3">
+                    <div *ngFor="let p of historialProcesos()"
+                        class="rounded-xl border border-border bg-card p-4 hover:border-primary/50 transition-colors">
+                        <div class="flex justify-between items-start mb-2">
+                            <span
+                                [class]="'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ' + 
+                                (p.estatus === 'completado' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700')">
+                                {{ p.estatus }}
+                            </span>
+                            <span class="text-[10px] text-muted-foreground">{{ p.fechaInicio | date:'medium' }}</span>
+                        </div>
+                        <p class="text-sm font-medium mb-1">Monto: {{ p.montoTotal | currency }}</p>
+                        <div class="flex justify-between text-[11px] text-muted-foreground">
+                            <span>{{ p.totalPagos }} pagos</span>
+                            <span>{{ p.profesoresImpactados }} profesores</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content: Bandeja de Pagos -->
+    <div *ngIf="tab() === 'bandeja'" class="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-4">
+        <!-- Sub-Tabs de Filtrado por Estatus -->
+        <div class="flex gap-2">
+            <button (click)="setSubTab('pendientes')"
+                [class]="'px-4 py-2 rounded-lg text-xs font-medium transition-all ' + 
+                (subTabBandeja() === 'pendientes' ? 'bg-primary text-primary-foreground shadow-md' : 'bg-card border border-border text-muted-foreground hover:bg-secondary')">
+                Pendientes de Revisión
+            </button>
+            <button (click)="setSubTab('observados')"
+                [class]="'px-4 py-2 rounded-lg text-xs font-medium transition-all ' + 
+                (subTabBandeja() === 'observados' ? 'bg-amber-100 text-amber-700 border border-amber-200 shadow-sm' : 'bg-card border border-border text-muted-foreground hover:bg-secondary')">
+                Observados
+            </button>
+            <button (click)="setSubTab('validados')"
+                [class]="'px-4 py-2 rounded-lg text-xs font-medium transition-all ' + 
+                (subTabBandeja() === 'validados' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm' : 'bg-card border border-border text-muted-foreground hover:bg-secondary')">
+                Validados
+            </button>
+        </div>
+
+        <!-- Barra de Filtros y Acciones -->
+        <div
+            class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-muted/30 p-4 rounded-xl border border-border">
+            <div class="flex gap-3 items-center flex-1 w-full">
+                <div class="relative flex-1 max-w-sm">
+                    <app-icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        [size]="16"></app-icon>
+                    <input type="text" placeholder="Buscar por profesor..."
+                        class="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                </div>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+                <app-button *ngIf="subTabBandeja() === 'pendientes'" variant="default"
+                    (onClick)="validarSeleccionados()" [disabled]="pagosSeleccionadosIds().size === 0">
+                    Validar Selección ({{ pagosSeleccionadosIds().size }})
+                </app-button>
+                <app-button variant="outline" (onClick)="generarFormatoPago()">
+                    <app-icon name="download" [size]="14" className="mr-1"></app-icon>
+                    Formato Pago
+                </app-button>
+            </div>
+        </div>
+
+        <!-- Tabla de Pagos -->
+        <div class="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+            <table class="min-w-full divide-y divide-border text-sm">
+                <thead class="bg-muted/50 font-semibold text-muted-foreground uppercase text-[10px] tracking-wider">
+                    <tr>
+                        <th class="px-4 py-3 text-left w-10">
+                            <input type="checkbox" (change)="seleccionarTodos()"
+                                [checked]="pagosSeleccionadosIds().size === pagos().length && pagos().length > 0"
+                                class="rounded border-border text-primary focus:ring-primary">
+                        </th>
+                        <th class="px-4 py-3 text-left">Folio / Fecha</th>
+                        <th class="px-4 py-3 text-left">Profesor</th>
+                        <th class="px-4 py-3 text-right">Importe</th>
+                        <th class="px-4 py-3 text-center">Estatus</th>
+                        <th class="px-4 py-3 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    <tr *ngFor="let p of pagos()" class="hover:bg-muted/20 transition-colors">
+                        <td class="px-4 py-3">
+                            <input type="checkbox" [checked]="pagosSeleccionadosIds().has(p.id)"
+                                (change)="toggleSeleccion(p.id)"
+                                class="rounded border-border text-primary focus:ring-primary">
+                        </td>
+                        <td class="px-4 py-3">
+                            <p class="font-mono text-xs">{{ p.folio }}</p>
+                            <p class="text-[10px] text-muted-foreground">{{ p.fechaCalculo | date:'shortDate' }}</p>
+                        </td>
+                        <td class="px-4 py-3">
+                            <p class="font-medium">{{ getNombreProfesor(p.profesorId) }}</p>
+                            <p class="text-[10px] text-muted-foreground">{{ p.formaPago | titlecase }}</p>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <p class="font-bold text-foreground">{{ p.montoTotal | currency }}</p>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span
+                                [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ' + 
+                                (p.estatus === 'validado' ? 'bg-emerald-100 text-emerald-700' : 
+                                 p.estatus === 'observado' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600')">
+                                {{ p.estatus.replace('_', ' ') }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-right space-x-1">
+                            <button (click)="verDetalle(p)"
+                                class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground transition-colors"
+                                title="Ver Detalle">
+                                <app-icon name="upRight" [size]="14"></app-icon>
+                            </button>
+                            <button *ngIf="p.estatus !== 'validado'" (click)="recalcular(p.id)"
+                                class="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground transition-colors"
+                                title="Recalcular">
+                                <app-icon name="analytics" [size]="14"></app-icon>
+                            </button>
+                            <button *ngIf="p.estatus === 'calculado'" (click)="observarPago(p.id)"
+                                class="p-1.5 rounded-lg hover:bg-secondary text-amber-600 transition-colors"
+                                title="Observar / Reportar">
+                                <app-icon name="plus" [size]="14" className="rotate-45"></app-icon>
+                            </button>
+                            <button *ngIf="p.estatus === 'calculado'" (click)="abrirEdicionExtraordinaria(p)"
+                                class="p-1.5 rounded-lg hover:bg-secondary text-blue-600 transition-colors"
+                                title="Edición Extraordinaria">
+                                <app-icon name="settings" [size]="14"></app-icon>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="pagos().length === 0">
+                        <td colspan="6" class="px-4 py-12 text-center text-muted-foreground italic">
+                            No hay pagos en esta categoría.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal: Detalle de Pago -->
+    <div *ngIf="mostrandoDetalle()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div
+            class="w-full max-w-3xl rounded-3xl border border-border bg-card shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
+            <div class="p-6 border-b border-border bg-muted/30 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold">Detalle del Pago {{ pagoSeleccionado()?.folio }}</h3>
+                    <p class="text-sm text-muted-foreground" *ngIf="pagoSeleccionado()">
+                        Profesor: {{ getNombreProfesor(pagoSeleccionado()!.profesorId) }}
+                    </p>
+                </div>
+                <button (click)="mostrandoDetalle.set(false)"
+                    class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-secondary transition-colors">
+                    <app-icon name="plus" [size]="24" className="rotate-45"></app-icon>
+                </button>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Desglose Financiero -->
+                <div class="space-y-4">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Desglose del Cálculo
+                    </h4>
+                    <div class="space-y-3 rounded-2xl bg-muted/30 p-5">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-muted-foreground">Tarifa Base</span>
+                            <span class="font-medium text-foreground">{{ pagoSeleccionado()?.desglose?.tarifaBase |
+                                currency }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-emerald-600 font-medium">Incentivos / Extras</span>
+                            <span class="font-medium text-emerald-600">+ {{ pagoSeleccionado()?.desglose?.incentivos |
+                                currency }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-red-500 font-medium">Deducciones</span>
+                            <span class="font-medium text-red-500">- {{ pagoSeleccionado()?.desglose?.deducciones |
+                                currency }}</span>
+                        </div>
+                        <div class="pt-3 border-t border-border flex justify-between items-center">
+                            <span class="text-base font-bold">Pago Neto</span>
+                            <span class="text-xl font-bold text-primary">{{ pagoSeleccionado()?.desglose?.montoNeto |
+                                currency }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalles y Estatus -->
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Información
+                            Adicional</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-[10px] text-muted-foreground uppercase">Forma de Pago</p>
+                                <p class="font-medium">{{ pagoSeleccionado()?.formaPago | titlecase }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-muted-foreground uppercase">Estatus Actual</p>
+                                <p class="font-medium capitalize">{{ pagoSeleccionado()?.estatus?.replace('_', ' ') }}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-muted-foreground uppercase">Fecha Cálculo</p>
+                                <p class="font-medium">{{ pagoSeleccionado()?.fechaCalculo | date:'short' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Asignaciones
+                            Vinculadas</h4>
+                        <div class="space-y-2">
+                            <div
+                                class="text-xs p-2 rounded-lg border border-border bg-background flex justify-between items-center">
+                                <span>Cálculo I (CRN: 12345)</span>
+                                <span class="font-mono text-[10px] px-1.5 py-0.5 bg-muted rounded">32 Alumnos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 bg-muted/10 border-t border-border flex justify-end gap-3">
+                <app-button variant="outline" (onClick)="mostrandoDetalle.set(false)">Cerrar</app-button>
+                <app-button variant="default" (onClick)="mostrandoDetalle.set(false)">Descargar PDF</app-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edición Extraordinaria -->
+    <div *ngIf="mostrandoEdicionExtraordinaria()"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div
+            class="w-full max-w-md rounded-2xl border border-border bg-card shadow-2xl animate-in zoom-in-95 duration-200">
+            <div class="p-5 border-b border-border">
+                <h3 class="text-lg font-bold">Edición de Pago Extraordinario</h3>
+                <p class="text-xs text-muted-foreground">Ajuste manual del monto calculado.</p>
+            </div>
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-muted-foreground mb-1">Nuevo Monto Total</label>
+                    <input type="number" [(ngModel)]="montoEditado"
+                        class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-muted-foreground mb-1">Justificación
+                        (Obligatoria)</label>
+                    <textarea [(ngModel)]="justificacionEdicion" rows="3"
+                        class="w-full rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        placeholder="Describa el motivo del ajuste..."></textarea>
+                </div>
+                <div class="rounded-lg bg-amber-50 p-3 border border-amber-100 flex gap-2">
+                    <app-icon name="help" [size]="16" className="text-amber-600 mt-0.5"></app-icon>
+                    <p class="text-[11px] text-amber-700">Esta acción cambiará el estatus a "En revisión" y requerirá
+                        una validación adicional.</p>
+                </div>
+            </div>
+            <div class="p-5 border-t border-border flex justify-end gap-3">
+                <app-button variant="ghost" (onClick)="mostrandoEdicionExtraordinaria.set(false)">Cancelar</app-button>
+                <app-button variant="default" (onClick)="guardarEdicionExtraordinaria()"
+                    [disabled]="!justificacionEdicion.trim()">
+                    Guardar y Enviar
+                </app-button>
+            </div>
+        </div>
+    </div>
+</div>

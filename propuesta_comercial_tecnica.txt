@@ -1,0 +1,203 @@
+Plataforma Integral de Pago a Profesores Honoristas
+
+1. RESUMEN EJECUTIVO
+El proceso de pago a profesores honoristas de la Universidad Anáhuac es un proceso crítico que involucra múltiples áreas académicas, administrativas, financieras y fiscales. Actualmente, dicho proceso se encuentra correctamente definido a nivel operativo, pero su ejecución depende de una alta interacción manual, uso intensivo de archivos Excel, validaciones distribuidas y sistemas no integrados.
+Esta situación genera riesgos operativos, reprocesos, dependencia de personas clave, baja trazabilidad end‑to‑end y exposición ante auditorías fiscales y financieras.
+Redsoft Consulting propone el diseño e implementación de una Plataforma Integral de Pago a Profesores Honoristas, que digitaliza y orquesta el proceso completo, respetando la operación actual, pero soportándola en una solución tecnológica única, segura y escalable.
+Beneficios estratégicos:
+●	Reducción significativa de carga operativa y errores manuales.
+●	Trazabilidad total del proceso, desde la asignación académica hasta el cierre contable.
+●	Cumplimiento fiscal y legal (CFDI, contratos, impuestos).
+●	Mejor experiencia para profesores y áreas internas.
+●	Plataforma preparada para crecimiento institucional.
+
+2. ALCANCE DEL PROYECTO
+Incluye
+●	Digitalización completa del proceso de pago a honoristas
+●	Plataforma web centralizada
+●	Automatización de flujos de validación y aprobación
+●	Gestión documental y fiscal
+●	Integración con sistemas institucionales existentes (Banner, LMS, SERUA, banca)
+●	Reportería operativa, financiera y contable
+●	Capacitación y documentación
+Exclusiones y Consideraciones de Integración
+●	La presente propuesta considera la integración con los sistemas institucionales de la Universidad Anáhuac (tales como Banner, LMS, SERUA, sistemas bancarios u otros) únicamente en la medida en que dichos sistemas permitan su consumo mediante interfaces, servicios, APIs o mecanismos de intercambio de información autorizados por las áreas responsables de la Universidad.
+
+●	En caso de que, por políticas internas, restricciones de seguridad, limitaciones técnicas o decisiones institucionales, no sea posible establecer la integración con alguno de los sistemas contemplados, Redsoft Consulting no será responsable por retrasos, ajustes de alcance o limitaciones funcionales derivadas de dicha restricción.
+
+●	Cualquier escenario en el que se requieran mecanismos alternos de integración (procesos manuales, cargas intermedias, archivos planos, layouts específicos o desarrollos adicionales) será evaluado y cotizado de manera independiente, previa autorización por parte de la Universidad.
+
+●	La disponibilidad de ambientes, accesos, credenciales, documentación técnica y acompañamiento por parte de las áreas responsables de los sistemas origen o destino será considerada un prerrequisito para la correcta ejecución del proyecto.
+
+●	La propuesta no contempla desarrollos que impliquen la modificación del código fuente, configuración interna o arquitectura de los sistemas institucionales de la Universidad Anáhuac.
+
+3. OBJETIVOS DEL PROYECTO
+1.	Incrementar la eficiencia operativa del proceso de pagos
+2.	Garantizar trazabilidad y control end‑to‑end
+3.	Reducir riesgos fiscales y financieros
+4.	Centralizar información académica, financiera y fiscal
+5.	Facilitar el cierre contable mensual y auditorías
+
+4. DISEÑO DE LA SOLUCIÓN
+La solución se basa en una arquitectura modular, donde cada módulo corresponde directamente a una etapa del proceso actual, permitiendo una adopción natural por parte de los usuarios.
+Diagrama Conceptual (Alto Nivel)
+Asignación Académica
+ │
+Gestión de Profesores
+  │
+Motor de Pagos y Validaciones
+  │
+CFDI y Contratos
+ │
+Pagos Bancarios
+ │
+Contabilidad y Cierre
+
+Infraestructura
+●	Plataforma desplegada en AWS (infraestructura Anáhuac)
+●	Backend Java / API REST
+●	Base de datos MySQL (RDS)
+●	Seguridad:
+○	Cifrado AES‑256
+○	Control de accesos por rol
+○	Bitácora de auditoría
+
+5. MÓDULOS DEL SISTEMA
+A continuación se describe el detalle funcional de cada módulo a construir, alineado al proceso operativo actual de la Universidad Anáhuac y enfocado en control, trazabilidad y automatización.
+Módulo 1 – Gestión Integral de Profesores y Honoristas
+Objetivo del módulo:
+Centralizar y gobernar toda la información del profesor honorista desde su incorporación hasta su historial de pagos.
+Funcionalidad detallada:
+●	Alta y administración de profesores honoristas.
+●	Captura de datos personales, fiscales y de contacto.
+●	Identificador único institucional del honorista.
+●	Gestión de estatus del profesor:
+○	Postulado
+○	Información incompleta
+○	Validado
+○	Autorizado para pago
+●	Validaciones automáticas de campos obligatorios.
+●	Notificaciones al profesor para actualización de información.
+●	Histórico de cambios de información.
+Áreas impactadas: Académica, Finanzas, RH, TI
+Valor generado: Base única confiable, reducción de reprocesos y errores aguas abajo.
+
+Módulo 2 – Planeación y Asignación Académica
+Objetivo del módulo:
+Asegurar que la asignación académica sea la base correcta para el cálculo y pago de honorarios.
+Funcionalidad detallada:
+●	Gestión de periodos académicos y arranques.
+●	Administración de materias y CRN.
+●	Asignación de profesores titulares y tutores.
+●	Registro del número de alumnos por materia.
+●	Clasificación del tipo de profesor (titular / tutor).
+●	Integración con Banner y LMS.
+●	Control de estatus de asignación.
+Áreas impactadas: Académica, Planeación, TI
+Valor generado: Coherencia académica-financiera y reducción de incidencias en pagos.
+
+Módulo 3 – Consolidación y Validación de Datos Académicos
+Objetivo del módulo:
+Eliminar el uso de Excel como eje del proceso y asegurar información académica consistente.
+Funcionalidad detallada:
+●	Consolidación automática de:
+○	CRN
+○	Materias
+○	Programas
+○	Número de alumnos
+●	Validación de duplicidades.
+●	Control de versiones de información.
+●	Generación estructurada del insumo base de pago.
+●	Trazabilidad del origen de la información.
+Áreas impactadas: Académica, Finanzas
+Valor generado: Datos confiables y trazables para cálculo de pagos.
+
+Módulo 4 – Motor de Cálculo y Formato de Pago
+Objetivo del módulo:
+Automatizar el cálculo de pagos a profesores conforme a reglas institucionales.
+Funcionalidad detallada:
+●	Validación de CRN y profesor autorizado.
+●	Cálculo de pagos:
+○	Ordinarios
+○	Extraordinarios
+●	Clasificación de pagos por:
+○	Razón social
+○	Centro de costos
+○	Programa
+●	Conciliación académica vs financiera.
+●	Generación del formato de pago digital.
+●	Control de estatus del pago.
+Áreas impactadas: Finanzas, Académica
+Valor generado: Pagos consistentes, auditables y estandarizados.
+
+Módulo 5 – Alta, Validación Fiscal y Cumplimiento
+Objetivo del módulo:
+Garantizar que todo pago cumpla requisitos fiscales antes de ser procesado.
+Funcionalidad detallada:
+●	Validación de régimen fiscal del honorista.
+●	Gestión de formularios fiscales.
+●	Control de autorizaciones institucionales.
+●	Validación de requisitos obligatorios para pago.
+●	Integración con sistemas de registro fiscal.
+Áreas impactadas: Finanzas, Fiscal, Legal
+Valor generado: Reducción de riesgos fiscales y rechazos de CFDI.
+
+Módulo 6 – Gestión de Contratos, CFDI e Impuestos
+Objetivo del módulo:
+Digitalizar y controlar todo el ciclo contractual y fiscal del pago.
+Funcionalidad detallada:
+●	Publicación y administración de contratos digitales.
+●	Control de firmas y versiones de contrato.
+●	Carga y validación de CFDI.
+●	Registro de folios fiscales vigentes.
+●	Control de impuestos asociados al pago.
+●	Validación de vigencia y forma de pago.
+Áreas impactadas: Legal, Finanzas, Fiscal
+Valor generado: Expediente digital completo y cumplimiento normativo.
+
+Módulo 7 – Pagos Bancarios y Ejecución
+Objetivo del módulo:
+Ejecutar pagos de forma segura, controlada y trazable.
+Funcionalidad detallada:
+●	Validación de datos bancarios.
+●	Generación de layouts bancarios.
+●	Carga masiva o manual de pagos.
+●	Autorización de altas de cuentas.
+●	Liberación de pagos.
+●	Identificación de pagos aplicados, rechazados o rebotados.
+Áreas impactadas: Finanzas, Tesorería
+Valor generado: Pagos oportunos y reducción de incidencias bancarias.
+
+Módulo 8 – Cierre Contable, Reportes y Auditoría
+Objetivo del módulo:
+Facilitar el cierre mensual y atender auditorías internas y externas.
+Funcionalidad detallada:
+●	Control de cierre mensual del sistema.
+●	Generación de pólizas contables.
+●	Timbrado de asimilados.
+●	Reportes operativos, financieros y fiscales.
+●	Bitácora de auditoría completa del proceso.
+Áreas impactadas: Contabilidad, Finanzas, Auditoría
+Valor generado: Cierre ordenado, información lista para auditoría.
+6. ENTREGABLES
+1.	Plataforma web funcional / Módulos implementados
+2.	Documentación técnica y funcional
+3.	Manuales de usuario
+4.	Capacitación
+5.	Soporte post‑implementación
+7. EQUIPO DE TRABAJO
+●	Líder de Proyecto
+●	Arquitecto / Desarrollador Sr
+●	Desarrollador Jr
+●	Analista Funcional
+●	Documentador
+8. CRONOGRAMA 
+El proyecto se ejecutará en un periodo total de 5 meses (20 semanas), asegurando una implementación controlada y de alta calidad.
+
+
+
+
+9. INVERSIÓN Y CONDICIONES COMERCIALES
+
+Esperando contar con su aprobación me reitero a sus órdenes para cualquier aclaración o comentario.
+Siguiente paso: aprobación de la propuesta y agendamiento de sesión de Kickoff.

@@ -46,7 +46,7 @@ export class AsignacionAcademicaComponent implements OnInit {
 
   archivoInput: HTMLInputElement | null = null;
 
-  constructor(private readonly asignacionService: AsignacionService) {}
+  constructor(private readonly asignacionService: AsignacionService) { }
 
   ngOnInit(): void {
     this.sincronizaciones = this.asignacionService.obtenerSincronizaciones();

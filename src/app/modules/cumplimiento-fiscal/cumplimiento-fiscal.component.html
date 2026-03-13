@@ -1,0 +1,256 @@
+<div class="space-y-6">
+    <!-- Tabs Navigation -->
+    <div class="flex border-b border-border">
+        <button (click)="setTab('validacion')"
+            [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'validacion' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+            Validación de Cumplimiento
+        </button>
+        <button (click)="setTab('contratos')"
+            [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'contratos' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+            Contratos Digitales
+        </button>
+        <button (click)="setTab('cfdi')"
+            [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'cfdi' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
+            CFDI e Impuestos
+        </button>
+    </div>
+
+    <!-- Tab: Validación de Cumplimiento -->
+    <div *ngIf="tab() === 'validacion'" class="animate-in fade-in duration-300 space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-lg font-semibold">Validación de Estatus Fiscal</h3>
+                <p class="text-sm text-muted-foreground">Verificación de documentos, RFC y régimen ante el SAT.</p>
+            </div>
+            <app-button variant="default" (onClick)="ejecutarValidacionMasiva()" [disabled]="validandoMasivamente()">
+                <app-icon name="task" [size]="16" className="mr-2"></app-icon>
+                {{ validandoMasivamente() ? 'Validando...' : 'Ejecutar Validación Masiva' }}
+            </app-button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div *ngFor="let val of validacionesFiscales()"
+                class="rounded-xl border border-border bg-card p-5 space-y-4 hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div
+                        class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                        {{ getNombreProfesor(val.profesorId).charAt(0) }}
+                    </div>
+                    <span
+                        [class]="'px-2 py-1 rounded-md text-[10px] font-bold uppercase ' + (val.valido ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700')">
+                        {{ val.valido ? 'Cumple' : 'No Cumple' }}
+                    </span>
+                </div>
+                <div>
+                    <h4 class="font-medium truncate">{{ getNombreProfesor(val.profesorId) }}</h4>
+                    <p class="text-xs text-muted-foreground">RFC: {{ getRFCProfesor(val.profesorId) }}</p>
+                </div>
+
+                <div *ngIf="val.problemas.length > 0" class="space-y-2">
+                    <div *ngFor="let prob of val.problemas"
+                        class="flex items-start gap-2 text-xs p-2 rounded bg-red-50 text-red-700 border border-red-100">
+                        <app-icon name="help" [size]="14" className="mt-0.5 shrink-0"></app-icon>
+                        <span>{{ prob.descripcion }}</span>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex gap-2">
+                    <app-button size="sm" variant="outline" class="flex-1">Ver Expediente</app-button>
+                    <app-button size="sm" variant="ghost" class="flex-1" *ngIf="!val.valido">Notificar</app-button>
+                </div>
+            </div>
+
+            <div *ngIf="validacionesFiscales().length === 0"
+                class="col-span-full py-20 text-center border-2 border-dashed border-border rounded-2xl bg-muted/20">
+                <app-icon name="search" [size]="48"
+                    className="mx-auto text-muted-foreground mb-4 opacity-20"></app-icon>
+                <p class="text-muted-foreground italic">No se han ejecutado validaciones en este periodo.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Contratos Digitales -->
+    <div *ngIf="tab() === 'contratos'" class="animate-in fade-in duration-300 space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="text-lg font-semibold">Gestión de Contratos por Honorarios</h3>
+                <p class="text-sm text-muted-foreground">Emisión de contratos digitales, firmas y versiones legales.</p>
+            </div>
+            <app-button variant="default" (onClick)="generarContratosPendientes()" [disabled]="generandoContratos()">
+                <app-icon name="plus" [size]="16" className="mr-2"></app-icon>
+                {{ generandoContratos() ? 'Generando...' : 'Generar Contratos' }}
+            </app-button>
+        </div>
+
+        <div class="overflow-hidden rounded-xl border border-border bg-card">
+            <table class="min-w-full divide-y divide-border text-sm">
+                <thead class="bg-muted/50 font-semibold text-muted-foreground uppercase text-[10px]">
+                    <tr>
+                        <th class="px-6 py-3 text-left">Profesor / RFC</th>
+                        <th class="px-6 py-3 text-left">Fecha Generación</th>
+                        <th class="px-6 py-3 text-center">Versión</th>
+                        <th class="px-6 py-3 text-center">Estatus</th>
+                        <th class="px-6 py-3 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    <tr *ngFor="let c of contratos()" class="hover:bg-muted/10 transition-colors">
+                        <td class="px-6 py-4">
+                            <p class="font-medium">{{ getNombreProfesor(c.pagoId) }}</p>
+                            <p class="text-xs text-muted-foreground">Pago Ref: {{ c.pagoId }}</p>
+                        </td>
+                        <td class="px-6 py-4 text-muted-foreground">
+                            {{ c.fechaGeneracion | date:'mediumDate' }}
+                        </td>
+                        <td class="px-6 py-4 text-center font-mono text-xs">
+                            v{{ c.version }}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span
+                                [class]="'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ' + 
+                                (c.estatus === 'firmado' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600')">
+                                {{ c.estatus }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right space-x-2">
+                            <button class="p-1.5 rounded hover:bg-secondary text-muted-foreground" title="Ver PDF">
+                                <app-icon name="download" [size]="16"></app-icon>
+                            </button>
+                            <button (click)="enviarAFirma(c.id)" class="p-1.5 rounded hover:bg-secondary text-primary"
+                                title="Enviar a Firma">
+                                <app-icon name="mail" [size]="16"></app-icon>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="contratos().length === 0">
+                        <td colspan="5" class="px-6 py-12 text-center text-muted-foreground italic">
+                            No hay contratos generados para este periodo.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab: CFDI e Impuestos -->
+    <div *ngIf="tab() === 'cfdi'" class="animate-in fade-in duration-300 space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar: Acciones de Timbrado -->
+            <div class="lg:col-span-1 space-y-4">
+                <div class="rounded-xl border border-border bg-card p-4 space-y-4">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Acciones Fiscales</h4>
+                    <app-button variant="default" class="w-full" (onClick)="timbrarPagosSeleccionados()"
+                        [disabled]="timbrando()">
+                        <app-icon name="analytics" [size]="16" className="mr-2"></app-icon>
+                        {{ timbrando() ? 'Timbrando...' : 'Timbrar Pagos' }}
+                    </app-button>
+                    <p class="text-[11px] text-muted-foreground">
+                        El timbrado se realiza mediante el PAC institucional (CFDI 4.0). Asegúrate de que los pagos
+                        estén validados fiscalmente.
+                    </p>
+                </div>
+
+                <div class="rounded-xl border border-border bg-card p-4 space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Retenciones Periodo
+                    </h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-muted-foreground">ISR Retenido</span>
+                            <span class="font-medium">$42,350.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-muted-foreground">IVA Retenido</span>
+                            <span class="font-medium">$12,800.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main: Listado de CFDI -->
+            <div class="lg:col-span-3 space-y-4">
+                <div class="flex justify-between items-end mb-2">
+                    <h3 class="text-lg font-semibold">Repositorio de Comprobantes Fiscales</h3>
+                    <div class="flex gap-2">
+                        <span
+                            class="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded border border-emerald-100">
+                            <b>{{ cfdies().length }}</b> CFDIs Generados
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Cards de CFDI -->
+                    <div *ngFor="let cfdi of cfdies()"
+                        class="group relative rounded-xl border border-border bg-card p-4 hover:border-primary/50 transition-all overflow-hidden">
+                        <div class="absolute right-0 top-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="text-[10px] font-mono text-muted-foreground bg-muted px-2 py-1 rounded">
+                                UUID: {{ cfdi.uuid.substring(0, 13) }}...
+                            </span>
+                        </div>
+                        <div class="flex gap-4 items-center">
+                            <div
+                                class="h-12 w-12 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+                                <app-icon name="task" [size]="24"></app-icon>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-bold text-sm truncate">{{ cfdi.folio }}</p>
+                                <p class="text-[10px] text-muted-foreground uppercase">Fecha: {{ cfdi.fechaTimbrado |
+                                    date:'short' }}</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex gap-2 pt-4 border-t border-border/50">
+                            <app-button size="sm" variant="outline" class="flex-1">XML</app-button>
+                            <app-button size="sm" variant="outline" class="flex-1">PDF</app-button>
+                        </div>
+                    </div>
+
+                    <!-- Botón para Carga de CFDI (Profesores con factura propia) -->
+                    <div *ngFor="let p of pagosPendientesFiscal().slice(0, 2)"
+                        class="rounded-xl border-2 border-dashed border-border bg-muted/10 p-4 flex flex-col justify-center items-center text-center">
+                        <p class="text-xs font-medium mb-1">{{ getNombreProfesor(p.id) }}</p>
+                        <p class="text-[10px] text-muted-foreground mb-3">Pendiente carga de XML externo</p>
+                        <app-button size="sm" variant="ghost" (onClick)="abrirSubidaCFDI(p)">
+                            <app-icon name="plus" [size]="14" className="mr-1"></app-icon>
+                            Cargar CFDI
+                        </app-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Carga de CFDI Externo -->
+    <div *ngIf="mostrandoSubidaCFDI()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div
+            class="w-full max-w-md rounded-2xl border border-border bg-card shadow-2xl animate-in zoom-in-95 duration-200">
+            <div class="p-6 border-b border-border">
+                <h3 class="text-lg font-bold">Carga de CFDI Manual</h3>
+                <p class="text-sm text-muted-foreground">Para profesores que emiten su propia factura.</p>
+            </div>
+            <div class="p-8 space-y-6 text-center">
+                <div
+                    class="h-32 w-full border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center hover:border-primary/50 transition-colors cursor-pointer relative">
+                    <input type="file" (change)="procesarXMLRecibido($event)"
+                        class="absolute inset-0 opacity-0 cursor-pointer" accept=".xml">
+                    <app-icon name="task" [size]="32" className="text-muted-foreground mb-2"></app-icon>
+                    <p class="text-xs font-medium">Click para seleccionar archivo XML</p>
+                    <p class="text-[10px] text-muted-foreground mt-1">El sistema validará RFC, vigencia y folios.</p>
+                </div>
+                <div class="text-left bg-muted/30 p-4 rounded-lg">
+                    <p class="text-[10px] uppercase font-bold text-muted-foreground mb-2">Resumen del Pago</p>
+                    <div class="flex justify-between text-xs">
+                        <span>Profesor:</span>
+                        <span class="font-medium">{{ getNombreProfesor(pagoSeleccionadoParaCFDI()?.id!) }}</span>
+                    </div>
+                    <div class="flex justify-between text-xs mt-1">
+                        <span>Monto Bruto:</span>
+                        <span class="font-medium">{{ pagoSeleccionadoParaCFDI()?.montoTotal | currency }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-border flex justify-end gap-3">
+                <app-button variant="ghost" (onClick)="mostrandoSubidaCFDI.set(false)">Cancelar</app-button>
+            </div>
+        </div>
+    </div>
+</div>

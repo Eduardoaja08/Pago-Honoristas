@@ -1,0 +1,412 @@
+Estructura General de la Plataforma
+text
+[Barra Superior Global]
+- Logo / Nombre del Sistema
+- Selector de Período (Global - afecta a todas las vistas)
+- Búsqueda Global (por profesor, CRN, folio, etc.)
+- Notificaciones (pendientes, alertas)
+- Perfil de Usuario (Cambiar contraseña, Cerrar sesión)
+
+[Menú Lateral Principal]
+- Dashboard / Inicio
+- Profesores (M1)
+- Asignación Académica (M2 y M3)
+- Cálculo y Pagos (M4)
+- Cumplimiento Fiscal (M5 y M6)
+- Operación Bancaria (M7)
+- Contabilidad y Reportes (M8)
+- Administración (Configuración, Catálogos, Auditoría)
+1. Módulo Dashboard / Home
+Pantalla: Panel de Control Ejecutivo
+Propósito: Dar visibilidad inmediata del estado del proceso de pago en el período seleccionado.
+
+Acciones:
+
+Ver KPIs principales:
+
+Total a pagar en el período.
+
+Profesores activos vs. pendientes de validar.
+
+Pagos programados vs. pagados.
+
+Incidencias críticas (CFDI rechazados, pagos rebotados).
+
+Gráficas de avance por etapa (embudo: Asignados → Validados → Calculados → Pagados).
+
+Accesos directos a tareas pendientes del usuario logueado.
+
+2. Módulo Profesores (Gestión Integral)
+Pantalla: Listado de Profesores
+Propósito: Gestionar el catálogo maestro de profesores.
+
+Acciones:
+
+Filtrar y buscar por: nombre, RFC, estatus, área académica.
+
+Exportar listado a Excel.
+
+Acceso a la ficha de cada profesor.
+
+Botón "Alta de Profesor".
+
+Pantalla: Ficha del Profesor (Vista Integral)
+Organización en Tabs:
+
+Datos Generales:
+Campos: Nombre completo, RFC, CURP, correo, teléfono, dirección.
+Acciones: Editar, guardar, ver historial de cambios.
+Datos Fiscales y Bancarios:
+Campos: Régimen fiscal, CLABE, banco, cuenta de confirmación.
+Acciones: Editar, validar CLABE (algoritmo de validación), marcar como "validado por tesorería".
+Documentos:
+Lista de documentos: Identificación oficial, Constancia fiscal (opinión de cumplimiento), Comprobante de domicilio, etc.
+Acciones: Subir archivo, descargar, ver vigencia, notificar al profesor si está por vencer.
+Asignaciones y Pagos:
+Tabla con el histórico de materias impartidas y pagos recibidos (enlace a detalle de pago).
+Línea de Tiempo (Auditoría):
+Registro cronológico de cambios de estatus y datos (quién, cuándo, qué cambió).
+Pantalla: Alta/Edición de Profesor (Wizard)
+Propósito: Guiar al usuario paso a paso en el alta de un nuevo profesor.
+
+Pasos: 1. Datos personales → 2. Datos fiscales → 3. Datos bancarios → 4. Documentos → 5. Revisión y guardado.
+
+3. Módulo Asignación Académica (Planeación y Consolidación)
+Pantalla: Carga / Sincronización de Asignaciones
+Propósito: Obtener la materia prima del proceso (las asignaciones).
+
+Acciones:
+
+Integración Automática: Botón "Sincronizar con Banner" que inicia el proceso y muestra el log de la sincronización.
+
+Carga Manual: Área de "Subir archivo Excel/CSV" con validación de formato. Muestra errores de estructura antes de procesar.
+
+Vista de Últimas Cargas: Tabla con historial de sincronizaciones (fecha, usuario, resultado).
+
+Pantalla: Mapa de Asignaciones (Editor)
+Propósito: Visualizar y corregir las asignaciones antes de consolidarlas.
+
+Acciones:
+
+Vista en tabla con columnas: CRN, Materia, Profesor asignado, Estatus del profesor, Alumnos, Programa, Centro de costos.
+
+Filtros por: programa, materia, estatus del profesor.
+
+Edición en línea (inline editing) para corregir asignaciones erróneas.
+
+Detección de conflictos (resaltado en rojo): Profesor no dado de alta, CRN duplicado, materia sin profesor.
+
+Pantalla: Consolidación y Validación
+Propósito: Ejecutar el "filtro" y generar la base de pago.
+
+Acciones:
+
+Botón "Ejecutar Validaciones": Corre las reglas de negocio.
+
+Visualización de resultados: Número de registros válidos, registros con advertencias, registros con errores.
+
+Descarga de reporte de incidencias (Excel/PDF).
+
+Botón "Generar Insumo Base": Congela la versión que pasará a cálculo. Solicita un nombre de versión y un comentario.
+
+Pantalla: Historial de Versiones de Insumo
+Propósito: Ver y comparar las diferentes "fotos" del periodo.
+
+Acciones:
+
+Lista de versiones (fecha, usuario, estatus, comentario).
+
+Ver detalle de una versión.
+
+Comparar dos versiones (diff) resaltando diferencias en alumnos, materias, etc.
+
+4. Módulo Cálculo y Pagos (Motor de Pago)
+Pantalla: Procesamiento de Cálculo
+Propósito: Ejecutar el motor de cálculo sobre el insumo base.
+
+Acciones:
+
+Seleccionar la versión del insumo base a calcular.
+
+Botón "Calcular Pagos".
+
+Visualización de progreso (barra de progreso) y log en tiempo real.
+
+Vista de resultados: Total de pagos calculados, monto total, profesores impactados.
+
+Pantalla: Bandeja de Pagos (Formatos de Pago)
+Propósito: Gestionar los pagos generados antes de enviarlos a fiscal.
+
+Organización en Pestañas (Tabs):
+
+Pendientes de Revisión: Pagos recién calculados.
+
+Observados: Pagos con problemas (ej. monto fuera de rango, marcados para revisión manual).
+
+Validados: Pagos listos para el proceso fiscal.
+
+Acciones:
+
+Filtros avanzados: por profesor, rango de fechas, centro de costos.
+
+Ver detalle del pago (profesor, CRN, cálculo desglosado).
+
+Edición de pagos extraordinarios (justificación obligatoria).
+
+Checkbox para seleccionar múltiples pagos y marcarlos como "Validados".
+
+Generar reporte "Formato de Pago Agrupado" por centro de costos.
+
+Pantalla: Detalle del Pago (Vista Individual)
+Propósito: Ver toda la información asociada a un pago específico.
+
+Información:
+
+Profesor (con link a su ficha).
+
+Detalle de la(s) asignación(es) que originan el pago.
+
+Desglose del cálculo (tarifa base, incentivos, deducciones).
+
+Monto total, forma de pago.
+
+Estatus actual del pago (Calculado, En fiscal, Pagado, etc.).
+
+Acciones: Editar (si es extraordinario), Recalcular, Ver historial de estatus.
+
+5. Módulo Cumplimiento Fiscal (Contratos, CFDI e Impuestos)
+Pantalla: Validación Fiscal Masiva
+Propósito: Verificar rápidamente el estatus fiscal de los profesores involucrados en los pagos.
+
+Acciones:
+
+Botón "Validar Profesores": Cruza los profesores de los pagos con sus datos fiscales en el sistema.
+
+Resultado: Lista de profesores OK vs. Lista de profesores con problemas (falta RFC, régimen no válido).
+
+Acceso rápido a la ficha del profesor para corregir.
+
+Pantalla: Gestión de Contratos Digitales
+Propósito: Administrar la generación y firma de contratos.
+
+Acciones:
+
+Lista de contratos pendientes de generar.
+
+Seleccionar pagos y botón "Generar Contratos" (masivo).
+
+Visualizar contratos generados (PDF).
+
+Control de versión del contrato.
+
+(Opcional) Integración con firma electrónica (DocuSign, FirmaElectrónica MX) - botón "Enviar a Firmar".
+
+Pantalla: Emisión y Recepción de CFDI
+Propósito: Controlar todo el ciclo de facturación electrónica.
+
+Organización en Pestañas:
+
+Por Timbrar: Pagos listos para generar CFDI.
+
+Timbrados: CFDI emitidos exitosamente.
+
+Cancelados: CFDI cancelados.
+
+Por Recibir: Pagos donde se espera el CFDI del profesor.
+
+Acciones (en "Por Timbrar"):
+
+Seleccionar pagos.
+
+Botón "Timbrar CFDI (Emisión UNAM)". Muestra diálogo de confirmación y procesa.
+
+Ver log del timbrado (respuesta del PAC).
+
+Acciones (en "Timbrados"):
+
+Descargar XML y PDF del CFDI.
+
+Enviar por correo al profesor (automático o manual).
+
+Cancelar CFDI (con justificación).
+
+Acciones (en "Por Recibir"):
+
+Botón "Subir CFDI (Proveedor)" para que el área de finanzas cargue el XML que envió el profesor.
+
+Validación automática del XML vs. el pago (RFC, monto, folio).
+
+6. Módulo Operación Bancaria
+Pantalla: Administración de Cuentas Bancarias (Profesores)
+Propósito: Validar y gestionar las cuentas de los beneficiarios.
+
+Acciones:
+
+Lista de profesores con cuentas pendientes de validar.
+
+Validación de CLABE (cálculo de dígito verificador).
+
+Marcar cuenta como "Validada por Tesorería".
+
+Ver histórico de cuentas del profesor (para evitar cambios fraudulentos).
+
+Pantalla: Generación de Dispersión (Layout Bancario)
+Propósito: Crear el archivo para el banco.
+
+Acciones:
+
+Seleccionar los pagos (CFDI timbrados) a dispersar.
+
+Seleccionar el layout bancario (Santander, BBVA, etc. - configurable).
+
+Botón "Vista Previa del Layout": Muestra las primeras 10 líneas del archivo.
+
+Botón "Generar Archivo": Crea el archivo .txt o .csv y lo pone a disposición para descarga.
+
+Flujo de Autorización:
+
+Usuario1: "Solicitar Autorización" (el pago pasa a estatus "Pendiente de Autorizar").
+
+Usuario2 (Autorizador): Ve la solicitud, revisa el monto total, y hace clic en "Autorizar Pago".
+
+Pantalla: Conciliación Bancaria
+Propósito: Cargar la respuesta del banco y actualizar estatus.
+
+Acciones:
+
+Subir archivo de respuesta del banco (layout de retorno).
+
+El sistema procesa el archivo y muestra:
+
+Pagos Aplicados (actualiza estatus a "Pagado").
+
+Pagos Rechazados (actualiza estatus a "Rechazado" y muestra motivo).
+
+Pagos No Encontrados.
+
+Botón "Aplicar Resultados" para confirmar la actualización masiva de estatus.
+
+7. Módulo Contabilidad y Reportes
+Pantalla: Reportes Predefinidos
+Propósito: Acceso rápido a los reportes más comunes.
+
+Lista de Reportes:
+
+Reporte de Pago por Profesor (detallado).
+
+Reporte de Pago por Centro de Costos.
+
+Reporte de Incidencias (pagos rechazados, CFDI pendientes).
+
+Reporte de Impuestos (ISR, IVA retenido).
+
+Reporte de Profesores sin datos fiscales completos.
+
+Acciones por Reporte:
+
+Seleccionar parámetros (período, filtros).
+
+Vista previa en pantalla.
+
+Exportar a PDF, Excel, CSV.
+
+Pantalla: Generación de Pólizas Contables
+Propósito: Facilitar el cierre contable.
+
+Acciones:
+
+Seleccionar el período a cerrar.
+
+Botón "Generar Póliza de Egresos". El sistema consolida los pagos por cuenta contable.
+
+Visualización: Cuadre contable (Debe / Haber) que debe cuadrar a cero.
+
+Botón "Exportar Póliza": Genera archivo en formato para importar a SAP, CONTPAQ i, o Excel personalizado.
+
+Pantalla: Auditoría (Logs)
+Propósito: Consulta forense de todas las acciones.
+
+Acciones:
+
+Búsqueda por: Usuario, fecha, tipo de acción, ID de pago/profesor.
+
+Visualización en tabla con detalle: "El usuario X cambió el campo RFC de '...' a '...' el día Y".
+
+Exportación del log.
+
+8. Módulo Administración (Configuración)
+Pantalla: Gestión de Usuarios y Roles
+Propósito: Administrar quién puede hacer qué.
+
+Acciones:
+
+Lista de usuarios.
+
+CRUD de usuarios (asignar a un rol).
+
+Configuración de roles y permisos finos (ej. "Puede autorizar pagos > $50,000 MXN").
+
+Pantalla: Catálogos Generales
+Propósito: Mantener los datos maestros del sistema.
+
+Catálogos a administrar:
+
+Períodos académicos.
+
+Programas y centros de costos.
+
+Tipos de pago (Ordinario, Extraordinario).
+
+Conceptos de pago (Honorarios, Apoyo, etc.).
+
+Bancos.
+
+Regímenes fiscales (SAT).
+
+Acciones: CRUD básico para cada catálogo.
+
+Pantalla: Configuración de Reglas de Negocio
+Propósito: Parametrizar el motor de cálculo sin programar.
+
+Acciones:
+
+Lista de reglas activas.
+
+Crear/Editar una regla:
+
+Nombre, descripción.
+
+Tipo de regla (cálculo, validación).
+
+Fórmula (campo de texto para expresión, ej. tarifa_base * 1.10 si alumnos > 30).
+
+Fechas de vigencia.
+
+Prioridad de aplicación.
+
+Pantalla: Configuración de Integraciones
+Propósito: Administrar las conexiones con sistemas externos.
+
+Acciones:
+
+Banner: Configurar URL de API, credenciales, frecuencia de sincronización.
+
+PAC (CFDI): Configurar usuario, contraseña, URL del servicio (producción/pruebas).
+
+Bancos: Configurar layouts (formato de columnas, separadores, etc.). Subir archivo de definición de layout.
+
+Flujos Transversales y Consideraciones de UX
+Selector de Período Global: En la barra superior, un dropdown que permita seleccionar el período académico en curso. Todas las pantallas (listas, cálculos, reportes) se filtrarán por este período automáticamente. Esto evita confusiones entre períodos.
+
+Búsqueda Global: Un campo de búsqueda tipo "Google" que permita buscar por nombre de profesor, RFC, CRN, folio de pago o UUID de CFDI, y lleve a una página de resultados unificada.
+
+Notificaciones: Un ícono de campana que muestre tareas pendientes asignadas al usuario (ej. "Validar cuentas de 5 profesores", "Autorizar pago por $150,000").
+
+Modo "Wizard" para Procesos Complejos: En procesos como "Alta de Profesor" o "Procesar Pago", usar un asistente de varios pasos con indicador de progreso para no abrumar al usuario.
+
+Vistas de "Edición en Línea": En tablas como "Mapa de Asignaciones", permitir hacer doble clic en una celda y editarla sin abrir una nueva pantalla (agiliza la corrección masiva).
+
+Botón de "Ayuda Contextual": En cada pantalla, un ícono de interrogación que despliegue un pequeño texto explicando el propósito de la pantalla y las acciones principales.
+
+Esta estructura de pantallas cubre el 100% de los flujos descritos en los 8 módulos y está diseñada para minimizar clics, maximizar la visibilidad del estatus y garantizar que ninguna tarea quede sin un lugar donde realizarse.
+

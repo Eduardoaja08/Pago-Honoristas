@@ -9,21 +9,76 @@ export class FiscalService {
   private contratos = signal<Contrato[]>([]);
   private cfdies = signal<CFDI[]>([]);
 
-  constructor() {}
+  constructor() {
+    this.sembrarDatosDummy();
+  }
+
+  private sembrarDatosDummy(): void {
+    // Sembrar Contratos Iniciales
+    this.contratos.set([
+      {
+        id: 101,
+        pagoId: 1,
+        pago: { id: 1, montoTotal: 15000 } as Pago,
+        version: '1.2',
+        fechaGeneracion: new Date('2024-11-01'),
+        pdf: '/contratos/c1.pdf',
+        estatus: 'firmado',
+        fechaFirma: new Date('2024-11-02')
+      },
+      {
+        id: 102,
+        pagoId: 2,
+        pago: { id: 2, montoTotal: 8400 } as Pago,
+        version: '1.0',
+        fechaGeneracion: new Date('2024-11-05'),
+        pdf: '/contratos/c2.pdf',
+        estatus: 'generado'
+      }
+    ]);
+
+    // Sembrar CFDIs Iniciales
+    this.cfdies.set([
+      {
+        id: 501,
+        uuid: '4A2B1C3D-E4F5-6G7H-8I9J-0K1L2M3N4O5P',
+        folio: 'FOL-9981',
+        fechaTimbrado: new Date('2024-11-10T10:30:00'),
+        xml: '#',
+        pdf: '#',
+        estatus: 'timbrado'
+      },
+      {
+        id: 502,
+        uuid: '9Z8Y7X6W-V5U4-T3S2-R1Q0-P9O8N7M6L5K4',
+        folio: 'FOL-9982',
+        fechaTimbrado: new Date('2024-11-12T15:45:00'),
+        xml: '#',
+        pdf: '#',
+        estatus: 'timbrado'
+      }
+    ]);
+  }
 
   validarProfesoresMasiva(pagos: Pago[]): ValidacionFiscal[] {
     const profesoresIds = new Set(pagos.map(p => p.profesorId));
-    
-    return Array.from(profesoresIds).map(profesorId => {
-      // Simulación de validación
+
+    return Array.from(profesoresIds).map((profesorId, index) => {
       const problemas: any[] = [];
-      
-      // Ejemplo: verificar RFC
-      if (Math.random() > 0.8) {
+
+      // Simular problemas para algunos casos
+      if (index === 1) {
         problemas.push({
-          tipo: 'falta_rfc',
-          descripcion: 'RFC no registrado',
+          tipo: 'documentos_vencidos',
+          descripcion: 'Constancia de Situación Fiscal con más de 3 meses de antigüedad.',
           severidad: 'error'
+        });
+      }
+      if (index === 3) {
+        problemas.push({
+          tipo: 'regimen_invalido',
+          descripcion: 'El régimen reportado no coincide con el del SAT (605 vs 612).',
+          severidad: 'advertencia'
         });
       }
 
@@ -57,7 +112,7 @@ export class FiscalService {
 
   obtenerContratos(estatus?: Contrato['estatus']): Contrato[] {
     const contratos = this.contratos();
-    return estatus 
+    return estatus
       ? contratos.filter(c => c.estatus === estatus)
       : contratos;
   }
@@ -105,7 +160,7 @@ export class FiscalService {
 
   obtenerCFDIes(estatus?: CFDI['estatus']): CFDI[] {
     const cfdies = this.cfdies();
-    return estatus 
+    return estatus
       ? cfdies.filter(c => c.estatus === estatus)
       : cfdies;
   }
