@@ -2,10 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
-import { ProfesorDetailComponent } from './modules/profesores/profesor-detail.component';
 import { IconComponent } from './icon.component';
 
 type RolSistema = 'administracion' | 'finanzas' | 'profesor' | 'tesoreria';
+type TipoInsumo = 'pagos' | 'profesores';
 
 interface UsuarioDemo {
   nombre: string;
@@ -13,40 +13,72 @@ interface UsuarioDemo {
   password: string;
   rol: RolSistema;
   correo: string;
-  profesorId?: number;
 }
 
 interface NavItem {
   icon: string;
   label: string;
   href: string;
-  badge?: string;
+}
+
+interface ProfesorFinanzas {
+  id: string;
+  nombre: string;
+  tipoPago: string;
+  montoPeriodo: string;
+  alumnos: number;
+  centroCosto: string;
+  contratoEstatus: string;
+  facturaEstatus: string;
+  pagoEstatus: string;
+  ultimoMovimiento: string;
+  datosFiscales: { rfc: string; regimen: string; usoCfdi: string; cuentaClabe: string };
+  documentos: Array<{ nombre: string; estatus: string; vencimiento?: string }>;
+  correos: Array<{ fecha: string; asunto: string; resultado: string }>;
+  contratos: Array<{ folio: string; modulo: string; actividad: string; monto: string; estatus: string; firma: string }>;
 }
 
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ProfesorDetailComponent, IconComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, IconComponent],
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss'
 })
 export class DashboardShellComponent {
-  readonly menuItemsBase: NavItem[] = [
-    { icon: 'dashboard', label: 'Dashboard / Inicio', href: '/' },
-    { icon: 'users', label: 'Profesores', href: '/profesores' },
-    { icon: 'book', label: 'Asignación Académica', href: '/asignacion-academica' },
-    { icon: 'analytics', label: 'Cálculo y Pagos', href: '/calculo-pagos' },
-    { icon: 'settings', label: 'Cumplimiento Fiscal', href: '/cumplimiento-fiscal' },
-    { icon: 'phone', label: 'Operación Bancaria', href: '/operacion-bancaria' },
-    { icon: 'analytics', label: 'Contabilidad y Reportes', href: '/contabilidad-reportes' },
-    { icon: 'settings', label: 'Administración', href: '/administracion' }
+  readonly menuAdministracion: NavItem[] = [
+    { icon: 'dashboard', label: 'Dashboard Administración', href: '/administracion/dashboard' },
+    { icon: 'book', label: 'Insumo para pagos', href: '/administracion/insumo-pagos' },
+    { icon: 'users', label: 'Insumo datos profesor', href: '/administracion/insumo-profesores' },
+    { icon: 'analytics', label: 'Reportes', href: '/administracion/reportes' }
+  ];
+
+  readonly menuFinanzas: NavItem[] = [
+    { icon: 'dashboard', label: 'Dashboard Finanzas', href: '/finanzas/dashboard' },
+    { icon: 'users', label: 'Profesores para pago', href: '/finanzas/profesores' },
+    { icon: 'book', label: 'Contratos y correos', href: '/finanzas/contratos' },
+    { icon: 'analytics', label: 'Seguimiento de pagos', href: '/finanzas/seguimiento' },
+    { icon: 'analytics', label: 'Comprobantes y ZIP', href: '/finanzas/comprobantes' }
+  ];
+
+  readonly menuProfesor: NavItem[] = [
+    { icon: 'dashboard', label: 'Dashboard Profesor', href: '/profesor/dashboard' },
+    { icon: 'users', label: 'Mi perfil y documentos', href: '/profesor/perfil' },
+    { icon: 'book', label: 'Mis contratos', href: '/profesor/contratos' },
+    { icon: 'analytics', label: 'Facturación y pago', href: '/profesor/facturacion' }
+  ];
+
+  readonly menuTesoreria: NavItem[] = [
+    { icon: 'dashboard', label: 'Dashboard Tesorería', href: '/tesoreria/dashboard' },
+    { icon: 'book', label: 'Layout bancario TXT', href: '/tesoreria/dispersion' },
+    { icon: 'analytics', label: 'Bank report y renombrado', href: '/tesoreria/bank-report' }
   ];
 
   readonly accesosPorRol: Record<RolSistema, string[]> = {
-    administracion: ['/', '/profesores', '/profesor', '/profesores/nuevo', '/profesor/editar', '/asignacion-academica', '/administracion'],
-    finanzas: ['/', '/profesores', '/profesor', '/calculo-pagos', '/cumplimiento-fiscal', '/contabilidad-reportes'],
-    profesor: ['/', '/profesor', '/cumplimiento-fiscal'],
-    tesoreria: ['/', '/profesor', '/operacion-bancaria', '/contabilidad-reportes']
+    administracion: ['/', '/administracion/dashboard', '/administracion/insumo-pagos', '/administracion/insumo-profesores', '/administracion/reportes', '/settings', '/help'],
+    finanzas: ['/', '/finanzas/dashboard', '/finanzas/profesores', '/finanzas/profesor', '/finanzas/contratos', '/finanzas/seguimiento', '/finanzas/comprobantes', '/settings', '/help'],
+    profesor: ['/', '/profesor/dashboard', '/profesor/perfil', '/profesor/contratos', '/profesor/facturacion', '/settings', '/help'],
+    tesoreria: ['/', '/tesoreria/dashboard', '/tesoreria/dispersion', '/tesoreria/bank-report', '/settings', '/help']
   };
 
   readonly usuariosDemo: UsuarioDemo[] = [
@@ -62,105 +94,202 @@ export class DashboardShellComponent {
     { icon: 'logout', label: 'Salir', href: '/logout' }
   ];
 
-  readonly resumenFlujo = [
-    { etapa: '1. SAPO + Layout', owner: 'Administración', detalle: 'Se recuperan datos básicos del profesor desde SAPO y se carga layout de alumnos/centros de costo.' },
-    { etapa: '2. Monto y contrato', owner: 'Finanzas', detalle: 'Se calcula monto por tabulador, se valida expediente y se genera contrato para firma.' },
-    { etapa: '3. Firma y factura', owner: 'Profesor', detalle: 'El profesor descarga contrato, sube contrato firmado y después CFDI/XML/documentación fiscal.' },
-    { etapa: '4. Pago y conciliación', owner: 'Tesorería / Finanzas', detalle: 'Tesorería descarga layout TXT, sube bank report y Finanzas descarga ZIP renombrado para contabilidad.' }
-  ];
-
-  readonly checklistBase = [
-    'CV actualizado',
+  readonly checklistDocumentalBase = [
+    'Currículum vitae (CV): Actualizado',
     'Solicitud de empleo',
     'Acta de nacimiento',
     'Comprobante de domicilio',
     'Identificación oficial vigente',
-    'Cédulas profesionales (licenciatura/maestría/doctorado)',
+    'Cédula profesional Licenciatura',
+    'Cédula profesional Maestría',
+    'Cédula profesional Doctorado',
+    'Comprobante de ingresos adicionales',
     'Constancia de situación fiscal',
-    'Opinión de cumplimiento SAT'
+    'Cumplimiento del SAT'
   ];
 
-  readonly teamMembers = ['Coordinación Académica', 'Finanzas', 'Fiscal y Legal', 'TI Institucional'];
-  readonly helpCategories = ['Guía de módulos', 'Capacitación en video', 'Mesa de control', 'Contacto operativo'];
-  readonly daysInMonth = Array.from({ length: 30 }, (_, i) => i + 1);
-  readonly monthData = [45, 52, 48, 61, 55, 67];
+  readonly requisitosTipoPago = [
+    {
+      tipo: 'Asimilados',
+      requisitos: [
+        'Dos recibos de nómina',
+        'Constancia laboral del otro empleo',
+        'Carta firmada de ingresos complementarios (fecha, firma, domicilio, RFC, CURP)'
+      ]
+    },
+    {
+      tipo: 'Empresa',
+      requisitos: ['Acta constitutiva', 'Comprobante de domicilio', 'Carátula bancaria de la empresa']
+    },
+    {
+      tipo: 'Extranjero',
+      requisitos: ['Acta de nacimiento', 'Pasaporte', 'Constancia de residencia fiscal (residente extranjero)']
+    },
+    {
+      tipo: 'Honorarios',
+      requisitos: ['CFDI PDF', 'XML', 'Constancia de situación fiscal', 'Opinión de cumplimiento']
+    }
+  ];
 
-  readonly routePath = signal('/');
-  readonly currentPath = signal('/');
-  readonly sesionActiva = signal(false);
-  readonly usuarioActual = signal<UsuarioDemo | null>(null);
-  readonly rolActual = signal<RolSistema | null>(null);
-  readonly usuarioInput = signal('');
-  readonly passwordInput = signal('');
-  readonly errorLogin = signal('');
-  readonly isMobileMenuOpen = signal(false);
-  readonly elapsedSeconds = signal(24 * 3600 + 8);
-  readonly isRunning = signal(true);
+  readonly profesoresFinanzas: ProfesorFinanzas[] = [
+    {
+      id: 'PR-1001',
+      nombre: 'Dra. Ana Torres',
+      tipoPago: 'Honorarios',
+      montoPeriodo: '$42,500',
+      alumnos: 36,
+      centroCosto: 'CC-ADM-01',
+      contratoEstatus: 'Firmado',
+      facturaEstatus: 'CFDI recibido y validado',
+      pagoEstatus: 'Listo para dispersión',
+      ultimoMovimiento: '13/03/2026 11:35',
+      datosFiscales: { rfc: 'TOAA850101XX1', regimen: 'Régimen Simplificado de Confianza', usoCfdi: 'G03', cuentaClabe: '002180700111223344' },
+      documentos: [
+        { nombre: 'CV actualizado', estatus: 'Vigente', vencimiento: '12/2026' },
+        { nombre: 'Constancia de situación fiscal', estatus: 'Vigente', vencimiento: '09/2026' },
+        { nombre: 'Opinión de cumplimiento SAT', estatus: 'Vigente', vencimiento: '08/2026' },
+        { nombre: 'Contrato firmado', estatus: 'Cargado' },
+        { nombre: 'CFDI XML/PDF', estatus: 'Validado' }
+      ],
+      correos: [
+        { fecha: '08/03/2026 10:12', asunto: 'Contrato disponible para firma', resultado: 'Entregado' },
+        { fecha: '10/03/2026 18:05', asunto: 'Confirmación de contrato firmado', resultado: 'Entregado' },
+        { fecha: '12/03/2026 09:15', asunto: 'Habilitación para carga de factura', resultado: 'Entregado' }
+      ],
+      contratos: [
+        { folio: 'CNT-2026-01011', modulo: 'Módulo Finanzas', actividad: 'Docencia Maestría', monto: '$32,000', estatus: 'Firmado', firma: '10/03/2026' },
+        { folio: 'CNT-2026-01012', modulo: 'Seminario Especial', actividad: 'Asesoría', monto: '$10,500', estatus: 'Firmado', firma: '10/03/2026' }
+      ]
+    },
+    {
+      id: 'PR-1098',
+      nombre: 'Ing. Carlos Rivera',
+      tipoPago: 'Empresa',
+      montoPeriodo: '$31,200',
+      alumnos: 30,
+      centroCosto: 'CC-ADM-06',
+      contratoEstatus: 'Firmado',
+      facturaEstatus: 'CFDI en validación',
+      pagoEstatus: 'En revisión de comprobantes',
+      ultimoMovimiento: '13/03/2026 12:40',
+      datosFiscales: { rfc: 'CRI990101AB3', regimen: 'Persona moral general', usoCfdi: 'G03', cuentaClabe: '014180567890123456' },
+      documentos: [
+        { nombre: 'Currículum vitae (CV): Actualizado', estatus: 'Vigente', vencimiento: '12/2026' },
+        { nombre: 'Solicitud de empleo', estatus: 'Cargado' },
+        { nombre: 'Acta constitutiva', estatus: 'Cargado' },
+        { nombre: 'Comprobante de domicilio', estatus: 'Vigente', vencimiento: '07/2026' },
+        { nombre: 'Carátula bancaria de la empresa', estatus: 'Cargado' },
+        { nombre: 'Constancia de situación fiscal', estatus: 'Vigente', vencimiento: '11/2026' },
+        { nombre: 'Cumplimiento del SAT', estatus: 'Vigente', vencimiento: '09/2026' }
+      ],
+      correos: [
+        { fecha: '10/03/2026 11:20', asunto: 'Contrato disponible para firma', resultado: 'Entregado' },
+        { fecha: '12/03/2026 13:10', asunto: 'Habilitación para carga de CFDI', resultado: 'Entregado' }
+      ],
+      contratos: [
+        { folio: 'CNT-2026-01103', modulo: 'Licenciatura', actividad: 'Docencia', monto: '$31,200', estatus: 'Firmado', firma: '11/03/2026' }
+      ]
+    },
 
-  readonly pageMap: Record<string, { title: string; description: string; cta?: string; secondary?: string; ctaOutline?: boolean }> = {
+    {
+      id: 'PR-1032',
+      nombre: 'Mtro. Luis Meza',
+      tipoPago: 'Asimilados',
+      montoPeriodo: '$28,900',
+      alumnos: 28,
+      centroCosto: 'CC-ADM-04',
+      contratoEstatus: 'Enviado (pendiente firma)',
+      facturaEstatus: 'No habilitado',
+      pagoEstatus: 'En espera de contrato',
+      ultimoMovimiento: '13/03/2026 09:20',
+      datosFiscales: { rfc: 'MELU820505AB2', regimen: 'Sueldos y Salarios', usoCfdi: 'CN01', cuentaClabe: '012180009991234567' },
+      documentos: [
+        { nombre: 'Constancia de situación fiscal', estatus: 'Vigente', vencimiento: '10/2026' },
+        { nombre: 'Recibos de nómina (2)', estatus: 'Cargado' },
+        { nombre: 'Constancia laboral externa', estatus: 'Pendiente' },
+        { nombre: 'Carta firmada de ingresos', estatus: 'Pendiente' }
+      ],
+      correos: [
+        { fecha: '11/03/2026 08:40', asunto: 'Contrato disponible para firma', resultado: 'Entregado' },
+        { fecha: '12/03/2026 17:30', asunto: 'Recordatorio firma de contrato', resultado: 'Entregado' }
+      ],
+      contratos: [
+        { folio: 'CNT-2026-01058', modulo: 'Licenciatura', actividad: 'Docencia', monto: '$28,900', estatus: 'Enviado', firma: 'Pendiente' }
+      ]
+    },
+    {
+      id: 'PR-1045',
+      nombre: 'Mtra. Laura Neri',
+      tipoPago: 'Extranjero',
+      montoPeriodo: '$24,300',
+      alumnos: 24,
+      centroCosto: 'CC-ADM-02',
+      contratoEstatus: 'Firmado',
+      facturaEstatus: 'Factura extranjero pendiente',
+      pagoEstatus: 'En validación fiscal',
+      ultimoMovimiento: '13/03/2026 12:04',
+      datosFiscales: { rfc: 'XEXX010101000', regimen: 'Residente en el extranjero', usoCfdi: 'S01', cuentaClabe: 'No aplica (transferencia internacional)' },
+      documentos: [
+        { nombre: 'Pasaporte', estatus: 'Cargado' },
+        { nombre: 'Constancia de residencia fiscal', estatus: 'Vigente', vencimiento: '11/2026' },
+        { nombre: 'Contrato firmado', estatus: 'Cargado' },
+        { nombre: 'Factura del extranjero', estatus: 'Pendiente' }
+      ],
+      correos: [
+        { fecha: '09/03/2026 09:00', asunto: 'Contrato disponible para firma', resultado: 'Entregado' },
+        { fecha: '11/03/2026 19:12', asunto: 'Solicitud de factura extranjera', resultado: 'Entregado' }
+      ],
+      contratos: [
+        { folio: 'CNT-2026-01077', modulo: 'Doctorado', actividad: 'Docencia', monto: '$24,300', estatus: 'Firmado', firma: '11/03/2026' }
+      ]
+    }
+  ];
+
+  readonly pageMap: Record<string, { title: string; description: string }> = {
     '/': {
       title: 'Plataforma Pago a Honoristas',
-      description: 'Orquesta todo el ciclo de pago: asignación académica, validación fiscal, CFDI, dispersión bancaria y cierre contable.',
-      cta: '+ Registrar periodo',
-      secondary: 'Importar insumos'
+      description: 'Accede a los módulos permitidos por tu rol y da seguimiento al proceso operativo.'
     },
-    '/profesores': {
-      title: 'Profesores',
-      description: 'Gestiona el catálogo maestro de profesores.',
-      cta: '+ Alta de profesor',
-      secondary: 'Exportar a Excel'
+    '/administracion/dashboard': {
+      title: 'Dashboard de Administración',
+      description: 'Monitorea la carga de insumos, estatus de validación y preparación de información para pago.'
     },
-    '/profesor': {
-      title: 'Ficha del profesor',
-      description: 'Consulta la vista integral de datos, asignaciones, pagos y auditoría del profesor.'
+    '/administracion/insumo-pagos': {
+      title: 'Carga de Insumo para Pago de Profesores',
+      description: 'Sube el archivo base con profesores a pagar, alumnos y centros de costo para validar estructura y disponibilidad.'
     },
-    '/profesores/nuevo': {
-      title: 'Alta de profesor',
-      description: 'Registra un nuevo profesor mediante un asistente guiado.'
+    '/administracion/insumo-profesores': {
+      title: 'Carga de Insumo de Datos Personales y Contacto',
+      description: 'Sube el catálogo maestro de información personal y de contacto del profesor para completar expediente operativo.'
     },
-    '/profesor/editar': {
-      title: 'Editar profesor',
-      description: 'Modifica los datos del profesor.'
+    '/administracion/reportes': {
+      title: 'Reportes de Administración',
+      description: 'Consulta evidencias de carga, incidencias detectadas y trazabilidad de insumos por periodo.'
     },
-    '/operacion-bancaria': {
-      title: 'Operación Bancaria',
-      description: 'Gestión de cuentas bancarias, generación de layouts para dispersión y conciliación con el banco.',
-      cta: 'Generar dispersión',
-      secondary: 'Conciliar archivo'
+    '/finanzas/dashboard': {
+      title: 'Dashboard de Finanzas',
+      description: 'Seguimiento del estatus de contratos, facturación y pagos listos para dispersión por periodo.'
     },
-    '/asignacion-academica': {
-      title: 'Asignación Académica',
-      description: 'Carga, mapa de asignaciones, consolidación y historial de versiones de insumo.',
-      cta: 'Cargar asignación',
-      secondary: 'Ver historial'
+    '/finanzas/profesores': {
+      title: 'Profesores para pago (vista Finanzas)',
+      description: 'Listado proveniente del insumo cargado por Administración para revisión de estatus y expediente.'
     },
-    '/calculo-pagos': {
-      title: 'Cálculo y Pagos',
-      description: 'Motor de cálculo para procesar pagos ordinarios y extraordinarios.',
-      cta: 'Ejecutar cálculo',
-      secondary: 'Ver bandeja'
+    '/finanzas/contratos': {
+      title: 'Contratos y notificaciones',
+      description: 'Monitorea contratos enviados, firma del profesor y correos de confirmación.'
     },
-    '/cumplimiento-fiscal': {
-      title: 'Cumplimiento Fiscal',
-      description: 'Gestión de requisitos fiscales, contratos y timbrado de CFDIs.',
-      cta: 'Validación masiva',
-      secondary: 'Timbrar seleccionados'
+    '/finanzas/seguimiento': {
+      title: 'Seguimiento de estatus de pago',
+      description: 'Controla el avance: contrato, requisitos fiscales, CFDI y estado de pago.'
     },
-    '/contabilidad-reportes': {
-      title: 'Contabilidad y Reportes',
-      description: 'Cierre mensual, generación de pólizas contables y reportes ejecutivos.',
-      cta: 'Generar reporte',
-      secondary: 'Cerrar periodo'
-    },
-    '/administracion': {
-      title: 'Administración y Configuración',
-      description: 'Gestión de usuarios, roles, catálogos maestros y reglas de negocio del sistema.',
-      cta: '+ Agregar usuario',
-      secondary: 'Configurar ERP'
+
+    '/finanzas/comprobantes': {
+      title: 'Comprobantes renombrados y descarga ZIP',
+      description: 'Finanzas descarga el ZIP final de comprobantes (PDF/XML) renombrados con base en bank report y resultados de pago.'
     },
     '/settings': {
       title: 'Configuración',
-      description: 'Administra parámetros de negocio, seguridad y catálogos de operación.'
+      description: 'Administra parámetros generales del sistema.'
     },
     '/help': {
       title: 'Soporte y adopción',
@@ -172,23 +301,102 @@ export class DashboardShellComponent {
     }
   };
 
-  readonly pageInfo = computed(() => this.pageMap[this.routePath()] ?? this.pageMap['/']);
-  readonly menuItems = computed(() => {
-    const rol = this.rolActual();
-    if (!rol) {
-      return this.menuItemsBase;
+  readonly routePath = signal('/');
+  readonly currentPath = signal('/');
+  readonly sesionActiva = signal(false);
+  readonly usuarioActual = signal<UsuarioDemo | null>(null);
+  readonly rolActual = signal<RolSistema | null>(null);
+  readonly usuarioInput = signal('');
+  readonly passwordInput = signal('');
+  readonly errorLogin = signal('');
+  readonly isMobileMenuOpen = signal(false);
+
+  readonly procesamientoZip = signal(false);
+  readonly zipComprobantesListo = signal(false);
+  readonly loteZipActual = signal<{
+    periodo: string;
+    origen: string;
+    totalComprobantes: number;
+    renombrados: number;
+    incidencias: number;
+    archivo: string;
+  } | null>(null);
+
+  readonly documentosProfesor = signal([
+    { nombre: 'Currículum vitae (CV): Actualizado', archivo: 'cv_ana_torres.pdf', estatus: 'Vigente' },
+    { nombre: 'Solicitud de empleo', archivo: 'solicitud_empleo.pdf', estatus: 'Cargado' },
+    { nombre: 'Acta de nacimiento', archivo: 'acta_nacimiento.pdf', estatus: 'Cargado' },
+    { nombre: 'Comprobante de domicilio', archivo: 'domicilio_marzo_2026.pdf', estatus: 'Vigente' },
+    { nombre: 'Identificación oficial vigente', archivo: 'ine_frente_reverso.pdf', estatus: 'Vigente' },
+    { nombre: 'Constancia de situación fiscal', archivo: 'csf_2026.pdf', estatus: 'Vigente' },
+    { nombre: 'Cumplimiento del SAT', archivo: 'opinion_cumplimiento.pdf', estatus: 'Vigente' }
+  ]);
+  readonly contratoProfesorFirmado = signal(false);
+  readonly archivoContratoFirmado = signal('');
+  readonly cargandoContrato = signal(false);
+  readonly cargandoFacturaProfesor = signal(false);
+  readonly facturaProfesorCargada = signal(false);
+  readonly archivoFacturaPdf = signal('');
+  readonly archivoFacturaXml = signal('');
+
+  readonly layoutTesoreriaGenerado = signal(false);
+  readonly archivoLayoutTesoreria = signal('layout_pago_2026_1.txt');
+  readonly archivoBankReport = signal('');
+  readonly archivoComprobanteZip = signal('');
+  readonly procesandoBankReport = signal(false);
+  readonly renombradoCompletado = signal(false);
+  readonly resumenRenombradoTesoreria = signal<{
+    total: number;
+    renombrados: number;
+    incidencias: number;
+    lote: string;
+  } | null>(null);
+
+
+  readonly archivoPagos = signal('');
+  readonly archivoProfesores = signal('');
+  readonly cargandoPagos = signal(false);
+  readonly cargandoProfesores = signal(false);
+  readonly resumenPagos = signal<{ total: number; periodo: string; monto: string; validos: number; incidencias: number } | null>(null);
+  readonly resumenProfesores = signal<{ total: number; conCorreo: number; conTelefono: number; pendientes: number } | null>(null);
+
+  readonly detallePagos = signal<Array<{ id: string; profesor: string; alumnos: number; centroCosto: string; monto: string; estatus: string }>>([]);
+  readonly detalleProfesores = signal<Array<{ id: string; nombre: string; correo: string; telefono: string; rfc: string; estatus: string }>>([]);
+
+  readonly pageInfo = computed(() => {
+    const path = this.routePath();
+    if (path.startsWith('/finanzas/profesor/')) {
+      return {
+        title: 'Ficha detallada del profesor (Finanzas)',
+        description: 'Revisión integral de documentos, contratos, correos y estatus de pago del profesor.'
+      };
     }
-    const permitidos = this.accesosPorRol[rol];
-    return this.menuItemsBase.filter(item => permitidos.some(p => item.href === p || item.href.startsWith(p + '/')));
+    return this.pageMap[path] ?? this.pageMap['/'];
   });
 
-  readonly timerText = computed(() => {
-    const total = this.elapsedSeconds();
-    const hours = Math.floor(total / 3600);
-    const minutes = Math.floor((total % 3600) / 60);
-    const seconds = total % 60;
-    const format = (value: number): string => String(value).padStart(2, '0');
-    return `${format(hours)}:${format(minutes)}:${format(seconds)}`;
+  readonly menuItems = computed(() => {
+    const rol = this.rolActual();
+    if (rol === 'administracion') {
+      return this.menuAdministracion;
+    }
+    if (rol === 'finanzas') {
+      return this.menuFinanzas;
+    }
+    if (rol === 'profesor') {
+      return this.menuProfesor;
+    }
+    if (rol === 'tesoreria') {
+      return this.menuTesoreria;
+    }
+    return [] as NavItem[];
+  });
+
+  readonly profesorDetalle = computed(() => {
+    const path = this.currentPath();
+    const match = path.match(/^\/finanzas\/profesor\/([^/]+)$/);
+    if (!match) return null;
+    const id = decodeURIComponent(match[1]);
+    return this.profesoresFinanzas.find((item) => item.id === id) ?? null;
   });
 
   constructor(private readonly router: Router) {
@@ -201,10 +409,6 @@ export class DashboardShellComponent {
       this.routePath.set(normalizedPath);
       this.currentPath.set(normalizedPath);
       this.isMobileMenuOpen.set(false);
-
-      if (this.sesionActiva() && !this.tieneAcceso(normalizedPath)) {
-        this.router.navigateByUrl('/');
-      }
     });
   }
 
@@ -225,12 +429,14 @@ export class DashboardShellComponent {
     localStorage.setItem('honoristas-demo-session', JSON.stringify(usuario));
 
     const destino = usuario.rol === 'administracion'
-      ? '/administracion'
+      ? '/administracion/dashboard'
       : usuario.rol === 'finanzas'
-      ? '/calculo-pagos'
+      ? '/finanzas/dashboard'
       : usuario.rol === 'profesor'
-      ? '/cumplimiento-fiscal'
-      : '/operacion-bancaria';
+      ? '/profesor/dashboard'
+      : usuario.rol === 'tesoreria'
+      ? '/tesoreria/dashboard'
+      : '/';
 
     this.router.navigateByUrl(destino);
   }
@@ -260,11 +466,174 @@ export class DashboardShellComponent {
     return permitidos.some(p => ruta === p || ruta.startsWith(p + '/'));
   }
 
+  seleccionarArchivo(tipo: TipoInsumo, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (tipo === 'pagos') {
+      this.archivoPagos.set(file.name);
+      this.resumenPagos.set(null);
+      this.detallePagos.set([]);
+      return;
+    }
+
+    this.archivoProfesores.set(file.name);
+    this.resumenProfesores.set(null);
+    this.detalleProfesores.set([]);
+  }
+
+  simularCarga(tipo: TipoInsumo): void {
+    if (tipo === 'pagos') {
+      if (!this.archivoPagos()) return;
+      this.cargandoPagos.set(true);
+      setTimeout(() => {
+        this.resumenPagos.set({ total: 42, periodo: '2026-1', monto: '$1,284,550', validos: 39, incidencias: 3 });
+        this.detallePagos.set([
+          { id: 'P-001', profesor: 'Dra. Ana Torres', alumnos: 36, centroCosto: 'CC-ADM-01', monto: '$42,500', estatus: 'Válido' },
+          { id: 'P-002', profesor: 'Mtro. Luis Meza', alumnos: 28, centroCosto: 'CC-ADM-04', monto: '$28,900', estatus: 'Válido' },
+          { id: 'P-003', profesor: 'Mtra. Paulina Cruz', alumnos: 24, centroCosto: 'CC-ADM-02', monto: '$24,300', estatus: 'Con observación (sin centro de costo)' }
+        ]);
+        this.cargandoPagos.set(false);
+      }, 1200);
+      return;
+    }
+
+    if (!this.archivoProfesores()) return;
+    this.cargandoProfesores.set(true);
+    setTimeout(() => {
+      this.resumenProfesores.set({ total: 58, conCorreo: 56, conTelefono: 54, pendientes: 4 });
+      this.detalleProfesores.set([
+        { id: 'PR-1001', nombre: 'Dra. Ana Torres', correo: 'ana.torres@anahuac.mx', telefono: '55-1000-1122', rfc: 'TOAA850101XX1', estatus: 'Completo' },
+        { id: 'PR-1032', nombre: 'Mtro. Luis Meza', correo: 'luis.meza@anahuac.mx', telefono: '55-1000-3355', rfc: 'MELU820505AB2', estatus: 'Completo' },
+        { id: 'PR-1045', nombre: 'Mtra. Laura Neri', correo: 'Sin correo', telefono: '55-1000-7722', rfc: 'NELA790909RC9', estatus: 'Incompleto (correo)' }
+      ]);
+      this.cargandoProfesores.set(false);
+    }, 1200);
+  }
+
+  verProfesorFinanzas(id: string): void {
+    this.router.navigateByUrl(`/finanzas/profesor/${id}`);
+  }
+
+
+  prepararZipComprobantes(): void {
+    this.procesamientoZip.set(true);
+    this.zipComprobantesListo.set(false);
+
+    setTimeout(() => {
+      this.loteZipActual.set({
+        periodo: '2026-1',
+        origen: 'Bank report + comprobantes de pago',
+        totalComprobantes: 42,
+        renombrados: 40,
+        incidencias: 2,
+        archivo: 'comprobantes_renombrados_2026_1.zip'
+      });
+      this.zipComprobantesListo.set(true);
+      this.procesamientoZip.set(false);
+    }, 1200);
+  }
+
+
+  obtenerEstatusDocumento(nombre: string): string {
+    const profesor = this.profesorDetalle();
+    if (!profesor) return 'No aplica';
+    const doc = profesor.documentos.find((item) => item.nombre.toLowerCase() === nombre.toLowerCase());
+    return doc?.estatus ?? 'No cargado';
+  }
+
+  obtenerVigenciaDocumento(nombre: string): string {
+    const profesor = this.profesorDetalle();
+    if (!profesor) return 'N/A';
+    const doc = profesor.documentos.find((item) => item.nombre.toLowerCase() === nombre.toLowerCase());
+    return doc?.vencimiento ?? 'N/A';
+  }
+
+  esTipoPagoActual(tipo: string): boolean {
+    return this.profesorDetalle()?.tipoPago.toLowerCase() === tipo.toLowerCase();
+  }
+
+
+  seleccionarContratoFirmado(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.archivoContratoFirmado.set(file.name);
+    this.contratoProfesorFirmado.set(false);
+  }
+
+  subirContratoFirmado(): void {
+    if (!this.archivoContratoFirmado()) return;
+    this.cargandoContrato.set(true);
+    setTimeout(() => {
+      this.contratoProfesorFirmado.set(true);
+      this.cargandoContrato.set(false);
+    }, 1000);
+  }
+
+  seleccionarFacturaProfesor(tipo: 'pdf' | 'xml', event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (tipo === 'pdf') {
+      this.archivoFacturaPdf.set(file.name);
+    } else {
+      this.archivoFacturaXml.set(file.name);
+    }
+    this.facturaProfesorCargada.set(false);
+  }
+
+  subirFacturaProfesor(): void {
+    if (!this.archivoFacturaPdf() || !this.archivoFacturaXml()) return;
+    this.cargandoFacturaProfesor.set(true);
+    setTimeout(() => {
+      this.facturaProfesorCargada.set(true);
+      this.cargandoFacturaProfesor.set(false);
+    }, 1000);
+  }
+
+
+  generarLayoutTesoreria(): void {
+    this.layoutTesoreriaGenerado.set(true);
+    this.archivoLayoutTesoreria.set('layout_pago_2026_1.txt');
+  }
+
+  seleccionarArchivoTesoreria(tipo: 'bankReport' | 'comprobantes', event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (tipo === 'bankReport') {
+      this.archivoBankReport.set(file.name);
+    } else {
+      this.archivoComprobanteZip.set(file.name);
+    }
+
+    this.renombradoCompletado.set(false);
+    this.resumenRenombradoTesoreria.set(null);
+  }
+
+  procesarBankReportTesoreria(): void {
+    if (!this.archivoBankReport() && !this.archivoComprobanteZip()) return;
+    this.procesandoBankReport.set(true);
+    setTimeout(() => {
+      this.resumenRenombradoTesoreria.set({
+        total: 42,
+        renombrados: 40,
+        incidencias: 2,
+        lote: 'lote_tesoreria_2026_1'
+      });
+      this.renombradoCompletado.set(true);
+      this.procesandoBankReport.set(false);
+    }, 1200);
+  }
+
   private normalizePath(url: string): string {
     if (!url) return '/';
-    // Remove query params and fragments
     let path = url.split('?')[0].split('#')[0];
-    // Remove trailing slash except for root
     if (path.length > 1 && path.endsWith('/')) {
       path = path.slice(0, -1);
     }
@@ -288,11 +657,5 @@ export class DashboardShellComponent {
     } catch {
       localStorage.removeItem('honoristas-demo-session');
     }
-  }
-
-  private tieneAcceso(path: string): boolean {
-    const rol = this.rolActual();
-    if (!rol) return true; // Let them see the landing/login if not logged in
-    return this.puedeVer(path);
   }
 }
