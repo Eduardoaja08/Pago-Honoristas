@@ -30,6 +30,8 @@ export class AdministracionComponent implements OnInit {
     // Tab: Integraciones
     integraciones = signal<Integracion[]>([]);
 
+    modalInfo = signal<{ titulo: string; mensaje: string } | null>(null);
+
     constructor(private readonly adminService: AdministracionService) { }
 
     ngOnInit(): void {
@@ -110,5 +112,13 @@ export class AdministracionComponent implements OnInit {
     toggleIntegracion(id: string, activa: boolean): void {
         this.adminService.actualizarIntegracion(id, { activa });
         this.integraciones.set(this.adminService.obtenerIntegraciones());
+    }
+
+    abrirModalInfo(titulo: string, mensaje: string): void {
+        this.modalInfo.set({ titulo, mensaje });
+    }
+
+    cerrarModalInfo(): void {
+        this.modalInfo.set(null);
     }
 }

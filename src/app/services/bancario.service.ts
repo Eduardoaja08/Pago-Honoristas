@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { LayoutBancario, Dispersión, ArchivoRetorno, ResultadoConciliacion } from '../models';
+import { LayoutBancario, Dispersion, ArchivoRetorno, ResultadoConciliacion } from '../models';
 import { Pago } from '../models';
 
 @Injectable({
@@ -35,7 +35,7 @@ export class BancarioService {
     }
   ]);
 
-  private dispersiones = signal<Dispersión[]>([]);
+  private dispersiones = signal<Dispersion[]>([]);
 
   constructor() {}
 
@@ -47,10 +47,10 @@ export class BancarioService {
     return this.layouts().find(l => l.id === id);
   }
 
-  generarDispersión(
+  generarDispersion(
     pagos: Pago[],
     layoutBancarioId: number
-  ): Promise<Dispersión> {
+  ): Promise<Dispersion> {
     return new Promise((resolve) => {
       const layout = this.obtenerLayoutPorId(layoutBancarioId);
       if (!layout) {
@@ -60,7 +60,7 @@ export class BancarioService {
       const montoTotal = pagos.reduce((sum, p) => sum + p.montoTotal, 0);
       const archivo = this.generarArchivoLayout(pagos, layout);
 
-      const dispersión: Dispersión = {
+      const dispersion: Dispersion = {
         id: Date.now(),
         pagos,
         layoutBancarioId,
@@ -72,8 +72,8 @@ export class BancarioService {
         solicitadoPor: 'Usuario Actual'
       };
 
-      this.dispersiones.update(list => [dispersión, ...list]);
-      resolve(dispersión);
+      this.dispersiones.update(list => [dispersion, ...list]);
+      resolve(dispersion);
     });
   }
 
@@ -115,10 +115,10 @@ export class BancarioService {
     return lineas.slice(0, 10).join('\n'); // Primeras 10 líneas
   }
 
-  autorizarDispersión(dispersiónId: number, autorizadoPor: string): void {
+  autorizarDispersion(dispersionId: number, autorizadoPor: string): void {
     this.dispersiones.update(list =>
       list.map(d =>
-        d.id === dispersiónId
+        d.id === dispersionId
           ? {
               ...d,
               estatus: 'autorizado',
@@ -173,7 +173,7 @@ export class BancarioService {
     });
   }
 
-  obtenerDispersiones(): Dispersión[] {
+  obtenerDispersiones(): Dispersion[] {
     return this.dispersiones();
   }
 }

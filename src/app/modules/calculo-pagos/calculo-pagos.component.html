@@ -100,6 +100,15 @@
                         </div>
                     </div>
                 </div>
+                <div class="rounded-xl border border-border bg-card p-4">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Reglas de tabulador (simulado)</h4>
+                    <ul class="space-y-2 text-xs text-muted-foreground">
+                        <li>â€¢ Rango alumnos 1-20: $900 por alumno</li>
+                        <li>â€¢ Rango alumnos 21-35: $1,050 por alumno</li>
+                        <li>â€¢ Rango alumnos 36+: $1,150 por alumno</li>
+                        <li>â€¢ Bono por coordinaciÃ³n: +10% del total</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -308,7 +317,8 @@
 
             <div class="p-6 bg-muted/10 border-t border-border flex justify-end gap-3">
                 <app-button variant="outline" (onClick)="mostrandoDetalle.set(false)">Cerrar</app-button>
-                <app-button variant="default" (onClick)="mostrandoDetalle.set(false)">Descargar PDF</app-button>
+                <app-button variant="default"
+                    (onClick)="descargarContenido('detalle_pago.pdf', 'Detalle de pago', 'application/pdf')">Descargar PDF</app-button>
             </div>
         </div>
     </div>
@@ -347,6 +357,26 @@
                     [disabled]="!justificacionEdicion.trim()">
                     Guardar y Enviar
                 </app-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: ObservaciÃ³n -->
+    <div *ngIf="mostrandoObservacion()" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div class="w-full max-w-md rounded-2xl border border-border bg-card shadow-2xl animate-in zoom-in-95 duration-200">
+            <div class="p-5 border-b border-border">
+                <h3 class="text-lg font-bold">Registrar observaciÃ³n</h3>
+                <p class="text-xs text-muted-foreground">El pago quedarÃ¡ en estatus Observado.</p>
+            </div>
+            <div class="p-5 space-y-4">
+                <label class="block text-xs font-medium text-muted-foreground mb-1">Motivo de observaciÃ³n</label>
+                <textarea [(ngModel)]="motivoObservacion" rows="3"
+                    class="w-full rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    placeholder="Describe el motivo..."></textarea>
+            </div>
+            <div class="p-5 border-t border-border flex justify-end gap-3">
+                <app-button variant="ghost" (onClick)="cancelarObservacion()">Cancelar</app-button>
+                <app-button variant="default" (onClick)="confirmarObservacion()" [disabled]="!motivoObservacion.trim()">Guardar</app-button>
             </div>
         </div>
     </div>

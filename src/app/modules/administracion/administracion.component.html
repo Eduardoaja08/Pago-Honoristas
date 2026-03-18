@@ -1,5 +1,5 @@
-<div class="space-y-6">
-    <!-- Navegación de Pestañas -->
+﻿<div class="space-y-6">
+    <!-- NavegaciÃ³n de PestaÃ±as -->
     <div class="flex border-b border-border">
         <button (click)="setTab('usuarios')"
             [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'usuarios' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
@@ -7,7 +7,7 @@
         </button>
         <button (click)="setTab('catalogos')"
             [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'catalogos' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
-            Catálogos Maestros
+            CatÃ¡logos Maestros
         </button>
         <button (click)="setTab('reglas')"
             [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'reglas' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
@@ -15,16 +15,17 @@
         </button>
         <button (click)="setTab('integraciones')"
             [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + (tab() === 'integraciones' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')">
-            Integración de Sistemas
+            IntegraciÃ³n de Sistemas
         </button>
     </div>
 
-    <!-- Pestaña: Usuarios y Seguridad -->
+    <!-- PestaÃ±a: Usuarios y Seguridad -->
     <div *ngIf="tab() === 'usuarios'" class="animate-in fade-in duration-300 space-y-6">
         <div class="flex justify-between items-center">
             <div>
-                <h3 class="text-lg font-bold">Gestión de Accesos</h3>
-                <p class="text-sm text-muted-foreground">Administra quién puede acceder a la plataforma y sus niveles de
+                <h3 class="text-lg font-bold">GestiÃ³n de Accesos</h3>
+                <p class="text-sm text-muted-foreground">Administra quiÃ©n puede acceder a la plataforma y sus niveles
+                    de
                     permiso.</p>
             </div>
             <app-button variant="default" (onClick)="mostrandoModalUsuario.set(true)">
@@ -57,7 +58,8 @@
                 </div>
 
                 <div class="pt-4 border-t border-border flex gap-2">
-                    <app-button variant="outline" size="sm" class="flex-1">Editar</app-button>
+                    <app-button variant="outline" size="sm" class="flex-1"
+                        (onClick)="abrirModalInfo('Editar usuario', 'Se abrirÃƒÂ­a el formulario de ediciÃƒÂ³n del usuario seleccionado.')">Editar</app-button>
                     <app-button [variant]="u.activo ? 'ghost' : 'default'" size="sm" class="flex-1"
                         (onClick)="toggleEstadoUsuario(u)">
                         {{ u.activo ? 'Suspender' : 'Activar' }}
@@ -67,9 +69,9 @@
         </div>
     </div>
 
-    <!-- Pestaña: Catálogos Maestros -->
+    <!-- PestaÃ±a: CatÃ¡logos Maestros -->
     <div *ngIf="tab() === 'catalogos'" class="animate-in fade-in duration-300 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <!-- Sidebar Catálogos -->
+        <!-- Sidebar CatÃ¡logos -->
         <div class="md:col-span-1 space-y-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Repositorio</h3>
             <div *ngFor="let c of catalogos()" (click)="seleccionarCatalogo(c.id)"
@@ -81,7 +83,7 @@
             </div>
         </div>
 
-        <!-- Content Catálogo Seleccionado -->
+        <!-- Content CatÃ¡logo Seleccionado -->
         <div class="md:col-span-3">
             <div *ngIf="getCatalogoSeleccionado()" class="rounded-2xl border border-border bg-card overflow-hidden">
                 <div class="p-6 border-b border-border flex justify-between items-center bg-muted/20">
@@ -89,12 +91,14 @@
                         <h4 class="text-lg font-bold">{{ getCatalogoSeleccionado()?.nombre }}</h4>
                         <p class="text-sm text-muted-foreground">{{ getCatalogoSeleccionado()?.descripcion }}</p>
                     </div>
-                    <app-button size="sm">+ Agregar registro</app-button>
+                    <app-button size="sm"
+                        (onClick)="abrirModalInfo('Agregar registro', 'Se abrirÃƒÂ­a la pantalla para alta de catÃƒÂ¡logo.')">+
+                        Agregar registro</app-button>
                 </div>
                 <table class="min-w-full divide-y divide-border">
                     <thead class="bg-muted/50 text-[10px] font-bold uppercase text-muted-foreground">
                         <tr>
-                            <th class="px-6 py-3 text-left">Código / ID</th>
+                            <th class="px-6 py-3 text-left">CÃ³digo / ID</th>
                             <th class="px-6 py-3 text-left">Nombre</th>
                             <th class="px-6 py-3 text-center">Estatus</th>
                             <th class="px-6 py-3 text-right">Acciones</th>
@@ -111,8 +115,9 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <button class="p-1 hover:text-primary transition-colors"><app-icon name="settings"
-                                        [size]="14"></app-icon></button>
+                                <button class="p-1 hover:text-primary transition-colors"
+                                    (click)="abrirModalInfo('Configurar registro', 'Se abrirÃƒÂ­a el detalle de configuraciÃƒÂ³n del registro seleccionado.')"><app-icon
+                                        name="settings" [size]="14"></app-icon></button>
                             </td>
                         </tr>
                         <tr *ngIf="getCatalogoSeleccionado()?.items?.length === 0">
@@ -160,13 +165,15 @@
                         <div class="flex items-center gap-2">
                             <div [class]="'h-2.5 w-2.5 rounded-full ' + (r.activa ? 'bg-emerald-500' : 'bg-slate-300')">
                             </div>
-                            <span class="text-xs font-medium">{{ r.activa ? 'En producción' : 'En pausa' }}</span>
+                            <span class="text-xs font-medium">{{ r.activa ? 'En producciÃ³n' : 'En pausa' }}</span>
                         </div>
-                        <app-button variant="outline" size="sm">Editar Parámetros</app-button>
+                        <app-button variant="outline" size="sm"
+                            (onClick)="abrirModalInfo('Editar parÃ¡metros', 'Se abrirÃ­a la configuraciÃ³n avanzada de la regla de negocio.')">Editar
+                            ParÃ¡metros</app-button>
                     </div>
                 </div>
                 <div class="bg-muted/30 p-4 rounded-xl border border-border/50 font-mono text-xs">
-                    <span class="text-muted-foreground mr-2">Fórmula Lógica:</span>
+                    <span class="text-muted-foreground mr-2">FÃ³rmula LÃ³gica:</span>
                     <span class="text-foreground font-bold">{{ r.formula }}</span>
                 </div>
                 <p class="text-xs text-muted-foreground mt-4 italic">{{ r.descripcion }}</p>
@@ -174,7 +181,7 @@
         </div>
     </div>
 
-    <!-- Pestaña: Integración de Sistemas -->
+    <!-- PestaÃ±a: IntegraciÃ³n de Sistemas -->
     <div *ngIf="tab() === 'integraciones'"
         class="animate-in fade-in duration-300 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div *ngFor="let i of integraciones()" class="rounded-2xl border border-border bg-card p-6 space-y-6">
@@ -201,33 +208,46 @@
             <div class="space-y-3">
                 <div class="flex justify-between text-xs">
                     <span class="text-muted-foreground">Endpoint Principal:</span>
-                    <span class="font-mono">{{ i.configuracion.url || 'Configuración pendiente' }}</span>
+                    <span class="font-mono">{{ i.configuracion.url || 'ConfiguraciÃ³n pendiente' }}</span>
                 </div>
                 <div class="flex justify-between text-xs">
-                    <span class="text-muted-foreground">Frecuencia de Sincronización:</span>
+                    <span class="text-muted-foreground">Frecuencia de SincronizaciÃ³n:</span>
                     <span class="font-bold underline">{{ i.configuracion.frecuenciaSincronizacion | titlecase }}</span>
                 </div>
                 <div class="flex justify-between text-xs">
-                    <span class="text-muted-foreground">Estatus de Conexión:</span>
+                    <span class="text-muted-foreground">Estatus de ConexiÃ³n:</span>
                     <span [class]="'font-bold ' + (i.activa ? 'text-emerald-600' : 'text-slate-400')">
-                        {{ i.activa ? '● Online' : '● Offline' }}
+                        {{ i.activa ? 'â— Online' : 'â— Offline' }}
                     </span>
                 </div>
             </div>
 
             <div class="pt-4 border-t border-border flex gap-3">
                 <app-button variant="outline" class="flex-1" (onClick)="probarConexion(i.id)">Test de
-                    Conexión</app-button>
-                <app-button variant="ghost" class="flex-1">Configurar</app-button>
+                    ConexiÃ³n</app-button>
+                <app-button variant="ghost" class="flex-1"
+                    (onClick)="abrirModalInfo('Configurar integraciÃ³n', 'Se abrirÃ­a la pantalla de configuraciÃ³n del endpoint y credenciales.')">Configurar</app-button>
             </div>
         </div>
 
         <div
             class="rounded-2xl border-2 border-dashed border-border p-6 flex flex-col items-center justify-center text-center bg-muted/10 opacity-60">
             <app-icon name="plus" [size]="32" className="text-muted-foreground mb-4"></app-icon>
-            <h4 class="font-bold text-muted-foreground">Nueva Integración</h4>
+            <h4 class="font-bold text-muted-foreground">Nueva IntegraciÃ³n</h4>
             <p class="text-[10px] text-muted-foreground mt-1 max-w-[200px]">Conecta el sistema con nuevos proveedores de
                 API o servicios institucionales.</p>
         </div>
     </div>
+
+    @if (modalInfo()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div class="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
+            <h3 class="text-lg font-semibold">{{ modalInfo()!.titulo }}</h3>
+            <p class="mt-2 text-sm text-muted-foreground">{{ modalInfo()!.mensaje }}</p>
+            <div class="mt-4 flex justify-end">
+                <app-button variant="outline" (onClick)="cerrarModalInfo()">Cerrar</app-button>
+            </div>
+        </div>
+    </div>
+    }
 </div>

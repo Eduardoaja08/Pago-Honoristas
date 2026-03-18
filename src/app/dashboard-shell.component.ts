@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { IconComponent } from './icon.component';
@@ -32,7 +33,8 @@ interface ProfesorFinanzas {
   facturaEstatus: string;
   pagoEstatus: string;
   ultimoMovimiento: string;
-  datosFiscales: { rfc: string; regimen: string; usoCfdi: string; cuentaClabe: string };
+  expedienteEstatus: string;
+  datosFiscales: { rfc: string; regimen: string; usoCfdi: string; cuentaClabe: string; regimenFiscal: string };
   documentos: Array<{ nombre: string; estatus: string; vencimiento?: string }>;
   correos: Array<{ fecha: string; asunto: string; resultado: string }>;
   contratos: Array<{ folio: string; modulo: string; actividad: string; monto: string; estatus: string; firma: string }>;
@@ -41,11 +43,14 @@ interface ProfesorFinanzas {
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, IconComponent],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, IconComponent],
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss'
 })
 export class DashboardShellComponent {
+  readonly modalInfo = signal<{ titulo: string; mensaje: string; accionLabel?: string; onAccion?: () => void } | null>(null);
+  readonly mostrandoModalCambioEstatus = signal(false);
+  estatusPagoPropuesto = 'Pago en proceso';
   readonly menuAdministracion: NavItem[] = [
     { icon: 'dashboard', label: 'Dashboard Administración', href: '/administracion/dashboard' },
     { icon: 'book', label: 'Insumo para pagos', href: '/administracion/insumo-pagos' },
@@ -83,9 +88,9 @@ export class DashboardShellComponent {
 
   readonly usuariosDemo: UsuarioDemo[] = [
     { nombre: 'Sandra Viña', usuario: 'admin.sandra', password: 'Admin2026*', rol: 'administracion', correo: 'sandra.vina@anahuac.mx' },
-    { nombre: 'Marco Salas', usuario: 'finanzas.marco', password: 'Finanzas2026*', rol: 'finanzas', correo: 'marco.salas@anahuac.mx' },
+    { nombre: 'Liz Alvarez', usuario: 'finanzas.liz', password: 'Finanzas2026*', rol: 'finanzas', correo: 'marco.salas@anahuac.mx' },
     { nombre: 'Dra. Ana Torres', usuario: 'profesor.ana', password: 'Profesor2026*', rol: 'profesor', correo: 'ana.torres@anahuac.mx' },
-    { nombre: 'Lucía Paredes', usuario: 'tesoreria.lucia', password: 'Tesoreria2026*', rol: 'tesoreria', correo: 'lucia.paredes@anahuac.mx' }
+    { nombre: 'Lorena Jara', usuario: 'tesoreria.lorena', password: 'Tesoreria2026*', rol: 'tesoreria', correo: 'lucia.paredes@anahuac.mx' }
   ];
 
   readonly generalItems: NavItem[] = [
@@ -143,7 +148,8 @@ export class DashboardShellComponent {
       facturaEstatus: 'CFDI recibido y validado',
       pagoEstatus: 'Listo para dispersión',
       ultimoMovimiento: '13/03/2026 11:35',
-      datosFiscales: { rfc: 'TOAA850101XX1', regimen: 'Régimen Simplificado de Confianza', usoCfdi: 'G03', cuentaClabe: '002180700111223344' },
+      expedienteEstatus: 'Completo',
+      datosFiscales: { rfc: 'TOAA850101XX1', regimen: 'Régimen Simplificado de Confianza', usoCfdi: 'G03', cuentaClabe: '002180700111223344', regimenFiscal: 'Régimen Simplificado de Confianza' },
       documentos: [
         { nombre: 'CV actualizado', estatus: 'Vigente', vencimiento: '12/2026' },
         { nombre: 'Constancia de situación fiscal', estatus: 'Vigente', vencimiento: '09/2026' },
@@ -172,7 +178,8 @@ export class DashboardShellComponent {
       facturaEstatus: 'CFDI en validación',
       pagoEstatus: 'En revisión de comprobantes',
       ultimoMovimiento: '13/03/2026 12:40',
-      datosFiscales: { rfc: 'CRI990101AB3', regimen: 'Persona moral general', usoCfdi: 'G03', cuentaClabe: '014180567890123456' },
+      expedienteEstatus: 'Completo',
+      datosFiscales: { rfc: 'CRI990101AB3', regimen: 'Persona moral general', usoCfdi: 'G03', cuentaClabe: '014180567890123456', regimenFiscal: 'Persona moral general' },
       documentos: [
         { nombre: 'Currículum vitae (CV): Actualizado', estatus: 'Vigente', vencimiento: '12/2026' },
         { nombre: 'Solicitud de empleo', estatus: 'Cargado' },
@@ -190,7 +197,6 @@ export class DashboardShellComponent {
         { folio: 'CNT-2026-01103', modulo: 'Licenciatura', actividad: 'Docencia', monto: '$31,200', estatus: 'Firmado', firma: '11/03/2026' }
       ]
     },
-
     {
       id: 'PR-1032',
       nombre: 'Mtro. Luis Meza',
@@ -198,11 +204,12 @@ export class DashboardShellComponent {
       montoPeriodo: '$28,900',
       alumnos: 28,
       centroCosto: 'CC-ADM-04',
-      contratoEstatus: 'Enviado (pendiente firma)',
+      contratoEstatus: 'Sin enviar (Expediente incompleto)',
       facturaEstatus: 'No habilitado',
       pagoEstatus: 'En espera de contrato',
       ultimoMovimiento: '13/03/2026 09:20',
-      datosFiscales: { rfc: 'MELU820505AB2', regimen: 'Sueldos y Salarios', usoCfdi: 'CN01', cuentaClabe: '012180009991234567' },
+      expedienteEstatus: 'Incompleto',
+      datosFiscales: { rfc: 'MELU820505AB2', regimen: 'Sueldos y Salarios', usoCfdi: 'CN01', cuentaClabe: '012180009991234567', regimenFiscal: 'Sueldos y Salarios' },
       documentos: [
         { nombre: 'Constancia de situación fiscal', estatus: 'Vigente', vencimiento: '10/2026' },
         { nombre: 'Recibos de nómina (2)', estatus: 'Cargado' },
@@ -224,11 +231,12 @@ export class DashboardShellComponent {
       montoPeriodo: '$24,300',
       alumnos: 24,
       centroCosto: 'CC-ADM-02',
-      contratoEstatus: 'Firmado',
-      facturaEstatus: 'Factura extranjero pendiente',
-      pagoEstatus: 'En validación fiscal',
+      contratoEstatus: 'Sin enviar (Expediente incompleto)',
+      facturaEstatus: 'No habilitado',
+      pagoEstatus: 'En espera de contrato',
       ultimoMovimiento: '13/03/2026 12:04',
-      datosFiscales: { rfc: 'XEXX010101000', regimen: 'Residente en el extranjero', usoCfdi: 'S01', cuentaClabe: 'No aplica (transferencia internacional)' },
+      expedienteEstatus: 'Incompleto',
+      datosFiscales: { rfc: 'XEXX010101000', regimen: 'Residente en el extranjero', usoCfdi: 'S01', cuentaClabe: 'No aplica (transferencia internacional)', regimenFiscal: 'Residente en el extranjero' },
       documentos: [
         { nombre: 'Pasaporte', estatus: 'Cargado' },
         { nombre: 'Constancia de residencia fiscal', estatus: 'Vigente', vencimiento: '11/2026' },
@@ -237,10 +245,10 @@ export class DashboardShellComponent {
       ],
       correos: [
         { fecha: '09/03/2026 09:00', asunto: 'Contrato disponible para firma', resultado: 'Entregado' },
-        { fecha: '11/03/2026 19:12', asunto: 'Solicitud de factura extranjera', resultado: 'Entregado' }
+        { fecha: '11/03/2026 19:12', asunto: 'Solicitud de factura externa', resultado: 'Entregado' }
       ],
       contratos: [
-        { folio: 'CNT-2026-01077', modulo: 'Doctorado', actividad: 'Docencia', monto: '$24,300', estatus: 'Firmado', firma: '11/03/2026' }
+        { folio: 'CNT-2026-01077', modulo: 'Doctorado', actividad: 'Docencia', monto: '$24,300', estatus: 'Sin enviar', firma: 'Pendiente' }
       ]
     }
   ];
@@ -282,7 +290,6 @@ export class DashboardShellComponent {
       title: 'Seguimiento de estatus de pago',
       description: 'Controla el avance: contrato, requisitos fiscales, CFDI y estado de pago.'
     },
-
     '/finanzas/comprobantes': {
       title: 'Comprobantes renombrados y descarga ZIP',
       description: 'Finanzas descarga el ZIP final de comprobantes (PDF/XML) renombrados con base en bank report y resultados de pago.'
@@ -335,9 +342,12 @@ export class DashboardShellComponent {
   readonly archivoContratoFirmado = signal('');
   readonly cargandoContrato = signal(false);
   readonly cargandoFacturaProfesor = signal(false);
+  readonly validandoDatosPago = signal(false);
+  readonly datosPagoValidados = signal(false);
   readonly facturaProfesorCargada = signal(false);
   readonly archivoFacturaPdf = signal('');
   readonly archivoFacturaXml = signal('');
+  readonly archivoLayoutContenido = signal('');
 
   readonly layoutTesoreriaGenerado = signal(false);
   readonly archivoLayoutTesoreria = signal('layout_pago_2026_1.txt');
@@ -351,7 +361,6 @@ export class DashboardShellComponent {
     incidencias: number;
     lote: string;
   } | null>(null);
-
 
   readonly archivoPagos = signal('');
   readonly archivoProfesores = signal('');
@@ -376,18 +385,10 @@ export class DashboardShellComponent {
 
   readonly menuItems = computed(() => {
     const rol = this.rolActual();
-    if (rol === 'administracion') {
-      return this.menuAdministracion;
-    }
-    if (rol === 'finanzas') {
-      return this.menuFinanzas;
-    }
-    if (rol === 'profesor') {
-      return this.menuProfesor;
-    }
-    if (rol === 'tesoreria') {
-      return this.menuTesoreria;
-    }
+    if (rol === 'administracion') return this.menuAdministracion;
+    if (rol === 'finanzas') return this.menuFinanzas;
+    if (rol === 'profesor') return this.menuProfesor;
+    if (rol === 'tesoreria') return this.menuTesoreria;
     return [] as NavItem[];
   });
 
@@ -397,6 +398,12 @@ export class DashboardShellComponent {
     if (!match) return null;
     const id = decodeURIComponent(match[1]);
     return this.profesoresFinanzas.find((item) => item.id === id) ?? null;
+  });
+
+  readonly misDatosPerfil = computed(() => {
+    const usuario = this.usuarioActual();
+    if (!usuario) return null;
+    return this.profesoresFinanzas.find((item) => item.nombre === usuario.nombre) ?? null;
   });
 
   constructor(private readonly router: Router) {
@@ -431,12 +438,12 @@ export class DashboardShellComponent {
     const destino = usuario.rol === 'administracion'
       ? '/administracion/dashboard'
       : usuario.rol === 'finanzas'
-      ? '/finanzas/dashboard'
-      : usuario.rol === 'profesor'
-      ? '/profesor/dashboard'
-      : usuario.rol === 'tesoreria'
-      ? '/tesoreria/dashboard'
-      : '/';
+        ? '/finanzas/dashboard'
+        : usuario.rol === 'profesor'
+          ? '/profesor/dashboard'
+          : usuario.rol === 'tesoreria'
+            ? '/tesoreria/dashboard'
+            : '/';
 
     this.router.navigateByUrl(destino);
   }
@@ -469,20 +476,17 @@ export class DashboardShellComponent {
   seleccionarArchivo(tipo: TipoInsumo, event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     if (tipo === 'pagos') {
       this.archivoPagos.set(file.name);
       this.resumenPagos.set(null);
       this.detallePagos.set([]);
-      return;
+    } else {
+      this.archivoProfesores.set(file.name);
+      this.resumenProfesores.set(null);
+      this.detalleProfesores.set([]);
     }
-
-    this.archivoProfesores.set(file.name);
-    this.resumenProfesores.set(null);
-    this.detalleProfesores.set([]);
   }
 
   simularCarga(tipo: TipoInsumo): void {
@@ -498,26 +502,32 @@ export class DashboardShellComponent {
         ]);
         this.cargandoPagos.set(false);
       }, 1200);
-      return;
+    } else {
+      if (!this.archivoProfesores()) return;
+      this.cargandoProfesores.set(true);
+      setTimeout(() => {
+        this.resumenProfesores.set({ total: 58, conCorreo: 56, conTelefono: 54, pendientes: 4 });
+        this.detalleProfesores.set([
+          { id: 'PR-1001', nombre: 'Dra. Ana Torres', correo: 'ana.torres@anahuac.mx', telefono: '55-1000-1122', rfc: 'TOAA850101XX1', estatus: 'Completo' },
+          { id: 'PR-1032', nombre: 'Mtro. Luis Meza', correo: 'luis.meza@anahuac.mx', telefono: '55-1000-3355', rfc: 'MELU820505AB2', estatus: 'Completo' },
+          { id: 'PR-1045', nombre: 'Mtra. Laura Neri', correo: 'Sin correo', telefono: '55-1000-7722', rfc: 'NELA790909RC9', estatus: 'Incompleto (correo)' }
+        ]);
+        this.cargandoProfesores.set(false);
+      }, 1200);
     }
-
-    if (!this.archivoProfesores()) return;
-    this.cargandoProfesores.set(true);
-    setTimeout(() => {
-      this.resumenProfesores.set({ total: 58, conCorreo: 56, conTelefono: 54, pendientes: 4 });
-      this.detalleProfesores.set([
-        { id: 'PR-1001', nombre: 'Dra. Ana Torres', correo: 'ana.torres@anahuac.mx', telefono: '55-1000-1122', rfc: 'TOAA850101XX1', estatus: 'Completo' },
-        { id: 'PR-1032', nombre: 'Mtro. Luis Meza', correo: 'luis.meza@anahuac.mx', telefono: '55-1000-3355', rfc: 'MELU820505AB2', estatus: 'Completo' },
-        { id: 'PR-1045', nombre: 'Mtra. Laura Neri', correo: 'Sin correo', telefono: '55-1000-7722', rfc: 'NELA790909RC9', estatus: 'Incompleto (correo)' }
-      ]);
-      this.cargandoProfesores.set(false);
-    }, 1200);
   }
 
   verProfesorFinanzas(id: string): void {
     this.router.navigateByUrl(`/finanzas/profesor/${id}`);
   }
 
+  abrirModalInfo(titulo: string, mensaje: string, accionLabel?: string, onAccion?: () => void): void {
+    this.modalInfo.set({ titulo, mensaje, accionLabel, onAccion });
+  }
+
+  cerrarModalInfo(): void {
+    this.modalInfo.set(null);
+  }
 
   prepararZipComprobantes(): void {
     this.procesamientoZip.set(true);
@@ -537,6 +547,49 @@ export class DashboardShellComponent {
     }, 1200);
   }
 
+  descargarEjemplo(ruta: string, nombre?: string): void {
+    const link = document.createElement('a');
+    link.href = ruta;
+    if (nombre) link.download = nombre;
+    link.click();
+  }
+
+  descargarContenido(nombre: string, contenido: string, tipo: string = 'text/plain'): void {
+    const blob = new Blob([contenido], { type: tipo });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nombre;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  claseEstatus(estatus: string): string {
+    const normalizado = (estatus || '').toLowerCase();
+    if (normalizado.includes('valid') || normalizado.includes('firmad') || normalizado.includes('listo') || normalizado.includes('vigente')) {
+      return 'bg-emerald-100 text-emerald-700';
+    }
+    if (normalizado.includes('pendiente') || normalizado.includes('en revis') || normalizado.includes('en espera') || normalizado.includes('en proceso')) {
+      return 'bg-amber-100 text-amber-700';
+    }
+    if (normalizado.includes('rechaz') || normalizado.includes('incompleto') || normalizado.includes('no habilitado')) {
+      return 'bg-red-100 text-red-700';
+    }
+    return 'bg-slate-100 text-slate-700';
+  }
+
+  abrirCambioEstatusPago(): void {
+    this.estatusPagoPropuesto = 'Pago en proceso';
+    this.mostrandoModalCambioEstatus.set(true);
+  }
+
+  confirmarCambioEstatusPago(): void {
+    const profesor = this.profesorDetalle();
+    if (!profesor) return;
+    profesor.pagoEstatus = this.estatusPagoPropuesto;
+    this.mostrandoModalCambioEstatus.set(false);
+    this.abrirModalInfo('Estatus actualizado', `El estatus de pago de ${profesor.nombre} se cambió a: ${this.estatusPagoPropuesto}.`);
+  }
 
   obtenerEstatusDocumento(nombre: string): string {
     const profesor = this.profesorDetalle();
@@ -555,7 +608,6 @@ export class DashboardShellComponent {
   esTipoPagoActual(tipo: string): boolean {
     return this.profesorDetalle()?.tipoPago.toLowerCase() === tipo.toLowerCase();
   }
-
 
   seleccionarContratoFirmado(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -595,10 +647,40 @@ export class DashboardShellComponent {
     }, 1000);
   }
 
+  validarDatosPago(): void {
+    this.validandoDatosPago.set(true);
+    setTimeout(() => {
+      this.datosPagoValidados.set(true);
+      this.validandoDatosPago.set(false);
+    }, 1500);
+  }
 
   generarLayoutTesoreria(): void {
     this.layoutTesoreriaGenerado.set(true);
     this.archivoLayoutTesoreria.set('layout_pago_2026_1.txt');
+    this.archivoLayoutContenido.set(this.generarContenidoLayout());
+  }
+
+  descargarLayoutTesoreria(): void {
+    const contenido = this.archivoLayoutContenido() || this.generarContenidoLayout();
+    this.descargarContenido(this.archivoLayoutTesoreria(), contenido, 'text/plain');
+  }
+
+  descargarZipComprobantes(): void {
+    const lote = this.loteZipActual();
+    const contenido = [
+      'COMPROBANTES RENOMBRADOS - LOTE',
+      `Periodo: ${lote?.periodo || 'N/A'}`,
+      `Origen: ${lote?.origen || 'N/A'}`,
+      `Total: ${lote?.totalComprobantes || 0}`,
+      `Renombrados: ${lote?.renombrados || 0}`,
+      `Incidencias: ${lote?.incidencias || 0}`,
+      '',
+      'Ejemplo de archivos:',
+      'TOAA850101XX1_CNT-2026-01011_2026-1.pdf',
+      'TOAA850101XX1_CNT-2026-01011_2026-1.xml'
+    ].join('\n');
+    this.descargarContenido(lote?.archivo || 'comprobantes_renombrados_2026_1.zip', contenido, 'text/plain');
   }
 
   seleccionarArchivoTesoreria(tipo: 'bankReport' | 'comprobantes', event: Event): void {
@@ -631,12 +713,20 @@ export class DashboardShellComponent {
     }, 1200);
   }
 
+  private generarContenidoLayout(): string {
+    const encabezado = 'CLABE|MONTO|REFERENCIA|NOMBRE|RFC|CONCEPTO|PERIODO';
+    const lineas = this.profesoresFinanzas.map((p) => {
+      const clabe = p.datosFiscales.cuentaClabe.replace(/\s+/g, '').slice(0, 18) || '000000000000000000';
+      const monto = p.montoPeriodo.replace(/[$,]/g, '');
+      return `${clabe}|${monto}|${p.contratos[0]?.folio || p.id}|${p.nombre}|${p.datosFiscales.rfc}|HONORARIOS|2026-1`;
+    });
+    return [encabezado, ...lineas].join('\n');
+  }
+
   private normalizePath(url: string): string {
     if (!url) return '/';
     let path = url.split('?')[0].split('#')[0];
-    if (path.length > 1 && path.endsWith('/')) {
-      path = path.slice(0, -1);
-    }
+    if (path.length > 1 && path.endsWith('/')) path = path.slice(0, -1);
     return path;
   }
 

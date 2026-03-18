@@ -1,585 +1,1302 @@
 <div class="flex min-h-screen bg-background text-foreground">
   @if (!sesionActiva()) {
-    <div class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
-      <div class="grid w-full max-w-6xl gap-5 lg:grid-cols-2">
-        <section class="rounded-2xl border border-border bg-card p-6 shadow-2xl">
-          <p class="text-xs font-semibold uppercase tracking-wider text-primary">Acceso por rol</p>
-          <h2 class="mt-2 text-2xl font-bold">Inicio de sesión</h2>
-          <p class="mt-1 text-sm text-muted-foreground">Fase activa: Administración, Finanzas y Profesor con vistas operativas por rol.</p>
-
-          <div class="mt-5 space-y-3">
-            <label class="text-xs font-semibold">Usuario</label>
-            <input class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" placeholder="admin.sandra"
-              [value]="usuarioInput()" (input)="setUsuario($any($event.target).value)" />
-
-            <label class="text-xs font-semibold">Contraseña</label>
-            <input type="password" class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" placeholder="••••••••"
-              [value]="passwordInput()" (input)="setPassword($any($event.target).value)" />
-
-            @if (errorLogin()) {
-              <p class="rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">{{ errorLogin() }}</p>
-            }
-
-            <button class="mt-2 h-10 w-full rounded-lg bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-              (click)="login()">Entrar al sistema</button>
+  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-[#dd5400]/20 p-4 backdrop-blur-sm">
+    <div class="grid w-full max-w-6xl gap-5 lg:grid-cols-2">
+      <section class="rounded-2xl border border-border bg-card p-6 shadow-2xl">
+        <div class="mb-6 items-center gap-3">
+          <img src="/images/logo.png" alt="Logo Honoristas" class="w-[200px] object-contain" />
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-primary">Acceso por rol</p>
+            <h2 class="text-xl font-bold">Inicio de sesión</h2>
           </div>
-        </section>
+        </div>
+        <p class="mt-1 text-sm text-muted-foreground">Fase activa: Administración, Finanzas y Profesor con vistas
+          operativas por rol.</p>
 
-        <section class="rounded-2xl border border-border bg-card p-6 shadow-2xl">
-          <h3 class="text-lg font-semibold">Usuarios dummy</h3>
-          <p class="mb-4 text-xs text-muted-foreground">Administración, Finanzas y Profesor ya tienen módulos operativos.</p>
-          <div class="space-y-3">
-            @for (user of usuariosDemo; track user.usuario) {
-              <article class="rounded-xl border border-border bg-background p-3 text-sm">
-                <p class="font-semibold">{{ user.nombre }} · {{ user.rol | titlecase }}</p>
-                <p class="text-xs text-muted-foreground">Usuario: <span class="font-mono text-foreground">{{ user.usuario }}</span></p>
-                <p class="text-xs text-muted-foreground">Password: <span class="font-mono text-foreground">{{ user.password }}</span></p>
-              </article>
-            }
-          </div>
-        </section>
+        <div class="mt-5 space-y-3">
+          <label class="text-xs font-semibold">Usuario</label>
+          <input class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm"
+            placeholder="admin.sandra" [value]="usuarioInput()" (input)="setUsuario($any($event.target).value)" />
+
+          <label class="text-xs font-semibold">Contraseña</label>
+          <input type="password" class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm"
+            placeholder="••••••••" [value]="passwordInput()" (input)="setPassword($any($event.target).value)" />
+
+          @if (errorLogin()) {
+          <p class="rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">{{ errorLogin() }}</p>
+          }
+
+          <button
+            class="mt-2 h-10 w-full rounded-lg bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+            (click)="login()">Entrar al sistema</button>
+        </div>
+      </section>
+
+      <section class="rounded-2xl border border-border bg-card p-6 shadow-2xl">
+        <h3 class="text-lg font-semibold">Usuarios dummy</h3>
+        <p class="mb-4 text-xs text-muted-foreground">Administración, Finanzas y Profesor ya tienen módulos operativos.
+        </p>
+        <div class="space-y-3">
+          @for (user of usuariosDemo; track user.usuario) {
+          <article class="rounded-xl border border-border bg-background p-3 text-sm">
+            <p class="font-semibold">{{ user.nombre }} · {{ user.rol | titlecase }}</p>
+            <p class="text-xs text-muted-foreground">Usuario: <span class="font-mono text-foreground">{{ user.usuario
+                }}</span></p>
+            <p class="text-xs text-muted-foreground">Password: <span class="font-mono text-foreground">{{ user.password
+                }}</span></p>
+          </article>
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+  } @else {
+  <div class="fixed inset-0 z-30 bg-black/40 lg:hidden" [class.hidden]="!isMobileMenuOpen()"
+    (click)="isMobileMenuOpen.set(false)"></div>
+
+  <aside
+    class="fixed top-0 left-0 z-40 h-screen w-64 -translate-x-full border-r border-border bg-card p-4 transition-transform duration-300 lg:translate-x-0"
+    [class.-translate-x-full]="!isMobileMenuOpen()" [class.translate-x-0]="isMobileMenuOpen()">
+    <div class="group mb-6 flex cursor-pointer items-center gap-2">
+      <a routerLink="/" class="items-center gap-3">
+        <img src="/images/logo.png" alt="Logo"
+          class="w-[150px] object-contain transition-transform duration-300 group-hover:scale-105" />
+        <!-- <span class="text-sm font-bold">Pago a Honoristas</span> -->
+      </a>
+    </div>
+
+    <div class="flex h-[calc(100vh-8rem)] flex-col justify-between">
+      <div>
+        <p class="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Módulos</p>
+        <nav class="space-y-0.5">
+          @for (item of menuItems(); track item.href) {
+          <a [routerLink]="item.href" routerLinkActive="bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+            class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground">
+            <app-icon [name]="item.icon" [size]="16"></app-icon>
+            <span class="text-sm">{{ item.label }}</span>
+          </a>
+          }
+          @if (!menuItems().length) {
+          <p class="rounded-lg border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+            En esta fase tu rol no tiene módulos operativos específicos.
+          </p>
+          }
+        </nav>
+      </div>
+
+      <div class="mt-auto">
+        <p class="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Sistema</p>
+        <nav class="space-y-0.5">
+          @for (item of generalItems; track item.href) {
+          @if (item.href !== '/logout') {
+          <a [routerLink]="item.href" routerLinkActive="bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+            class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground">
+            <app-icon [name]="item.icon" [size]="16"></app-icon>
+            <span class="text-sm">{{ item.label }}</span>
+          </a>
+          } @else {
+          <button type="button" (click)="logout()"
+            class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground">
+            <app-icon [name]="item.icon" [size]="16"></app-icon>
+            <span class="text-sm">{{ item.label }}</span>
+          </button>
+          }
+          }
+        </nav>
       </div>
     </div>
-  } @else {
-    <div class="fixed inset-0 z-30 bg-black/40 lg:hidden" [class.hidden]="!isMobileMenuOpen()" (click)="isMobileMenuOpen.set(false)"></div>
+  </aside>
 
-    <aside
-      class="fixed top-0 left-0 z-40 h-screen w-64 -translate-x-full border-r border-border bg-card p-4 transition-transform duration-300 lg:translate-x-0"
-      [class.-translate-x-full]="!isMobileMenuOpen()" [class.translate-x-0]="isMobileMenuOpen()">
-      <div class="group mb-6 flex cursor-pointer items-center gap-2">
-        <a routerLink="/" class="flex items-center gap-2">
-          <div class="relative flex h-8 w-8 items-center justify-center rounded-full bg-primary transition-transform duration-300 group-hover:scale-110">
-            <div class="absolute left-[30%] top-[30%] h-1.5 w-1.5 rounded-full bg-primary-foreground"></div>
-            <div class="absolute right-[30%] top-[30%] h-1.5 w-1.5 rounded-full bg-primary-foreground"></div>
-            <div class="absolute bottom-2.5 h-1.5 w-3 rounded-full border-b-2 border-primary-foreground"></div>
+  <main class="flex-1 p-3 md:p-4 lg:ml-64 lg:p-5">
+    <header class="animate-slide-in-up space-y-3 md:space-y-4">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex flex-1 items-center gap-2">
+          <button class="h-8 w-8 rounded-md p-1 hover:bg-secondary lg:hidden" (click)="isMobileMenuOpen.set(true)">
+            <app-icon name="menu" [size]="22"></app-icon>
+          </button>
+          <div class="relative flex-1 max-w-md">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+              <app-icon name="search" [size]="16"></app-icon>
+            </span>
+            <input class="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-xs"
+              placeholder="Buscar profesor, estatus o folio..." />
           </div>
-          <span class="text-lg font-semibold">Honoristas UA</span>
-        </a>
-      </div>
-
-      <div class="flex h-[calc(100vh-8rem)] flex-col justify-between">
-        <div>
-          <p class="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Módulos</p>
-          <nav class="space-y-0.5">
-            @for (item of menuItems(); track item.href) {
-              <a [routerLink]="item.href" routerLinkActive="bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground">
-                <app-icon [name]="item.icon" [size]="16"></app-icon>
-                <span class="text-sm">{{ item.label }}</span>
-              </a>
-            }
-            @if (!menuItems().length) {
-              <p class="rounded-lg border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
-                En esta fase tu rol no tiene módulos operativos específicos.
-              </p>
-            }
-          </nav>
         </div>
 
-        <div class="mt-auto">
-          <p class="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Sistema</p>
-          <nav class="space-y-0.5">
-            @for (item of generalItems; track item.href) {
-              @if (item.href !== '/logout') {
-                <a [routerLink]="item.href" routerLinkActive="bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                  class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground">
-                  <app-icon [name]="item.icon" [size]="16"></app-icon>
-                  <span class="text-sm">{{ item.label }}</span>
-                </a>
-              } @else {
-                <button type="button" (click)="logout()"
-                  class="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground">
-                  <app-icon [name]="item.icon" [size]="16"></app-icon>
-                  <span class="text-sm">{{ item.label }}</span>
-                </button>
+        <div class="flex items-center gap-1.5 md:gap-2">
+          <button class="relative flex h-8 w-8 items-center justify-center rounded-md hover:bg-secondary">
+            <app-icon name="mail" [size]="16"></app-icon>
+          </button>
+          <button class="relative flex h-8 w-8 items-center justify-center rounded-md hover:bg-secondary">
+            <app-icon name="bell" [size]="16"></app-icon>
+            <span class="absolute right-1.5 top-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-destructive"></span>
+          </button>
+          <div class="hidden items-center gap-2 border-l border-border pl-3 sm:flex">
+            <div
+              class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+              {{ usuarioActual() ? usuarioActual()!.nombre.split(' ')[0][0] + (usuarioActual()!.nombre.split(' ')[1] ?
+              usuarioActual()!.nombre.split(' ')[1][0] : '') : 'UA' }}
+            </div>
+            <div class="text-xs">
+              <p class="font-semibold">{{ usuarioActual()?.nombre || 'Mesa Operativa' }}</p>
+              <p class="text-[10px] text-muted-foreground">{{ usuarioActual()?.correo ||
+                'operacion.honoristas@anahuac.mx' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <h1 class="mb-1 text-xl font-bold md:text-2xl lg:text-3xl">{{ pageInfo().title }}</h1>
+        <p class="text-xs text-muted-foreground md:text-sm">{{ pageInfo().description }}</p>
+      </div>
+    </header>
+
+    <div class="mt-6 space-y-6">
+      @if (currentPath() === '/' && rolActual() !== 'administracion' && rolActual() !== 'finanzas' && rolActual() !==
+      'profesor' && rolActual() !== 'tesoreria') {
+      <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <h3 class="text-lg font-semibold">Módulos en preparación</h3>
+        <p class="mt-2 text-sm text-muted-foreground">En esta fase dejamos habilitadas pantallas operativas para
+          Administración y Finanzas. Para tu rol, por ahora están disponibles Configuración, Soporte y Salir.</p>
+      </section>
+      }
+
+      @if (currentPath() === '/administracion/dashboard' && puedeVer('/administracion/dashboard')) {
+      <section class="grid gap-4 md:grid-cols-4">
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Insumo pagos</p>
+          <p class="mt-2 text-2xl font-bold">42</p>
+          <p class="text-xs text-green-500">Registros esperados</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Catálogo profesores</p>
+          <p class="mt-2 text-2xl font-bold">58</p>
+          <p class="text-xs text-green-500">Perfiles detectados</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Incidencias</p>
+          <p class="mt-2 text-2xl font-bold">7</p>
+          <p class="text-xs text-amber-500">Pendientes por corregir</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Estatus periodo 2026-1</p>
+          <p class="mt-2 text-2xl font-bold">Preparación</p>
+          <p class="text-xs text-primary">Sincronización SAPO completada</p>
+        </article>
+      </section>
+      }
+
+      @if (currentPath() === '/administracion/insumo-pagos' && puedeVer('/administracion/insumo-pagos')) {
+      <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <h3 class="text-lg font-semibold">Carga de archivo · Insumo para pago</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Formato esperado: ID profesor, nombre, correo, cantidad alumnos,
+          centro de costos.</p>
+        <div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto_auto]">
+          <input type="file" accept=".csv,.xlsx" (change)="seleccionarArchivo('pagos', $event)"
+            class="h-10 rounded-lg border border-border bg-background px-3 text-sm file:mr-4 file:border-0 file:bg-transparent file:text-xs" />
+          <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium"
+            [disabled]="!archivoPagos()">{{ archivoPagos() || 'Selecciona archivo' }}</button>
+          <button
+            class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50"
+            [disabled]="!archivoPagos() || cargandoPagos()" (click)="simularCarga('pagos')">{{ cargandoPagos() ?
+            'Cargando...' : 'Validar y cargar' }}</button>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+          <button
+            class="rounded-lg border border-border bg-transparent px-3 py-1 text-xs font-medium hover:bg-secondary"
+            (click)="descargarEjemplo('/ejemplos/plantilla_insumo_pagos_2026_1.csv', 'plantilla_insumo_pagos_2026_1.csv')">
+            Descargar plantilla CSV
+          </button>
+          <button
+            class="rounded-lg border border-border bg-transparent px-3 py-1 text-xs font-medium hover:bg-secondary"
+            (click)="descargarEjemplo('/ejemplos/reporte_incidencias_2026_1.csv', 'reporte_incidencias_2026_1.csv')">
+            Ver ejemplo de incidencias
+          </button>
+        </div>
+        @if (resumenPagos()) {
+        <div class="mt-5 rounded-xl border border-green-500/30 bg-green-500/5 p-4 text-sm">
+          <p class="font-semibold text-green-600">Carga completada correctamente</p>
+          <p class="mt-1 text-muted-foreground">Periodo: {{ resumenPagos()!.periodo }} · Registros: {{
+            resumenPagos()!.total }} · Válidos: {{ resumenPagos()!.validos }} · Incidencias: {{
+            resumenPagos()!.incidencias }} · Monto estimado: {{ resumenPagos()!.monto }}</p>
+        </div>
+        }
+      </section>
+      }
+
+      @if (currentPath() === '/administracion/insumo-profesores' && puedeVer('/administracion/insumo-profesores')) {
+      <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <h3 class="text-lg font-semibold">Carga de archivo · Datos personales y contacto</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Formato esperado: ID profesor, nombre completo, RFC, correo,
+          teléfono, dirección y datos de contacto.</p>
+        <div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto_auto]">
+          <input type="file" accept=".csv,.xlsx" (change)="seleccionarArchivo('profesores', $event)"
+            class="h-10 rounded-lg border border-border bg-background px-3 text-sm file:mr-4 file:border-0 file:bg-transparent file:text-xs" />
+          <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium"
+            [disabled]="!archivoProfesores()">{{ archivoProfesores() || 'Selecciona archivo' }}</button>
+          <button
+            class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50"
+            [disabled]="!archivoProfesores() || cargandoProfesores()" (click)="simularCarga('profesores')">{{
+            cargandoProfesores() ? 'Cargando...' : 'Validar y cargar' }}</button>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+          <button
+            class="rounded-lg border border-border bg-transparent px-3 py-1 text-xs font-medium hover:bg-secondary"
+            (click)="descargarEjemplo('/ejemplos/plantilla_insumo_profesores_2026_1.csv', 'plantilla_insumo_profesores_2026_1.csv')">
+            Descargar plantilla CSV
+          </button>
+        </div>
+        @if (resumenProfesores()) {
+        <div class="mt-5 rounded-xl border border-green-500/30 bg-green-500/5 p-4 text-sm">
+          <p class="font-semibold text-green-600">Catálogo cargado correctamente</p>
+          <p class="mt-1 text-muted-foreground">Total perfiles: {{ resumenProfesores()!.total }} · Con correo: {{
+            resumenProfesores()!.conCorreo }} · Con teléfono: {{ resumenProfesores()!.conTelefono }} · Pendientes: {{
+            resumenProfesores()!.pendientes }}</p>
+        </div>
+        }
+      </section>
+      }
+
+      @if (currentPath() === '/administracion/reportes' && puedeVer('/administracion/reportes')) {
+      <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <h3 class="text-lg font-semibold">Reportes operativos de administración</h3>
+        <div class="mt-4 overflow-auto">
+          <table class="w-full text-sm">
+            <thead class="text-left text-muted-foreground">
+              <tr>
+                <th class="pb-2">Reporte</th>
+                <th class="pb-2">Periodo</th>
+                <th class="pb-2">Generado</th>
+                <th class="pb-2">Resultado</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              <tr>
+                <td class="py-2">Validación de insumo de pagos</td>
+                <td>2026-1</td>
+                <td>13/03/2026 10:45</td>
+                <td>39 válidos / 3 incidencias</td>
+              </tr>
+              <tr>
+                <td class="py-2">Calidad de datos personales</td>
+                <td>2026-1</td>
+                <td>13/03/2026 10:52</td>
+                <td>54 completos / 4 pendientes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      }
+
+      @if (currentPath() === '/finanzas/dashboard' && puedeVer('/finanzas/dashboard')) {
+      <section class="grid gap-4 md:grid-cols-4">
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Profesores en flujo (2026-1)</p>
+          <p class="mt-2 text-2xl font-bold">{{ profesoresFinanzas.length }}</p>
+          <p class="text-xs text-primary">Origen: insumo de Administración</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Contratos firmados</p>
+          <p class="mt-2 text-2xl font-bold">2</p>
+          <p class="text-xs text-green-500">Listos para fase fiscal</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">En espera de firma</p>
+          <p class="mt-2 text-2xl font-bold">1</p>
+          <p class="text-xs text-amber-500">Requiere seguimiento</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Listos para pago</p>
+          <p class="mt-2 text-2xl font-bold">1</p>
+          <p class="text-xs text-green-500">CFDI validado</p>
+        </article>
+      </section>
+      }
+
+      @if (currentPath() === '/finanzas/profesores' && puedeVer('/finanzas/profesores')) {
+      <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <h3 class="text-lg font-semibold">Listado de profesores cargados para pago · Periodo 2026-1</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Vista operativa de Finanzas con estatus de contrato, factura y
+          pago por profesor.</p>
+        <div class="mt-4 overflow-auto">
+          <table class="w-full text-sm">
+            <thead class="text-left text-muted-foreground">
+              <tr>
+                <th class="pb-2">ID</th>
+                <th class="pb-2">Profesor</th>
+                <th class="pb-2 text-center">Alumnos</th>
+                <th class="pb-2">Tipo pago</th>
+                <th class="pb-2">Monto</th>
+                <th class="pb-2">Expediente</th>
+                <th class="pb-2">Contrato</th>
+                <th class="pb-2">Factura</th>
+                <!-- <th class="pb-2">Pago</th> -->
+                <th class="pb-2">Acción</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              @for (profesor of profesoresFinanzas; track profesor.id) {
+              <tr>
+                <td class="py-2">{{ profesor.id }}</td>
+                <td class="font-medium">{{ profesor.nombre }}</td>
+                <td class="text-center">{{ profesor.alumnos }}</td>
+                <td>{{ profesor.tipoPago }}</td>
+                <td>{{ profesor.montoPeriodo }}</td>
+                <td>
+                  <span
+                    [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(profesor.expedienteEstatus)">
+                    {{ profesor.expedienteEstatus }}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(profesor.contratoEstatus)">
+                    {{ profesor.contratoEstatus }}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(profesor.facturaEstatus)">
+                    {{ profesor.facturaEstatus }}
+                  </span>
+                </td>
+                <!-- <td>
+                  <span
+                    [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(profesor.pagoEstatus)">
+                    {{ profesor.pagoEstatus }}
+                  </span>
+                </td> -->
+                <td><button class="rounded-md border border-border px-2 py-1 text-xs"
+                    (click)="verProfesorFinanzas(profesor.id)">Ver ficha</button></td>
+              </tr>
               }
-            }
-          </nav>
+            </tbody>
+          </table>
         </div>
-      </div>
-    </aside>
+      </section>
+      }
 
-    <main class="flex-1 p-3 md:p-4 lg:ml-64 lg:p-5">
-      <header class="animate-slide-in-up space-y-3 md:space-y-4">
-        <div class="flex items-center justify-between gap-3">
-          <div class="flex flex-1 items-center gap-2">
-            <button class="h-8 w-8 rounded-md p-1 hover:bg-secondary lg:hidden" (click)="isMobileMenuOpen.set(true)">
-              <app-icon name="menu" [size]="22"></app-icon>
-            </button>
-            <div class="relative flex-1 max-w-md">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
-                <app-icon name="search" [size]="16"></app-icon>
+      @if (currentPath().startsWith('/finanzas/profesor/') && puedeVer('/finanzas/profesor') && profesorDetalle()) {
+      <section class="grid gap-4 md:grid-cols-3">
+        <article class="rounded-2xl border border-border bg-card p-5 md:col-span-2">
+          <h3 class="text-lg font-semibold">{{ profesorDetalle()!.nombre }} · {{ profesorDetalle()!.id }}</h3>
+          <p class="mt-1 text-sm text-muted-foreground">Último movimiento: {{ profesorDetalle()!.ultimoMovimiento }} ·
+            Centro de costo {{ profesorDetalle()!.centroCosto }} · Alumnos {{ profesorDetalle()!.alumnos }}</p>
+          <div class="mt-4 grid gap-3 md:grid-cols-2 text-sm">
+            <div class="rounded-lg border border-border bg-background p-3">
+              <p class="text-xs text-muted-foreground">Estatus contrato</p>
+              <span
+                [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(profesorDetalle()!.contratoEstatus)">
+                {{ profesorDetalle()!.contratoEstatus }}
               </span>
-              <input class="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-xs" placeholder="Buscar profesor, estatus o folio..." />
+            </div>
+            <div class="rounded-lg border border-border bg-background p-3">
+              <p class="text-xs text-muted-foreground">Estatus factura</p>
+              <span
+                [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(profesorDetalle()!.facturaEstatus)">
+                {{ profesorDetalle()!.facturaEstatus }}
+              </span>
+            </div>
+            <div class="rounded-lg border border-border bg-background p-3">
+              <p class="text-xs text-muted-foreground">Estatus pago</p>
+              <span
+                [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(profesorDetalle()!.pagoEstatus)">
+                {{ profesorDetalle()!.pagoEstatus }}
+              </span>
+            </div>
+            <div class="rounded-lg border border-border bg-background p-3">
+              <p class="text-xs text-muted-foreground">Monto periodo</p>
+              <p class="font-semibold">{{ profesorDetalle()!.montoPeriodo }}</p>
             </div>
           </div>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-5">
+          <h3 class="text-lg font-semibold">Datos fiscales</h3>
+          <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li><span class="font-semibold text-foreground">RFC:</span> {{ profesorDetalle()!.datosFiscales.rfc }}</li>
+            <li><span class="font-semibold text-foreground">Régimen:</span> {{ profesorDetalle()!.datosFiscales.regimen
+              }}</li>
+            <li><span class="font-semibold text-foreground">Uso CFDI:</span> {{ profesorDetalle()!.datosFiscales.usoCfdi
+              }}</li>
+            <li><span class="font-semibold text-foreground">Cuenta/CLABE:</span> {{
+              profesorDetalle()!.datosFiscales.cuentaClabe }}</li>
+          </ul>
+        </article>
 
-          <div class="flex items-center gap-1.5 md:gap-2">
-            <button class="relative flex h-8 w-8 items-center justify-center rounded-md hover:bg-secondary">
-              <app-icon name="mail" [size]="16"></app-icon>
-            </button>
-            <button class="relative flex h-8 w-8 items-center justify-center rounded-md hover:bg-secondary">
-              <app-icon name="bell" [size]="16"></app-icon>
-              <span class="absolute right-1.5 top-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-destructive"></span>
-            </button>
-            <div class="hidden items-center gap-2 border-l border-border pl-3 sm:flex">
-              <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                {{ usuarioActual() ? usuarioActual()!.nombre.split(' ')[0][0] + (usuarioActual()!.nombre.split(' ')[1] ? usuarioActual()!.nombre.split(' ')[1][0] : '') : 'UA' }}
-              </div>
-              <div class="text-xs">
-                <p class="font-semibold">{{ usuarioActual()?.nombre || 'Mesa Operativa' }}</p>
-                <p class="text-[10px] text-muted-foreground">{{ usuarioActual()?.correo || 'operacion.honoristas@anahuac.mx' }}</p>
-              </div>
+        <article class="rounded-2xl border border-border bg-card p-5 md:col-span-2">
+          <h3 class="text-lg font-semibold">Checklist documental base (obligatorio)</h3>
+          <div class="mt-3 overflow-auto">
+            <table class="w-full text-sm">
+              <thead class="text-left text-muted-foreground">
+                <tr>
+                  <th class="pb-2">Documento</th>
+                  <th class="pb-2">Estatus</th>
+                  <th class="pb-2">Vigencia</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                @for (docBase of checklistDocumentalBase; track docBase) {
+                <tr>
+                  <td class="py-2">{{ docBase }}</td>
+                  <td>
+                    <span
+                      [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(obtenerEstatusDocumento(docBase))">
+                      {{ obtenerEstatusDocumento(docBase) }}
+                    </span>
+                  </td>
+                  <td>{{ obtenerVigenciaDocumento(docBase) }}</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="rounded-2xl border border-border bg-card p-5 md:col-span-2">
+          <h3 class="text-lg font-semibold">Validación final y semáforo</h3>
+          <p class="mt-2 text-sm text-muted-foreground">Resumen ejecutivo para liberar pago en proceso.</p>
+          <div class="mt-4 grid gap-3 md:grid-cols-3 text-sm">
+            <div class="rounded-lg border border-border bg-background p-3">
+              <p class="text-xs text-muted-foreground">Contrato</p>
+              <span
+                [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(profesorDetalle()!.contratoEstatus)">
+                {{ profesorDetalle()!.contratoEstatus }}
+              </span>
+            </div>
+            <div class="rounded-lg border border-border bg-background p-3">
+              <p class="text-xs text-muted-foreground">Documentación</p>
+              <span
+                class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">Faltan
+                2 documentos</span>
+            </div>
+            <div class="rounded-lg border border-border bg-background p-3">
+              <p class="text-xs text-muted-foreground">CFDI / Fiscal</p>
+              <span
+                [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(profesorDetalle()!.facturaEstatus)">
+                {{ profesorDetalle()!.facturaEstatus }}
+              </span>
             </div>
           </div>
-        </div>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button
+              class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium hover:bg-secondary"
+              (click)="abrirModalInfo('Validación ejecutada', 'Se registró la validación documental y fiscal para este profesor.')">
+              Validar requisitos
+            </button>
+            <button class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium"
+              (click)="abrirCambioEstatusPago()">
+              Cambiar a pago en proceso
+            </button>
+          </div>
+        </article>
 
-        <div class="pt-2">
-          <h1 class="mb-1 text-xl font-bold md:text-2xl lg:text-3xl">{{ pageInfo().title }}</h1>
-          <p class="text-xs text-muted-foreground md:text-sm">{{ pageInfo().description }}</p>
-        </div>
-      </header>
+        <article class="rounded-2xl border border-border bg-card p-5 md:col-span-1">
+          <h3 class="text-lg font-semibold">Correos enviados</h3>
+          <ul class="mt-3 space-y-2 text-sm text-muted-foreground">@for (mail of profesorDetalle()!.correos; track
+            mail.fecha + mail.asunto) {<li class="rounded-lg border border-border bg-background p-2">
+              <p class="font-medium text-foreground">{{ mail.asunto }}</p>
+              <p>{{ mail.fecha }} · {{ mail.resultado }}</p>
+            </li>}</ul>
+        </article>
 
-      <div class="mt-6 space-y-6">
-        @if (currentPath() === '/' && rolActual() !== 'administracion' && rolActual() !== 'finanzas' && rolActual() !== 'profesor' && rolActual() !== 'tesoreria') {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Módulos en preparación</h3>
-            <p class="mt-2 text-sm text-muted-foreground">En esta fase dejamos habilitadas pantallas operativas para Administración y Finanzas. Para tu rol, por ahora están disponibles Configuración, Soporte y Salir.</p>
-          </section>
-        }
 
-        @if (currentPath() === '/administracion/dashboard' && puedeVer('/administracion/dashboard')) {
-          <section class="grid gap-4 md:grid-cols-4">
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Insumo pagos</p><p class="mt-2 text-2xl font-bold">42</p><p class="text-xs text-green-500">Registros esperados</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Catálogo profesores</p><p class="mt-2 text-2xl font-bold">58</p><p class="text-xs text-green-500">Perfiles detectados</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Incidencias</p><p class="mt-2 text-2xl font-bold">7</p><p class="text-xs text-amber-500">Pendientes por corregir</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Estatus periodo 2026-1</p><p class="mt-2 text-2xl font-bold">Preparación</p><p class="text-xs text-primary">Sincronización SAPO completada</p></article>
-          </section>
-        }
-
-        @if (currentPath() === '/administracion/insumo-pagos' && puedeVer('/administracion/insumo-pagos')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Carga de archivo · Insumo para pago</h3>
-            <p class="mt-2 text-sm text-muted-foreground">Formato esperado: ID profesor, nombre, correo, cantidad alumnos, centro de costos, monto preliminar.</p>
-            <div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto_auto]">
-              <input type="file" accept=".csv,.xlsx" (change)="seleccionarArchivo('pagos', $event)" class="h-10 rounded-lg border border-border bg-background px-3 text-sm file:mr-4 file:border-0 file:bg-transparent file:text-xs" />
-              <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium" [disabled]="!archivoPagos()">{{ archivoPagos() || 'Selecciona archivo' }}</button>
-              <button class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50" [disabled]="!archivoPagos() || cargandoPagos()" (click)="simularCarga('pagos')">{{ cargandoPagos() ? 'Cargando...' : 'Validar y cargar' }}</button>
-            </div>
-            @if (resumenPagos()) {
-              <div class="mt-5 rounded-xl border border-green-500/30 bg-green-500/5 p-4 text-sm"><p class="font-semibold text-green-600">Carga completada correctamente</p><p class="mt-1 text-muted-foreground">Periodo: {{ resumenPagos()!.periodo }} · Registros: {{ resumenPagos()!.total }} · Válidos: {{ resumenPagos()!.validos }} · Incidencias: {{ resumenPagos()!.incidencias }} · Monto estimado: {{ resumenPagos()!.monto }}</p></div>
-            }
-          </section>
-        }
-
-        @if (currentPath() === '/administracion/insumo-profesores' && puedeVer('/administracion/insumo-profesores')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Carga de archivo · Datos personales y contacto</h3>
-            <p class="mt-2 text-sm text-muted-foreground">Formato esperado: ID profesor, nombre completo, RFC, correo, teléfono, dirección y datos de contacto.</p>
-            <div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto_auto]">
-              <input type="file" accept=".csv,.xlsx" (change)="seleccionarArchivo('profesores', $event)" class="h-10 rounded-lg border border-border bg-background px-3 text-sm file:mr-4 file:border-0 file:bg-transparent file:text-xs" />
-              <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium" [disabled]="!archivoProfesores()">{{ archivoProfesores() || 'Selecciona archivo' }}</button>
-              <button class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50" [disabled]="!archivoProfesores() || cargandoProfesores()" (click)="simularCarga('profesores')">{{ cargandoProfesores() ? 'Cargando...' : 'Validar y cargar' }}</button>
-            </div>
-            @if (resumenProfesores()) {
-              <div class="mt-5 rounded-xl border border-green-500/30 bg-green-500/5 p-4 text-sm"><p class="font-semibold text-green-600">Catálogo cargado correctamente</p><p class="mt-1 text-muted-foreground">Total perfiles: {{ resumenProfesores()!.total }} · Con correo: {{ resumenProfesores()!.conCorreo }} · Con teléfono: {{ resumenProfesores()!.conTelefono }} · Pendientes: {{ resumenProfesores()!.pendientes }}</p></div>
-            }
-          </section>
-        }
-
-        @if (currentPath() === '/administracion/reportes' && puedeVer('/administracion/reportes')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Reportes operativos de administración</h3>
-            <div class="mt-4 overflow-auto"><table class="w-full text-sm"><thead class="text-left text-muted-foreground"><tr><th class="pb-2">Reporte</th><th class="pb-2">Periodo</th><th class="pb-2">Generado</th><th class="pb-2">Resultado</th></tr></thead><tbody class="divide-y divide-border"><tr><td class="py-2">Validación de insumo de pagos</td><td>2026-1</td><td>13/03/2026 10:45</td><td>39 válidos / 3 incidencias</td></tr><tr><td class="py-2">Calidad de datos personales</td><td>2026-1</td><td>13/03/2026 10:52</td><td>54 completos / 4 pendientes</td></tr></tbody></table></div>
-          </section>
-        }
-
-        @if (currentPath() === '/finanzas/dashboard' && puedeVer('/finanzas/dashboard')) {
-          <section class="grid gap-4 md:grid-cols-4">
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Profesores en flujo (2026-1)</p><p class="mt-2 text-2xl font-bold">{{ profesoresFinanzas.length }}</p><p class="text-xs text-primary">Origen: insumo de Administración</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Contratos firmados</p><p class="mt-2 text-2xl font-bold">2</p><p class="text-xs text-green-500">Listos para fase fiscal</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">En espera de firma</p><p class="mt-2 text-2xl font-bold">1</p><p class="text-xs text-amber-500">Requiere seguimiento</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Listos para pago</p><p class="mt-2 text-2xl font-bold">1</p><p class="text-xs text-green-500">CFDI validado</p></article>
-          </section>
-        }
-
-        @if (currentPath() === '/finanzas/profesores' && puedeVer('/finanzas/profesores')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Listado de profesores cargados para pago · Periodo 2026-1</h3>
-            <p class="mt-2 text-sm text-muted-foreground">Vista operativa de Finanzas con estatus de contrato, factura y pago por profesor.</p>
-            <div class="mt-4 overflow-auto">
-              <table class="w-full text-sm">
-                <thead class="text-left text-muted-foreground">
-                  <tr>
-                    <th class="pb-2">ID</th><th class="pb-2">Profesor</th><th class="pb-2">Tipo pago</th><th class="pb-2">Monto</th><th class="pb-2">Contrato</th><th class="pb-2">Factura</th><th class="pb-2">Pago</th><th class="pb-2">Acción</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-border">
-                  @for (profesor of profesoresFinanzas; track profesor.id) {
-                    <tr>
-                      <td class="py-2">{{ profesor.id }}</td>
-                      <td>{{ profesor.nombre }}</td>
-                      <td>{{ profesor.tipoPago }}</td>
-                      <td>{{ profesor.montoPeriodo }}</td>
-                      <td>{{ profesor.contratoEstatus }}</td>
-                      <td>{{ profesor.facturaEstatus }}</td>
-                      <td>{{ profesor.pagoEstatus }}</td>
-                      <td><button class="rounded-md border border-border px-2 py-1 text-xs" (click)="verProfesorFinanzas(profesor.id)">Ver ficha</button></td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </section>
-        }
-
-        @if (currentPath().startsWith('/finanzas/profesor/') && puedeVer('/finanzas/profesor') && profesorDetalle()) {
-          <section class="grid gap-4 md:grid-cols-3">
-            <article class="rounded-2xl border border-border bg-card p-5 md:col-span-2">
-              <h3 class="text-lg font-semibold">{{ profesorDetalle()!.nombre }} · {{ profesorDetalle()!.id }}</h3>
-              <p class="mt-1 text-sm text-muted-foreground">Último movimiento: {{ profesorDetalle()!.ultimoMovimiento }} · Centro de costo {{ profesorDetalle()!.centroCosto }} · Alumnos {{ profesorDetalle()!.alumnos }}</p>
-              <div class="mt-4 grid gap-3 md:grid-cols-2 text-sm">
-                <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">Estatus contrato</p><p class="font-semibold">{{ profesorDetalle()!.contratoEstatus }}</p></div>
-                <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">Estatus factura</p><p class="font-semibold">{{ profesorDetalle()!.facturaEstatus }}</p></div>
-                <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">Estatus pago</p><p class="font-semibold">{{ profesorDetalle()!.pagoEstatus }}</p></div>
-                <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">Monto periodo</p><p class="font-semibold">{{ profesorDetalle()!.montoPeriodo }}</p></div>
-              </div>
-            </article>
-            <article class="rounded-2xl border border-border bg-card p-5">
-              <h3 class="text-lg font-semibold">Datos fiscales</h3>
-              <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
-                <li><span class="font-semibold text-foreground">RFC:</span> {{ profesorDetalle()!.datosFiscales.rfc }}</li>
-                <li><span class="font-semibold text-foreground">Régimen:</span> {{ profesorDetalle()!.datosFiscales.regimen }}</li>
-                <li><span class="font-semibold text-foreground">Uso CFDI:</span> {{ profesorDetalle()!.datosFiscales.usoCfdi }}</li>
-                <li><span class="font-semibold text-foreground">Cuenta/CLABE:</span> {{ profesorDetalle()!.datosFiscales.cuentaClabe }}</li>
+        <article class="rounded-2xl border border-border bg-card p-5 md:col-span-3">
+          <h3 class="text-lg font-semibold">Requisitos adicionales por tipo de pago (4 tipos)</h3>
+          <div class="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            @for (tipo of requisitosTipoPago; track tipo.tipo) {
+            <div class="rounded-xl border border-border bg-background p-3" [class.ring-1]="esTipoPagoActual(tipo.tipo)"
+              [class.ring-primary]="esTipoPagoActual(tipo.tipo)">
+              <p class="text-sm font-semibold">{{ tipo.tipo }}</p>
+              @if (esTipoPagoActual(tipo.tipo)) {
+              <p class="text-[11px] text-primary">Aplica para este profesor</p>
+              }
+              <ul class="mt-2 space-y-1 text-xs text-muted-foreground">
+                @for (req of tipo.requisitos; track req) {
+                <li>• {{ req }}</li>
+                }
               </ul>
-            </article>
+            </div>
+            }
+          </div>
+        </article>
 
-            <article class="rounded-2xl border border-border bg-card p-5 md:col-span-2">
-              <h3 class="text-lg font-semibold">Checklist documental base (obligatorio)</h3>
-              <div class="mt-3 overflow-auto">
-                <table class="w-full text-sm">
-                  <thead class="text-left text-muted-foreground">
-                    <tr><th class="pb-2">Documento</th><th class="pb-2">Estatus</th><th class="pb-2">Vigencia</th></tr>
-                  </thead>
-                  <tbody class="divide-y divide-border">
-                    @for (docBase of checklistDocumentalBase; track docBase) {
-                      <tr>
-                        <td class="py-2">{{ docBase }}</td>
-                        <td>{{ obtenerEstatusDocumento(docBase) }}</td>
-                        <td>{{ obtenerVigenciaDocumento(docBase) }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </article>
+        <article class="rounded-2xl border border-border bg-card p-5 md:col-span-3">
+          <h3 class="text-lg font-semibold">Contratos asociados</h3>
+          <div class="mt-3 overflow-auto">
+            <table class="w-full text-sm">
+              <thead class="text-left text-muted-foreground">
+                <tr>
+                  <th class="pb-2">Folio</th>
+                  <th class="pb-2">Módulo</th>
+                  <th class="pb-2">Actividad</th>
+                  <th class="pb-2">Monto</th>
+                  <th class="pb-2">Estatus</th>
+                  <th class="pb-2">Firma</th>
+                  <th class="pb-2">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                @for (contrato of profesorDetalle()!.contratos; track contrato.folio) {
+                <tr>
+                  <td class="py-2">{{ contrato.folio }}</td>
+                  <td>{{ contrato.modulo }}</td>
+                  <td>{{ contrato.actividad }}</td>
+                  <td>{{ contrato.monto }}</td>
+                  <td>
+                    <span
+                      [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(contrato.estatus)">
+                      {{ contrato.estatus }}
+                    </span>
+                  </td>
+                  <td>{{ contrato.firma }}</td>
+                  <td>
+                    <button
+                      class="rounded-md border border-border px-2 py-1 text-xs hover:bg-secondary inline-flex items-center gap-1.5"
+                      (click)="abrirModalInfo('Visualizar contrato', 'Has seleccionado el contrato ' + contrato.folio + ' para visualizarlo en detalle.')">
+                      <app-icon name="visibility" [size]="14"></app-icon>
+                      Visualizar
+                    </button>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+      }
 
-            <article class="rounded-2xl border border-border bg-card p-5 md:col-span-1">
-              <h3 class="text-lg font-semibold">Correos enviados</h3>
-              <ul class="mt-3 space-y-2 text-sm text-muted-foreground">@for (mail of profesorDetalle()!.correos; track mail.fecha + mail.asunto) {<li class="rounded-lg border border-border bg-background p-2"><p class="font-medium text-foreground">{{ mail.asunto }}</p><p>{{ mail.fecha }} · {{ mail.resultado }}</p></li>}</ul>
-            </article>
-
-
-            <article class="rounded-2xl border border-border bg-card p-5 md:col-span-3">
-              <h3 class="text-lg font-semibold">Requisitos adicionales por tipo de pago (4 tipos)</h3>
-              <div class="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                @for (tipo of requisitosTipoPago; track tipo.tipo) {
-                  <div class="rounded-xl border border-border bg-background p-3" [class.ring-1]="esTipoPagoActual(tipo.tipo)" [class.ring-primary]="esTipoPagoActual(tipo.tipo)">
-                    <p class="text-sm font-semibold">{{ tipo.tipo }}</p>
-                    @if (esTipoPagoActual(tipo.tipo)) {
-                      <p class="text-[11px] text-primary">Aplica para este profesor</p>
-                    }
-                    <ul class="mt-2 space-y-1 text-xs text-muted-foreground">
-                      @for (req of tipo.requisitos; track req) {
-                        <li>• {{ req }}</li>
+      @if (currentPath() === '/finanzas/contratos' && puedeVer('/finanzas/contratos')) {
+      <section class="space-y-4">
+        <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h3 class="text-lg font-semibold">Seguimiento de contratos y notificaciones</h3>
+          <p class="mt-2 text-sm text-muted-foreground">Control único de contratos enviados/firma y correos asociados
+            (sin duplicidad de tabla).</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div class="overflow-auto">
+            <table class="w-full text-sm">
+              <thead class="text-left text-muted-foreground">
+                <tr>
+                  <th class="pb-2">Profesor</th>
+                  <th class="pb-2">Contrato</th>
+                  <th class="pb-2">Último correo</th>
+                  <th class="pb-2">Resultado</th>
+                  <th class="pb-2">Siguiente acción</th>
+                  <th class="pb-2">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                @for (prof of profesoresFinanzas; track prof.id) {
+                <tr>
+                  <td class="py-2 font-medium">{{ prof.nombre }}</td>
+                  <td>
+                    <span
+                      [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(prof.contratoEstatus)">
+                      {{ prof.contratoEstatus }}
+                    </span>
+                  </td>
+                  <td class="text-xs">{{ prof.correos[prof.correos.length - 1]?.asunto || 'Sin correos' }}</td>
+                  <td>{{ prof.correos[prof.correos.length - 1]?.resultado || '-' }}</td>
+                  <td class="text-xs">{{ prof.contratoEstatus === 'Firmado' || prof.contratoEstatus === 'Cargado' ?
+                    'Revisión técnica/CFDI' : 'Escalamiento (pendiente)' }}</td>
+                  <td>
+                    <div class="flex gap-2 items-center">
+                      @if (prof.contratoEstatus === 'Firmado' || prof.contratoEstatus === 'Cargado') {
+                      <button class="rounded-md border border-border px-2 py-1 text-xs hover:bg-secondary"
+                        (click)="abrirModalInfo('Ver contrato firmado', 'Visualizando el contrato firmado por ' + prof.nombre)">
+                        Ver contrato firmado
+                      </button>
+                      } @else {
+                      <button class="rounded-md border border-border px-2 py-1 text-xs hover:bg-secondary"
+                        (click)="abrirModalInfo('Ver contrato enviado', 'Visualizando el contrato enviado a ' + prof.nombre)">
+                        Ver contrato
+                      </button>
+                      <button
+                        class="rounded-md bg-primary text-primary-foreground hover:bg-primary/90 px-2 py-1 text-xs font-medium transition-colors"
+                        (click)="abrirModalInfo('Recordatorio enviado', 'Se ha notificado nuevamente a ' + prof.nombre + ' para la firma del contrato.')">
+                        Reenviar recordatorio
+                      </button>
                       }
-                    </ul>
-                  </div>
+                    </div>
+                  </td>
+                </tr>
                 }
-              </div>
-            </article>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+      }
 
-            <article class="rounded-2xl border border-border bg-card p-5 md:col-span-3">
-              <h3 class="text-lg font-semibold">Contratos asociados</h3>
-              <div class="mt-3 overflow-auto">
-                <table class="w-full text-sm"><thead class="text-left text-muted-foreground"><tr><th class="pb-2">Folio</th><th class="pb-2">Módulo</th><th class="pb-2">Actividad</th><th class="pb-2">Monto</th><th class="pb-2">Estatus</th><th class="pb-2">Firma</th></tr></thead><tbody class="divide-y divide-border">@for (contrato of profesorDetalle()!.contratos; track contrato.folio) {<tr><td class="py-2">{{ contrato.folio }}</td><td>{{ contrato.modulo }}</td><td>{{ contrato.actividad }}</td><td>{{ contrato.monto }}</td><td>{{ contrato.estatus }}</td><td>{{ contrato.firma }}</td></tr>}</tbody></table>
-              </div>
-            </article>
-          </section>
-        }
-
-        @if (currentPath() === '/finanzas/contratos' && puedeVer('/finanzas/contratos')) {
-          <section class="space-y-4">
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <h3 class="text-lg font-semibold">Seguimiento de contratos y notificaciones</h3>
-              <p class="mt-2 text-sm text-muted-foreground">Control único de contratos enviados/firma y correos asociados (sin duplicidad de tabla).</p>
-            </article>
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <div class="overflow-auto">
-                <table class="w-full text-sm">
-                  <thead class="text-left text-muted-foreground">
-                    <tr><th class="pb-2">Profesor</th><th class="pb-2">Contrato</th><th class="pb-2">Último correo</th><th class="pb-2">Resultado</th><th class="pb-2">Siguiente acción</th></tr>
-                  </thead>
-                  <tbody class="divide-y divide-border">
-                    <tr><td class="py-2">Dra. Ana Torres</td><td>Firmado</td><td>Habilitación para carga de factura</td><td>Entregado</td><td>Revisión de CFDI</td></tr>
-                    <tr><td class="py-2">Mtro. Luis Meza</td><td>Enviado</td><td>Recordatorio firma de contrato</td><td>Entregado</td><td>Escalamiento con coordinación</td></tr>
-                    <tr><td class="py-2">Ing. Carlos Rivera</td><td>Firmado</td><td>Confirmación de contrato firmado</td><td>Entregado</td><td>Validación documental empresa</td></tr>
-                    <tr><td class="py-2">Mtra. Laura Neri</td><td>Firmado</td><td>Solicitud de factura extranjera</td><td>Entregado</td><td>Validación fiscal internacional</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </article>
-          </section>
-        }
-
-        @if (currentPath() === '/finanzas/seguimiento' && puedeVer('/finanzas/seguimiento')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Embudo operativo de pagos (Finanzas)</h3>
-            <div class="mt-4 grid gap-3 md:grid-cols-4 text-sm">
-              <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">Profesores cargados por Administración</p><p class="mt-1 text-xl font-bold">3</p></div>
-              <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">Contratos firmados</p><p class="mt-1 text-xl font-bold">2</p></div>
-              <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">CFDI / requisitos completos</p><p class="mt-1 text-xl font-bold">1</p></div>
-              <div class="rounded-lg border border-border bg-background p-3"><p class="text-xs text-muted-foreground">Listos para pago</p><p class="mt-1 text-xl font-bold">1</p></div>
+      @if (currentPath() === '/finanzas/seguimiento' && puedeVer('/finanzas/seguimiento')) {
+      <section class="space-y-4">
+        <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h3 class="text-lg font-semibold">Embudo operativo de pagos (Finanzas)</h3>
+          <p class="mt-2 text-sm text-muted-foreground">Visión general del avance en la integración de expedientes y
+            facturación para pago.</p>
+          <div class="mt-4 grid gap-3 md:grid-cols-4 text-sm">
+            <div class="rounded-lg border border-border bg-background p-4 flex flex-col items-center text-center">
+              <span
+                class="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-700">1</span>
+              <p class="text-xs text-muted-foreground">Insumo recibido</p>
+              <p class="mt-1 text-2xl font-bold">{{ profesoresFinanzas.length }}</p>
             </div>
-          </section>
-        }
-
-
-
-        @if (currentPath() === '/finanzas/comprobantes' && puedeVer('/finanzas/comprobantes')) {
-          <section class="grid gap-4 md:grid-cols-2">
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm md:col-span-2">
-              <h3 class="text-lg font-semibold">Descarga de comprobantes renombrados (ZIP)</h3>
-              <p class="mt-2 text-sm text-muted-foreground">Una vez procesado el bank report y conciliados los comprobantes de pago, Finanzas puede generar y descargar el ZIP final para contabilidad.</p>
-              <div class="mt-4 flex flex-wrap gap-2">
-                <button class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50"
-                  [disabled]="procesamientoZip()" (click)="prepararZipComprobantes()">
-                  {{ procesamientoZip() ? 'Generando ZIP...' : 'Generar ZIP de comprobantes' }}
-                </button>
-                @if (zipComprobantesListo() && loteZipActual()) {
-                  <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium">Descargar {{ loteZipActual()!.archivo }}</button>
-                }
-              </div>
-            </article>
-
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <h4 class="font-semibold">Insumo del lote</h4>
-              <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
-                <li>• Origen: Bank report del banco</li>
-                <li>• Fuente alterna: comprobantes de pago cargados</li>
-                <li>• Regla de renombrado: RFC + folio + periodo</li>
-                <li>• Entregable: ZIP para carpeta compartida con Contabilidad</li>
-              </ul>
-            </article>
-
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <h4 class="font-semibold">Resultado de proceso</h4>
-              @if (loteZipActual()) {
-                <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
-                  <li><span class="font-semibold text-foreground">Periodo:</span> {{ loteZipActual()!.periodo }}</li>
-                  <li><span class="font-semibold text-foreground">Origen:</span> {{ loteZipActual()!.origen }}</li>
-                  <li><span class="font-semibold text-foreground">Comprobantes recibidos:</span> {{ loteZipActual()!.totalComprobantes }}</li>
-                  <li><span class="font-semibold text-foreground">Renombrados:</span> {{ loteZipActual()!.renombrados }}</li>
-                  <li><span class="font-semibold text-foreground">Incidencias:</span> {{ loteZipActual()!.incidencias }}</li>
-                </ul>
-              } @else {
-                <p class="mt-3 text-sm text-muted-foreground">Aún no se ha generado ningún lote ZIP en esta sesión.</p>
-              }
-            </article>
-
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <h4 class="font-semibold">Resultado de proceso</h4>
-              @if (loteZipActual()) {
-                <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
-                  <li><span class="font-semibold text-foreground">Periodo:</span> {{ loteZipActual()!.periodo }}</li>
-                  <li><span class="font-semibold text-foreground">Origen:</span> {{ loteZipActual()!.origen }}</li>
-                  <li><span class="font-semibold text-foreground">Comprobantes recibidos:</span> {{ loteZipActual()!.totalComprobantes }}</li>
-                  <li><span class="font-semibold text-foreground">Renombrados:</span> {{ loteZipActual()!.renombrados }}</li>
-                  <li><span class="font-semibold text-foreground">Incidencias:</span> {{ loteZipActual()!.incidencias }}</li>
-                </ul>
-              } @else {
-                <p class="mt-3 text-sm text-muted-foreground">Aún no se ha generado ningún lote ZIP en esta sesión.</p>
-              }
-            </article>
-          </section>
-        }
-
-
-
-        @if (currentPath() === '/profesor/dashboard' && puedeVer('/profesor/dashboard')) {
-          <section class="grid gap-4 md:grid-cols-4">
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Contratos activos</p><p class="mt-2 text-2xl font-bold">2</p><p class="text-xs text-primary">1 firmado / 1 pendiente validación</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Estatus expediente</p><p class="mt-2 text-2xl font-bold">85%</p><p class="text-xs text-amber-500">Faltan 2 documentos</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Monto pendiente por cobrar</p><p class="mt-2 text-2xl font-bold">$42,500</p><p class="text-xs text-green-500">Periodo 2026-1</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Facturación</p><p class="mt-2 text-2xl font-bold">Habilitada</p><p class="text-xs text-primary">Lista para carga CFDI/XML</p></article>
-          </section>
-        }
-
-
-
-        @if (currentPath() === '/profesor/dashboard' && puedeVer('/profesor/dashboard')) {
-          <section class="grid gap-4 md:grid-cols-4">
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Contratos activos</p><p class="mt-2 text-2xl font-bold">2</p><p class="text-xs text-primary">1 firmado / 1 pendiente validación</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Estatus expediente</p><p class="mt-2 text-2xl font-bold">85%</p><p class="text-xs text-amber-500">Faltan 2 documentos</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Monto pendiente por cobrar</p><p class="mt-2 text-2xl font-bold">$42,500</p><p class="text-xs text-green-500">Periodo 2026-1</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Facturación</p><p class="mt-2 text-2xl font-bold">Habilitada</p><p class="text-xs text-primary">Lista para carga CFDI/XML</p></article>
-          </section>
-        }
-
-        @if (currentPath() === '/profesor/perfil' && puedeVer('/profesor/perfil')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Mi expediente documental</h3>
-            <p class="mt-2 text-sm text-muted-foreground">Carga y consulta tus documentos obligatorios para mantener habilitado el flujo de pago.</p>
-            <div class="mt-4 overflow-auto">
-              <table class="w-full text-sm">
-                <thead class="text-left text-muted-foreground"><tr><th class="pb-2">Documento</th><th class="pb-2">Archivo</th><th class="pb-2">Estatus</th><th class="pb-2">Acción</th></tr></thead>
-                <tbody class="divide-y divide-border">
-                  @for (doc of documentosProfesor(); track doc.nombre) {
-                    <tr>
-                      <td class="py-2">{{ doc.nombre }}</td>
-                      <td>{{ doc.archivo }}</td>
-                      <td>{{ doc.estatus }}</td>
-                      <td><button class="rounded-md border border-border px-2 py-1 text-xs">Reemplazar</button></td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+            <div class="rounded-lg border border-border bg-background p-4 flex flex-col items-center text-center">
+              <span
+                class="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-700">2</span>
+              <p class="text-xs text-muted-foreground">Expediente validado</p>
+              <p class="mt-1 text-2xl font-bold">2</p>
             </div>
-          </section>
-        }
-
-        @if (currentPath() === '/profesor/contratos' && puedeVer('/profesor/contratos')) {
-          <section class="grid gap-4 md:grid-cols-2">
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <h3 class="text-lg font-semibold">Mis contratos</h3>
-              <p class="mt-2 text-sm text-muted-foreground">Descarga y revisa tus contratos generados por Finanzas.</p>
-              <div class="mt-4 space-y-2 text-sm">
-                <div class="rounded-lg border border-border bg-background p-3 flex items-center justify-between"><span>CNT-2026-01011.pdf</span><button class="rounded-md border border-border px-2 py-1 text-xs">Descargar</button></div>
-                <div class="rounded-lg border border-border bg-background p-3 flex items-center justify-between"><span>CNT-2026-01012.pdf</span><button class="rounded-md border border-border px-2 py-1 text-xs">Descargar</button></div>
-              </div>
-            </article>
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <h3 class="text-lg font-semibold">Carga de contrato firmado</h3>
-              <p class="mt-2 text-sm text-muted-foreground">Sube tu contrato firmado para habilitar la siguiente etapa.</p>
-              <div class="mt-4 space-y-3">
-                <input type="file" accept=".pdf" (change)="seleccionarContratoFirmado($event)" class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" />
-                <button class="w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50" [disabled]="!archivoContratoFirmado() || cargandoContrato()" (click)="subirContratoFirmado()">{{ cargandoContrato() ? 'Subiendo...' : 'Subir contrato firmado' }}</button>
-                @if (contratoProfesorFirmado()) {
-                  <p class="rounded-lg bg-green-500/10 px-3 py-2 text-xs text-green-600">Contrato firmado cargado correctamente y notificado a Finanzas.</p>
-                }
-              </div>
-            </article>
-          </section>
-        }
-
-        @if (currentPath() === '/profesor/facturacion' && puedeVer('/profesor/facturacion')) {
-          <section class="grid gap-4 md:grid-cols-2">
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <h3 class="text-lg font-semibold">Desglose de montos pendientes por cobrar</h3>
-              <div class="mt-3 space-y-2 text-sm text-muted-foreground">
-                <div class="flex items-center justify-between rounded-lg border border-border bg-background p-3"><span>Contrato CNT-2026-01011</span><strong class="text-foreground">$32,000</strong></div>
-                <div class="flex items-center justify-between rounded-lg border border-border bg-background p-3"><span>Contrato CNT-2026-01012</span><strong class="text-foreground">$10,500</strong></div>
-                <div class="flex items-center justify-between rounded-lg border border-border bg-background p-3"><span>Total</span><strong class="text-foreground">$42,500</strong></div>
-              </div>
-            </article>
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <h3 class="text-lg font-semibold">Carga de factura y anexos</h3>
-              <p class="mt-2 text-sm text-muted-foreground">Para honorarios/empresa carga PDF, XML, constancia fiscal y opinión de cumplimiento.</p>
-              <div class="mt-4 space-y-3">
-                <input type="file" accept=".pdf" (change)="seleccionarFacturaProfesor('pdf', $event)" class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" />
-                <input type="file" accept=".xml" (change)="seleccionarFacturaProfesor('xml', $event)" class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" />
-                <button class="w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50" [disabled]="!archivoFacturaPdf() || !archivoFacturaXml() || cargandoFacturaProfesor()" (click)="subirFacturaProfesor()">{{ cargandoFacturaProfesor() ? 'Subiendo CFDI...' : 'Subir CFDI/XML' }}</button>
-                @if (facturaProfesorCargada()) {
-                  <p class="rounded-lg bg-green-500/10 px-3 py-2 text-xs text-green-600">Factura y XML cargados correctamente. Finanzas validará RFC, monto y folio.</p>
-                }
-              </div>
-            </article>
-          </section>
-        }
-
-
-
-        @if (currentPath() === '/tesoreria/dashboard' && puedeVer('/tesoreria/dashboard')) {
-          <section class="grid gap-4 md:grid-cols-4">
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Pagos listos para dispersión</p><p class="mt-2 text-2xl font-bold">42</p><p class="text-xs text-primary">Periodo 2026-1</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Layouts generados</p><p class="mt-2 text-2xl font-bold">3</p><p class="text-xs text-green-500">Último hoy 11:40</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Bank report procesado</p><p class="mt-2 text-2xl font-bold">1</p><p class="text-xs text-green-500">Lote 2026-1</p></article>
-            <article class="rounded-2xl border border-border bg-card p-4"><p class="text-xs text-muted-foreground">Incidencias de renombrado</p><p class="mt-2 text-2xl font-bold">2</p><p class="text-xs text-amber-500">Pendientes revisión</p></article>
-          </section>
-        }
-
-        @if (currentPath() === '/tesoreria/dispersion' && puedeVer('/tesoreria/dispersion')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Layout bancario para dispersión</h3>
-            <p class="mt-2 text-sm text-muted-foreground">Genera y descarga el archivo TXT para cargar en la plataforma del banco y ejecutar pagos.</p>
-            <div class="mt-4 flex flex-wrap gap-2">
-              <button class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium" (click)="generarLayoutTesoreria()">Generar layout TXT</button>
-              @if (layoutTesoreriaGenerado()) {
-                <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium">Descargar {{ archivoLayoutTesoreria() }}</button>
-              }
+            <div class="rounded-lg border border-border bg-background p-4 flex flex-col items-center text-center">
+              <span
+                class="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-purple-700">3</span>
+              <p class="text-xs text-muted-foreground">CFDI validado</p>
+              <p class="mt-1 text-2xl font-bold">1</p>
             </div>
-            @if (layoutTesoreriaGenerado()) {
-              <p class="mt-3 rounded-lg bg-green-500/10 px-3 py-2 text-xs text-green-600">Layout generado con 42 beneficiarios listos para pago.</p>
+            <div class="rounded-lg border border-border bg-background p-4 flex flex-col items-center text-center">
+              <span
+                class="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-700">4</span>
+              <p class="text-xs text-muted-foreground">Listos pago (Carga/Dispersión)</p>
+              <p class="mt-1 text-2xl font-bold">1</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h3 class="text-lg font-semibold mb-4">Detalle de seguimiento por profesor</h3>
+          <div class="overflow-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th class="px-3 py-2 rounded-tl-lg">Profesor</th>
+                  <!-- <th class="px-3 py-2 text-center">Insumo</th> -->
+                  <th class="px-3 py-2 text-center">Expediente</th>
+                  <th class="px-3 py-2 text-center">Contrato</th>
+                  <th class="px-3 py-2 text-center">CFDI/Fiscal</th>
+                  <th class="px-3 py-2 text-center">Tesoreria</th>
+                  <th class="px-3 py-2 rounded-tr-lg">Estado Global</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                @for (prof of profesoresFinanzas; track prof.id) {
+                <tr class="hover:bg-muted/20 transition-colors">
+                  <td class="px-3 py-3">
+                    <p class="font-medium">{{ prof.nombre }}</p>
+                    <p class="text-[10px] text-muted-foreground">{{ prof.tipoPago }}</p>
+                  </td>
+                  <td class="px-3 py-3 text-center">
+                    @if (prof.expedienteEstatus === 'Completo') {
+                    <app-icon name="check_circle" [size]="18" className="text-green-500 mx-auto"></app-icon>
+                    } @else {
+                    <app-icon name="error_outline" [size]="18" className="text-amber-500 mx-auto"></app-icon>
+                    }
+                  </td>
+                  <td class="px-3 py-3 text-center">
+                    @if (prof.contratoEstatus === 'Firmado') {
+                    <app-icon name="check_circle" [size]="18" className="text-green-500 mx-auto"></app-icon>
+                    } @else if (prof.contratoEstatus.includes('Enviado')) {
+                    <app-icon name="schedule" [size]="18" className="text-amber-500 mx-auto"></app-icon>
+                    } @else {
+                    <app-icon name="radio_button_unchecked" [size]="18" className="text-muted/50 mx-auto"></app-icon>
+                    }
+                  </td>
+                  <td class="px-3 py-3 text-center">
+                    @if (prof.facturaEstatus.includes('validado')) {
+                    <app-icon name="check_circle" [size]="18" className="text-green-500 mx-auto"></app-icon>
+                    } @else if (prof.facturaEstatus.includes('validación') || prof.facturaEstatus.includes('pendiente'))
+                    {
+                    <app-icon name="schedule" [size]="18" className="text-amber-500 mx-auto"></app-icon>
+                    } @else {
+                    <app-icon name="radio_button_unchecked" [size]="18" className="text-muted/50 mx-auto"></app-icon>
+                    }
+                  </td>
+                  <td class="px-3 py-3 text-center">
+                    @if (prof.pagoEstatus === 'Listo para dispersión') {
+                    <app-icon name="check_circle" [size]="18" className="text-green-500 mx-auto"></app-icon>
+                    } @else if (prof.pagoEstatus === 'Pagado') {
+                    <span
+                      class="inline-block px-2 text-xs font-bold text-blue-600 bg-blue-100 rounded-full">PAGADO</span>
+                    } @else {
+                    <app-icon name="radio_button_unchecked" [size]="18" className="text-muted/50 mx-auto"></app-icon>
+                    }
+                  </td>
+                  <td class="px-3 py-3">
+                    <span
+                      [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(prof.pagoEstatus)">
+                      {{ prof.pagoEstatus }}
+                    </span>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      }
+
+      @if (currentPath() === '/finanzas/comprobantes' && puedeVer('/finanzas/comprobantes')) {
+      <section class="grid gap-4 md:grid-cols-2">
+        <article class="rounded-2xl border border-border bg-card p-5 shadow-sm md:col-span-2">
+          <h3 class="text-lg font-semibold">Descarga de comprobantes renombrados (ZIP)</h3>
+          <p class="mt-2 text-sm text-muted-foreground">Una vez procesado el bank report y conciliados los comprobantes
+            de pago, Finanzas puede generar y descargar el ZIP final para contabilidad.</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button
+              class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50"
+              [disabled]="procesamientoZip()" (click)="prepararZipComprobantes()">
+              {{ procesamientoZip() ? 'Generando ZIP...' : 'Generar ZIP de comprobantes' }}
+            </button>
+            @if (zipComprobantesListo() && loteZipActual()) {
+            <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium"
+              (click)="descargarZipComprobantes()">
+              Descargar {{ loteZipActual()!.archivo }}
+            </button>
             }
-          </section>
-        }
+          </div>
+        </article>
 
-        @if (currentPath() === '/tesoreria/bank-report' && puedeVer('/tesoreria/bank-report')) {
-          <section class="grid gap-4 md:grid-cols-2">
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm md:col-span-2">
-              <h3 class="text-lg font-semibold">Carga de bank report / comprobantes y renombrado</h3>
-              <p class="mt-2 text-sm text-muted-foreground">Puedes cargar el bank report o un ZIP de comprobantes para ejecutar renombrado automático de XML/PDF.</p>
-            </article>
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <h4 class="font-semibold">Bank report</h4>
-              <div class="mt-3 space-y-3">
-                <input type="file" accept=".csv,.txt,.xlsx" (change)="seleccionarArchivoTesoreria('bankReport', $event)" class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" />
-                @if (archivoBankReport()) {
-                  <p class="text-xs text-muted-foreground">Archivo seleccionado: {{ archivoBankReport() }}</p>
+        <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h4 class="font-semibold">Insumo del lote</h4>
+          <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li>• Origen: Bank report del banco</li>
+            <li>• Fuente alterna: comprobantes de pago cargados</li>
+            <li>• Regla de renombrado: RFC + folio + periodo</li>
+            <li>• Entregable: ZIP para carpeta compartida con Contabilidad</li>
+          </ul>
+        </article>
+
+        <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h4 class="font-semibold">Resultado de proceso</h4>
+          @if (loteZipActual()) {
+          <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li><span class="font-semibold text-foreground">Periodo:</span> {{ loteZipActual()!.periodo }}</li>
+            <li><span class="font-semibold text-foreground">Origen:</span> {{ loteZipActual()!.origen }}</li>
+            <li><span class="font-semibold text-foreground">Comprobantes recibidos:</span> {{
+              loteZipActual()!.totalComprobantes }}</li>
+            <li><span class="font-semibold text-foreground">Renombrados:</span> {{ loteZipActual()!.renombrados }}</li>
+            <li><span class="font-semibold text-foreground">Incidencias:</span> {{ loteZipActual()!.incidencias }}</li>
+          </ul>
+          } @else {
+          <p class="mt-3 text-sm text-muted-foreground">Aún no se ha generado ningún lote ZIP en esta sesión.</p>
+          }
+        </article>
+      </section>
+      }
+
+      @if (currentPath() === '/profesor/dashboard' && puedeVer('/profesor/dashboard')) {
+      <section class="grid gap-4 md:grid-cols-4">
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Contratos activos</p>
+          <p class="mt-2 text-2xl font-bold">2</p>
+          <p class="text-xs text-primary">1 firmado / 1 pendiente validación</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Estatus expediente</p>
+          <p class="mt-2 text-2xl font-bold">85%</p>
+          <p class="text-xs text-amber-500">Faltan 2 documentos</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Monto pendiente por cobrar</p>
+          <p class="mt-2 text-2xl font-bold">$42,500</p>
+          <p class="text-xs text-green-500">Periodo 2026-1</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Facturación</p>
+          <p class="mt-2 text-2xl font-bold">Habilitada</p>
+          <p class="text-xs text-primary">Lista para carga CFDI/XML</p>
+        </article>
+      </section>
+      }
+
+      @if (currentPath() === '/profesor/perfil' && puedeVer('/profesor/perfil')) {
+      <section class="grid gap-6">
+        <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h3 class="text-lg font-semibold mb-4">Mis Datos Personales y Fiscales</h3>
+          @if (misDatosPerfil()) {
+          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 text-sm">
+            <div class="space-y-1">
+              <p class="text-xs text-muted-foreground">Nombre completo</p>
+              <p class="font-medium text-foreground">{{ misDatosPerfil()!.nombre }}</p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-xs text-muted-foreground">Correo electrónico</p>
+              <p class="font-medium text-foreground">{{ usuarioActual()?.correo }}</p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-xs text-muted-foreground">Tipo de pago</p>
+              <p
+                class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 ring-1 ring-inset ring-blue-600/20">
+                {{ misDatosPerfil()!.tipoPago }}
+              </p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-xs text-muted-foreground">RFC</p>
+              <p class="font-medium text-foreground">{{ misDatosPerfil()!.datosFiscales.rfc }}</p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-xs text-muted-foreground">Régimen fiscal</p>
+              <p class="font-medium text-foreground">{{ misDatosPerfil()!.datosFiscales.regimen }}</p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-xs text-muted-foreground">Cuenta CLABE</p>
+              <p class="font-medium text-foreground">{{ misDatosPerfil()!.datosFiscales.cuentaClabe }}</p>
+            </div>
+          </div>
+          } @else {
+          <p class="text-sm text-muted-foreground">No se encontró información detallada adicional.</p>
+          }
+        </div>
+
+        <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <div>
+              <h3 class="text-lg font-semibold">Mi expediente documental</h3>
+              <p class="mt-1 text-sm text-muted-foreground">Consulta y mantén actualizados tus documentos para el flujo
+                de pago.</p>
+            </div>
+            <span
+              class="inline-flex w-fit items-center rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700 ring-1 ring-inset ring-green-600/20">
+              Expediente al 85%
+            </span>
+          </div>
+
+          <div class="overflow-auto rounded-lg border border-border">
+            <table class="w-full text-sm">
+              <thead class="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th class="px-4 py-3 font-medium">Documento</th>
+                  <th class="px-4 py-3 font-medium">Archivo actual</th>
+                  <th class="px-4 py-3 font-medium">Estatus</th>
+                  <th class="px-4 py-3 font-medium text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border bg-card">
+                @for (doc of documentosProfesor(); track doc.nombre) {
+                <tr class="hover:bg-muted/30 transition-colors">
+                  <td class="px-4 py-3 font-medium text-foreground">{{ doc.nombre }}</td>
+                  <td class="px-4 py-3 text-muted-foreground">
+                    <div class="flex items-center gap-2">
+                      <app-icon name="description" [size]="16" className="text-primary/70"></app-icon>
+                      {{ doc.archivo }}
+                    </div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span
+                      [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ' + claseEstatus(doc.estatus)">
+                      {{ doc.estatus }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex justify-end gap-2">
+                      <button
+                        class="inline-flex items-center justify-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50 hover:text-primary transition-colors outline-none focus:ring-2 focus:ring-primary/20"
+                        (click)="abrirModalInfo('Ver documento', 'Visualizando el documento: ' + doc.archivo)">
+                        <app-icon name="visibility" [size]="14"></app-icon>
+                        <span class="hidden sm:inline">Ver</span>
+                      </button>
+                      <button
+                        class="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary shadow-sm px-2.5 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors outline-none focus:ring-2 focus:ring-primary/20"
+                        (click)="abrirModalInfo('Reemplazar documento', 'Sube una nueva versión para sustituir: ' + doc.archivo)">
+                        <app-icon name="upload_file" [size]="14"></app-icon>
+                        <span class="hidden sm:inline">Reemplazar</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
                 }
-              </div>
-            </article>
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <h4 class="font-semibold">Comprobantes de pago (ZIP)</h4>
-              <div class="mt-3 space-y-3">
-                <input type="file" accept=".zip" (change)="seleccionarArchivoTesoreria('comprobantes', $event)" class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" />
-                @if (archivoComprobanteZip()) {
-                  <p class="text-xs text-muted-foreground">Archivo seleccionado: {{ archivoComprobanteZip() }}</p>
-                }
-              </div>
-            </article>
-            <article class="rounded-2xl border border-border bg-card p-5 shadow-sm md:col-span-2">
-              <div class="flex flex-wrap gap-2">
-                <button class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50" [disabled]="(!archivoBankReport() && !archivoComprobanteZip()) || procesandoBankReport()" (click)="procesarBankReportTesoreria()">{{ procesandoBankReport() ? 'Procesando...' : 'Procesar y renombrar comprobantes' }}</button>
-                @if (renombradoCompletado()) {
-                  <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium">Descargar comprobantes_renombrados.zip</button>
-                }
-              </div>
-              @if (resumenRenombradoTesoreria()) {
-                <div class="mt-4 rounded-lg border border-green-500/30 bg-green-500/5 p-3 text-sm text-muted-foreground">
-                  <p><span class="font-semibold text-foreground">Lote:</span> {{ resumenRenombradoTesoreria()!.lote }}</p>
-                  <p><span class="font-semibold text-foreground">Total:</span> {{ resumenRenombradoTesoreria()!.total }} · <span class="font-semibold text-foreground">Renombrados:</span> {{ resumenRenombradoTesoreria()!.renombrados }} · <span class="font-semibold text-foreground">Incidencias:</span> {{ resumenRenombradoTesoreria()!.incidencias }}</p>
-                </div>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      }
+
+      @if (currentPath() === '/profesor/contratos' && puedeVer('/profesor/contratos')) {
+      <section class="grid gap-4 md:grid-cols-2">
+        <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h3 class="text-lg font-semibold">Mis contratos</h3>
+          <p class="mt-2 text-sm text-muted-foreground">Descarga y revisa tus contratos generados por Finanzas.</p>
+          <div class="mt-4 space-y-2 text-sm">
+            <div class="rounded-lg border border-border bg-background p-3 flex items-center justify-between">
+              <span>CNT-2026-01011.pdf</span>
+              <button class="rounded-md border border-border px-2 py-1 text-xs"
+                (click)="descargarContenido('CNT-2026-01011.pdf', 'Contrato dummy CNT-2026-01011', 'application/pdf')">
+                Descargar
+              </button>
+            </div>
+            <div class="rounded-lg border border-border bg-background p-3 flex items-center justify-between">
+              <span>CNT-2026-01012.pdf</span>
+              <button class="rounded-md border border-border px-2 py-1 text-xs"
+                (click)="descargarContenido('CNT-2026-01012.pdf', 'Contrato dummy CNT-2026-01012', 'application/pdf')">
+                Descargar
+              </button>
+            </div>
+          </div>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h3 class="text-lg font-semibold">Carga de contrato firmado</h3>
+          <p class="mt-2 text-sm text-muted-foreground">Sube tu contrato firmado para habilitar la siguiente etapa.</p>
+          <div class="mt-4 space-y-3">
+            <input type="file" accept=".pdf" (change)="seleccionarContratoFirmado($event)"
+              class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" />
+            <button
+              class="w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50"
+              [disabled]="!archivoContratoFirmado() || cargandoContrato()" (click)="subirContratoFirmado()">{{
+              cargandoContrato() ? 'Subiendo...' : 'Subir contrato firmado' }}</button>
+            @if (contratoProfesorFirmado()) {
+            <p class="rounded-lg bg-green-500/10 px-3 py-2 text-xs text-green-600">Contrato firmado cargado
+              correctamente y notificado a Finanzas.</p>
+            }
+          </div>
+        </article>
+      </section>
+      }
+
+      @if (currentPath() === '/profesor/facturacion' && puedeVer('/profesor/facturacion')) {
+      <section class="grid gap-6">
+        @if (misDatosPerfil()) {
+        <article class="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <div>
+              <h3 class="text-lg font-semibold flex items-center gap-2">
+                <app-icon name="verified_user" [size]="20" className="text-primary"></app-icon>
+                Verificación de cuenta destino y RFC
+              </h3>
+              <p class="mt-1 text-sm text-muted-foreground">Revisa que los datos donde se realizará la transferencia
+                sean correctos antes de generar y cargar tu factura.</p>
+            </div>
+            @if (datosPagoValidados()) {
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 ring-1 ring-inset ring-green-600/20">
+              <app-icon name="check_circle" [size]="14"></app-icon>
+              Datos validados
+            </span>
+            } @else {
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20">
+              <app-icon name="warning" [size]="14"></app-icon>
+              Pendiente de validación
+            </span>
+            }
+          </div>
+
+          <div
+            class="grid gap-4 md:grid-cols-3 text-sm p-4 rounded-xl bg-muted/30 border border-border relative overflow-hidden">
+            @if (datosPagoValidados()) {
+            <div class="absolute inset-y-0 left-0 w-1 bg-green-500"></div>
+            } @else {
+            <div class="absolute inset-y-0 left-0 w-1 bg-amber-500"></div>
+            }
+            <div class="space-y-1">
+              <p class="text-xs text-muted-foreground">Profesor / Beneficiario</p>
+              <p class="font-medium text-foreground">{{ misDatosPerfil()!.nombre }}</p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-xs text-muted-foreground">RFC Registrado</p>
+              <p class="font-mono text-foreground font-medium">{{ misDatosPerfil()!.datosFiscales.rfc }}</p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-xs text-muted-foreground">Cuenta CLABE para depósito</p>
+              <p class="font-mono text-foreground font-medium flex items-center gap-2">
+                {{ misDatosPerfil()!.datosFiscales.cuentaClabe }}
+              </p>
+            </div>
+            <div class="space-y-1">
+              <p class="text-xs text-muted-foreground">Régimen fiscal</p>
+              <p class="font-mono text-foreground font-medium flex items-center gap-2">
+                {{ misDatosPerfil()!.datosFiscales.regimenFiscal }}
+              </p>
+            </div>
+          </div>
+
+          @if (!datosPagoValidados()) {
+          <div class="mt-4 flex justify-end">
+            <button
+              class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+              [disabled]="validandoDatosPago()" (click)="validarDatosPago()">
+              @if (validandoDatosPago()) {
+              <span
+                class="animate-spin ease-linear rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground h-4 w-4"></span>
+              Validando...
+              } @else {
+              <app-icon name="gpp_good" [size]="16"></app-icon>
+              Confirmar que los datos son correctos
               }
-            </article>
-          </section>
+            </button>
+          </div>
+          }
+        </article>
         }
 
-        @if (currentPath() === '/settings' && puedeVer('/settings')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Configuración general</h3>
-            <p class="mt-2 text-sm text-muted-foreground">Aquí podrás administrar parámetros del sistema (simulado para esta fase).</p>
-          </section>
-        }
+        <div class="grid gap-6 md:grid-cols-2">
+          <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <h3 class="text-lg font-semibold flex items-center gap-2">
+              <app-icon name="payments" [size]="20" className="opacity-70"></app-icon>
+              Monto pendiente a cobrar
+            </h3>
+            <div class="mt-4 space-y-3 text-sm text-muted-foreground">
+              <div
+                class="flex items-center justify-between rounded-lg border border-border bg-background p-4 shadow-sm">
+                <span class="font-medium text-foreground">Contrato CNT-2026-01011</span>
+                <strong class="text-foreground text-lg">$32,000.00</strong>
+              </div>
+              <div
+                class="flex items-center justify-between rounded-lg border border-border bg-background p-4 shadow-sm">
+                <span class="font-medium text-foreground">Contrato CNT-2026-01012</span>
+                <strong class="text-foreground text-lg">$10,500.00</strong>
+              </div>
+              <div
+                class="flex items-center justify-between rounded-lg bg-primary/5 border border-primary/20 p-4 shadow-sm mt-4">
+                <span class="font-semibold text-primary">Gran Total a facturar</span>
+                <strong class="text-primary text-xl">$42,500.00</strong>
+              </div>
+            </div>
+          </article>
 
-        @if (currentPath() === '/help' && puedeVer('/help')) {
-          <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <h3 class="text-lg font-semibold">Soporte</h3>
-            <p class="mt-2 text-sm text-muted-foreground">Mesa de ayuda: soporte.honoristas@anahuac.mx · Ext. 2210</p>
-          </section>
+          <article
+            class="rounded-2xl border border-border bg-card p-5 shadow-sm relative overflow-hidden flex flex-col">
+            @if (!datosPagoValidados()) {
+            <div
+              class="absolute inset-0 z-10 bg-background/80 backdrop-blur-[2px] flex flex-col justify-center items-center text-center p-6">
+              <app-icon name="lock" [size]="48" className="text-muted-foreground/50 mb-4"></app-icon>
+              <h4 class="font-semibold text-lg">Carga bloqueada</h4>
+              <p class="text-sm text-muted-foreground mt-2 max-w-xs">Debes confirmar que tus datos de pago (RFC y CLABE)
+                son correctos en el panel superior antes de cargar el CFDI.</p>
+            </div>
+            }
+
+            <h3 class="text-lg font-semibold flex items-center gap-2">
+              <app-icon name="upload_file" [size]="20" className="opacity-70"></app-icon>
+              Carga de factura y anexos
+            </h3>
+            <p class="mt-2 text-sm text-muted-foreground">Carga tus archivos CFDI (PDF y XML). El sistema validará que
+              el total coincida con tus contratos vigentes.</p>
+            <div class="mt-auto pt-6 space-y-4">
+              <div class="space-y-1.5">
+                <label class="text-xs font-medium text-foreground">Archivo PDF de la factura</label>
+                <input type="file" accept=".pdf" (change)="seleccionarFacturaProfesor('pdf', $event)"
+                  class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:text-xs file:text-primary file:font-semibold hover:file:bg-primary/20 cursor-pointer" />
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-medium text-foreground">Archivo XML de la factura</label>
+                <input type="file" accept=".xml" (change)="seleccionarFacturaProfesor('xml', $event)"
+                  class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-primary/10 file:px-3 file:py-1 file:text-xs file:text-primary file:font-semibold hover:file:bg-primary/20 cursor-pointer" />
+              </div>
+
+              <div class="pt-2 flex flex-col gap-2">
+                <button
+                  class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium disabled:opacity-50 transition-colors shadow-sm"
+                  [disabled]="!archivoFacturaPdf() || !archivoFacturaXml() || cargandoFacturaProfesor()"
+                  (click)="subirFacturaProfesor()">
+                  @if (cargandoFacturaProfesor()) {
+                  <span
+                    class="animate-spin ease-linear rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground h-4 w-4"></span>
+                  Validando ante el SAT y subiendo...
+                  } @else {
+                  <app-icon name="cloud_upload" [size]="18"></app-icon>
+                  Cargar e ingresar a revisión final
+                  }
+                </button>
+
+                <button
+                  class="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-transparent px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                  (click)="descargarEjemplo('/ejemplos/cfdi_ejemplo.xml', 'cfdi_ejemplo.xml')">
+                  <app-icon name="download" [size]="14"></app-icon>
+                  Descargar formato guía (opcional)
+                </button>
+              </div>
+
+              @if (facturaProfesorCargada()) {
+              <div class="mt-4 flex items-start gap-3 rounded-lg bg-green-500/10 p-4 border border-green-500/20">
+                <app-icon name="fact_check" [size]="20" className="text-green-600 shrink-0"></app-icon>
+                <div>
+                  <h5 class="text-sm font-medium text-green-800">Carga exitosa</h5>
+                  <p class="text-xs text-green-700 mt-1">Tu factura ha sido cargada y las pre-validaciones (montos, RFC
+                    receptores) coinciden. Finanzas la procesará a la brevedad.</p>
+                </div>
+              </div>
+              }
+            </div>
+          </article>
+        </div>
+      </section>
+      }
+
+      @if (currentPath() === '/tesoreria/dashboard' && puedeVer('/tesoreria/dashboard')) {
+      <section class="grid gap-4 md:grid-cols-4">
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Pagos listos para dispersión</p>
+          <p class="mt-2 text-2xl font-bold">42</p>
+          <p class="text-xs text-primary">Periodo 2026-1</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Layouts generados</p>
+          <p class="mt-2 text-2xl font-bold">3</p>
+          <p class="text-xs text-green-500">Último hoy 11:40</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Bank report procesado</p>
+          <p class="mt-2 text-2xl font-bold">1</p>
+          <p class="text-xs text-green-500">Lote 2026-1</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">Incidencias de renombrado</p>
+          <p class="mt-2 text-2xl font-bold">2</p>
+          <p class="text-xs text-amber-500">Pendientes revisión</p>
+        </article>
+      </section>
+      }
+
+      @if (currentPath() === '/tesoreria/dispersion' && puedeVer('/tesoreria/dispersion')) {
+      <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <h3 class="text-lg font-semibold">Layout bancario para dispersión</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Genera y descarga el archivo TXT para cargar en la plataforma del
+          banco y ejecutar pagos.</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium"
+            (click)="generarLayoutTesoreria()">Generar layout TXT</button>
+          <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium"
+            (click)="descargarEjemplo('/ejemplos/layout_banco_santander_2026_1.txt', 'layout_banco_santander_2026_1.txt')">
+            Descargar ejemplo (Santander)
+          </button>
+          @if (layoutTesoreriaGenerado()) {
+          <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium"
+            (click)="descargarLayoutTesoreria()">
+            Descargar {{ archivoLayoutTesoreria() }}
+          </button>
+          }
+        </div>
+        @if (layoutTesoreriaGenerado()) {
+        <p class="mt-3 rounded-lg bg-green-500/10 px-3 py-2 text-xs text-green-600">Layout generado con 42 beneficiarios
+          listos para pago.</p>
+        }
+      </section>
+      }
+
+      @if (currentPath() === '/tesoreria/bank-report' && puedeVer('/tesoreria/bank-report')) {
+      <section class="grid gap-4 md:grid-cols-2">
+        <article class="rounded-2xl border border-border bg-card p-5 shadow-sm md:col-span-2">
+          <h3 class="text-lg font-semibold">Carga de bank report / comprobantes y renombrado</h3>
+          <p class="mt-2 text-sm text-muted-foreground">Puedes cargar el bank report o un ZIP de comprobantes para
+            ejecutar renombrado automático de XML/PDF.</p>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h4 class="font-semibold">Bank report</h4>
+          <div class="mt-3 space-y-3">
+            <input type="file" accept=".csv,.txt,.xlsx" (change)="seleccionarArchivoTesoreria('bankReport', $event)"
+              class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" />
+            @if (archivoBankReport()) {
+            <p class="text-xs text-muted-foreground">Archivo seleccionado: {{ archivoBankReport() }}</p>
+            }
+            <button
+              class="rounded-lg border border-border bg-transparent px-3 py-1 text-xs font-medium hover:bg-secondary"
+              (click)="descargarEjemplo('/ejemplos/bank_report_2026_1.csv', 'bank_report_2026_1.csv')">
+              Descargar ejemplo de bank report
+            </button>
+          </div>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h4 class="font-semibold">Comprobantes de pago (ZIP)</h4>
+          <div class="mt-3 space-y-3">
+            <input type="file" accept=".zip" (change)="seleccionarArchivoTesoreria('comprobantes', $event)"
+              class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" />
+            @if (archivoComprobanteZip()) {
+            <p class="text-xs text-muted-foreground">Archivo seleccionado: {{ archivoComprobanteZip() }}</p>
+            }
+          </div>
+        </article>
+        <article class="rounded-2xl border border-border bg-card p-5 shadow-sm md:col-span-2">
+          <div class="flex flex-wrap gap-2">
+            <button
+              class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50"
+              [disabled]="(!archivoBankReport() && !archivoComprobanteZip()) || procesandoBankReport()"
+              (click)="procesarBankReportTesoreria()">{{ procesandoBankReport() ? 'Procesando...' : 'Procesar y
+              renombrar comprobantes' }}</button>
+            @if (renombradoCompletado()) {
+            <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium"
+              (click)="descargarZipComprobantes()">
+              Descargar comprobantes_renombrados.zip
+            </button>
+            }
+          </div>
+          @if (resumenRenombradoTesoreria()) {
+          <div class="mt-4 rounded-lg border border-green-500/30 bg-green-500/5 p-3 text-sm text-muted-foreground">
+            <p><span class="font-semibold text-foreground">Lote:</span> {{ resumenRenombradoTesoreria()!.lote }}</p>
+            <p><span class="font-semibold text-foreground">Total:</span> {{ resumenRenombradoTesoreria()!.total }} ·
+              <span class="font-semibold text-foreground">Renombrados:</span> {{
+              resumenRenombradoTesoreria()!.renombrados }} · <span
+                class="font-semibold text-foreground">Incidencias:</span> {{ resumenRenombradoTesoreria()!.incidencias
+              }}
+            </p>
+          </div>
+          }
+        </article>
+      </section>
+      }
+
+      @if (currentPath() === '/settings' && puedeVer('/settings')) {
+      <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <h3 class="text-lg font-semibold">Configuración general</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Aquí podrás administrar parámetros del sistema (simulado para esta
+          fase).</p>
+      </section>
+      }
+
+      @if (currentPath() === '/help' && puedeVer('/help')) {
+      <section class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <h3 class="text-lg font-semibold">Soporte</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Mesa de ayuda: soporte.honoristas@anahuac.mx · Ext. 2210</p>
+      </section>
+      }
+    </div>
+  </main>
+  }
+
+  @if (modalInfo()) {
+  <div class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4">
+    <div class="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
+      <h3 class="text-lg font-semibold">{{ modalInfo()!.titulo }}</h3>
+      <p class="mt-2 text-sm text-muted-foreground">{{ modalInfo()!.mensaje }}</p>
+      <div class="mt-4 flex justify-end gap-2">
+        <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium"
+          (click)="cerrarModalInfo()">Cerrar</button>
+        @if (modalInfo()?.accionLabel) {
+        <button class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium"
+          (click)="modalInfo()?.onAccion?.()">
+          {{ modalInfo()?.accionLabel }}
+        </button>
         }
       </div>
-    </main>
+    </div>
+  </div>
+  }
+
+  @if (mostrandoModalCambioEstatus()) {
+  <div class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4">
+    <div class="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
+      <h3 class="text-lg font-semibold">Cambiar estatus de pago</h3>
+      <p class="mt-2 text-sm text-muted-foreground">Selecciona el nuevo estatus para este profesor.</p>
+      <div class="mt-4 space-y-2">
+        <label class="text-xs font-semibold text-muted-foreground">Nuevo estatus</label>
+        <select class="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm"
+          [(ngModel)]="estatusPagoPropuesto">
+          <option>Pago en proceso</option>
+          <option>Listo para dispersión</option>
+          <option>Pagado</option>
+          <option>Rechazado</option>
+        </select>
+      </div>
+      <div class="mt-4 flex justify-end gap-2">
+        <button class="rounded-lg border border-border bg-transparent px-4 py-2 text-sm font-medium"
+          (click)="mostrandoModalCambioEstatus.set(false)">Cancelar</button>
+        <button class="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium"
+          (click)="confirmarCambioEstatusPago()">Confirmar</button>
+      </div>
+    </div>
+  </div>
   }
 </div>

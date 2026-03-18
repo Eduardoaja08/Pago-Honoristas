@@ -29,6 +29,7 @@ export class CumplimientoFiscalComponent implements OnInit {
     timbrando = signal(false);
     pagoSeleccionadoParaCFDI = signal<Pago | null>(null);
     mostrandoSubidaCFDI = signal(false);
+    modalInfo = signal<{ titulo: string; mensaje: string } | null>(null);
 
     constructor(
         private readonly fiscalService: FiscalService,
@@ -132,6 +133,39 @@ export class CumplimientoFiscalComponent implements OnInit {
                 alert('Error al validar XML: ' + res.errores?.join(', '));
             }
         });
+    }
+
+    abrirModalInfo(titulo: string, mensaje: string): void {
+        this.modalInfo.set({ titulo, mensaje });
+    }
+
+    cerrarModalInfo(): void {
+        this.modalInfo.set(null);
+    }
+
+    descargarCFDI(tipo: 'xml' | 'pdf'): void {
+        if (tipo === 'xml') {
+            const link = document.createElement('a');
+            link.href = '/ejemplos/cfdi_ejemplo.xml';
+            link.download = 'cfdi_ejemplo.xml';
+            link.click();
+            return;
+        }
+        this.descargarContenido('cfdi_ejemplo.pdf', 'CFDI PDF dummy', 'application/pdf');
+    }
+
+    descargarContratoPDF(): void {
+        this.descargarContenido('contrato_ejemplo.pdf', 'Contrato dummy', 'application/pdf');
+    }
+
+    private descargarContenido(nombre: string, contenido: string, tipo: string): void {
+        const blob = new Blob([contenido], { type: tipo });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nombre;
+        link.click();
+        URL.revokeObjectURL(url);
     }
 
     getNombreProfesor(id: number): string {

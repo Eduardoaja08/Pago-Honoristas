@@ -18,7 +18,7 @@ export interface ColumnaLayout {
   longitud?: number;
 }
 
-export interface Dispersión {
+export interface Dispersion {
   id: number;
   pagos: Pago[];
   layoutBancarioId: number;

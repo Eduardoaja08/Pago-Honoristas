@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BancarioService, ProfesoresService, CalculoPagosService } from '../../services';
-import { LayoutBancario, Dispersión, ArchivoRetorno, Pago, Profesor } from '../../models';
+import { LayoutBancario, Dispersion, ArchivoRetorno, Pago, Profesor } from '../../models';
 import { IconComponent } from '../../icon.component';
 import { ButtonComponent } from '../../shared/buttons/button.component';
 
@@ -31,7 +31,7 @@ export class OperacionBancariaComponent implements OnInit {
     layoutSeleccionadoId = signal<number | null>(null);
     pagosDisponibles = signal<Pago[]>([]);
     pagosSeleccionadosIds = signal<Set<number>>(new Set());
-    dispersiones = signal<Dispersión[]>([]);
+    dispersiones = signal<Dispersion[]>([]);
     vistaPrevia = signal<string>('');
     mostrandoVistaPrevia = signal(false);
 
@@ -123,7 +123,7 @@ export class OperacionBancariaComponent implements OnInit {
         if (!this.layoutSeleccionadoId() || this.pagosSeleccionadosIds().size === 0) return;
 
         const pagos = this.pagosDisponibles().filter(p => this.pagosSeleccionadosIds().has(p.id));
-        this.bancarioService.generarDispersión(pagos, this.layoutSeleccionadoId()!).then(disp => {
+        this.bancarioService.generarDispersion(pagos, this.layoutSeleccionadoId()!).then(disp => {
             this.dispersiones.set(this.bancarioService.obtenerDispersiones());
             this.pagosSeleccionadosIds.set(new Set());
             this.mostrandoVistaPrevia.set(false);
@@ -137,7 +137,7 @@ export class OperacionBancariaComponent implements OnInit {
     }
 
     autorizarDispersion(dispId: number): void {
-        this.bancarioService.autorizarDispersión(dispId, 'Usuario Autorizador');
+        this.bancarioService.autorizarDispersion(dispId, 'Usuario Autorizador');
         this.dispersiones.set(this.bancarioService.obtenerDispersiones());
         alert('Dispersión autorizada exitosamente');
     }
@@ -162,6 +162,37 @@ export class OperacionBancariaComponent implements OnInit {
         this.archivoRetorno.set(null);
     }
 
+
+    descargarDispersion(disp: Dispersion): void {
+        const layout = this.bancarioService.obtenerLayoutPorId(disp.layoutBancarioId);
+        const extension = layout?.formato || 'txt';
+        const nombre = 'layout_' + disp.id + '.' + extension;
+        this.descargarContenido(nombre, disp.archivo, extension === 'csv' ? 'text/csv' : 'text/plain');
+    }
+
+    descargarEjemploLayout(): void {
+        const link = document.createElement('a');
+        link.href = '/ejemplos/layout_banco_santander_2026_1.txt';
+        link.download = 'layout_banco_santander_2026_1.txt';
+        link.click();
+    }
+
+    descargarPlantillaRetorno(): void {
+        const link = document.createElement('a');
+        link.href = '/ejemplos/bank_report_2026_1.csv';
+        link.download = 'bank_report_2026_1.csv';
+        link.click();
+    }
+
+    private descargarContenido(nombre: string, contenido: string, tipo: string): void {
+        const blob = new Blob([contenido], { type: tipo });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nombre;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
     getNombreProfesor(id: number): string {
         return this.profesores().find(p => p.id === id)?.nombreCompleto || 'Desconocido';
     }

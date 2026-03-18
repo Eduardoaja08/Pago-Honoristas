@@ -55,8 +55,10 @@
                 </div>
 
                 <div class="pt-2 flex gap-2">
-                    <app-button size="sm" variant="outline" class="flex-1">Ver Expediente</app-button>
-                    <app-button size="sm" variant="ghost" class="flex-1" *ngIf="!val.valido">Notificar</app-button>
+                    <app-button size="sm" variant="outline" class="flex-1"
+                        (onClick)="abrirModalInfo('Expediente del profesor', 'Se abrirÃ­a el detalle documental del profesor seleccionado.')">Ver Expediente</app-button>
+                    <app-button size="sm" variant="ghost" class="flex-1" *ngIf="!val.valido"
+                        (onClick)="abrirModalInfo('NotificaciÃ³n enviada', 'Se enviÃ³ una notificaciÃ³n al profesor con los requisitos faltantes.')">Notificar</app-button>
                 </div>
             </div>
 
@@ -113,7 +115,8 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right space-x-2">
-                            <button class="p-1.5 rounded hover:bg-secondary text-muted-foreground" title="Ver PDF">
+                            <button class="p-1.5 rounded hover:bg-secondary text-muted-foreground" title="Ver PDF"
+                                (click)="descargarContratoPDF()">
                                 <app-icon name="download" [size]="16"></app-icon>
                             </button>
                             <button (click)="enviarAFirma(c.id)" class="p-1.5 rounded hover:bg-secondary text-primary"
@@ -164,6 +167,15 @@
                         </div>
                     </div>
                 </div>
+                <div class="rounded-xl border border-border bg-card p-4 space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Cancelaciones CFDI</h4>
+                    <div class="text-xs text-muted-foreground">
+                        CFDI observados: <span class="font-semibold text-foreground">2</span>
+                    </div>
+                    <app-button variant="outline" class="w-full" (onClick)="abrirModalInfo('Solicitud de cancelaciÃ³n', 'Se generarÃ­a el folio de cancelaciÃ³n y se notificarÃ­a al profesor.')">
+                        Solicitar cancelaciÃ³n
+                    </app-button>
+                </div>
             </div>
 
             <!-- Main: Listado de CFDI -->
@@ -199,8 +211,8 @@
                             </div>
                         </div>
                         <div class="mt-4 flex gap-2 pt-4 border-t border-border/50">
-                            <app-button size="sm" variant="outline" class="flex-1">XML</app-button>
-                            <app-button size="sm" variant="outline" class="flex-1">PDF</app-button>
+                            <app-button size="sm" variant="outline" class="flex-1" (onClick)="descargarCFDI('xml')">XML</app-button>
+                            <app-button size="sm" variant="outline" class="flex-1" (onClick)="descargarCFDI('pdf')">PDF</app-button>
                         </div>
                     </div>
 
@@ -253,4 +265,16 @@
             </div>
         </div>
     </div>
+
+    @if (modalInfo()) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div class="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
+                <h3 class="text-lg font-semibold">{{ modalInfo()!.titulo }}</h3>
+                <p class="mt-2 text-sm text-muted-foreground">{{ modalInfo()!.mensaje }}</p>
+                <div class="mt-4 flex justify-end">
+                    <app-button variant="outline" (onClick)="cerrarModalInfo()">Cerrar</app-button>
+                </div>
+            </div>
+        </div>
+    }
 </div>

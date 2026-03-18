@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cfdi:Comprobante Version="4.0" Serie="H" Folio="01011" Fecha="2026-03-13T10:30:00"
+    SubTotal="36637.93" Moneda="MXN" Total="42500.00" TipoDeComprobante="I" Exportacion="01"
+    xmlns:cfdi="http://www.sat.gob.mx/cfd/4">
+  <cfdi:Emisor Rfc="TOAA850101XX1" Nombre="ANA TORRES" RegimenFiscal="626"/>
+  <cfdi:Receptor Rfc="AAA010101AAA" Nombre="UNIVERSIDAD ANAHUAC" DomicilioFiscalReceptor="01000"
+      RegimenFiscalReceptor="601" UsoCFDI="G03"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="85121600" Cantidad="1" ClaveUnidad="E48"
+        Descripcion="Servicios de docencia" ValorUnitario="36637.93" Importe="36637.93"/>
+  </cfdi:Conceptos>
+</cfdi:Comprobante>

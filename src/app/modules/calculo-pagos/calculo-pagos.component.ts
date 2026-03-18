@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CalculoPagosService, AsignacionService, ProfesoresService } from '../../services';
@@ -31,9 +31,14 @@ export class CalculoPagosComponent implements OnInit {
     pagoSeleccionado = signal<Pago | null>(null);
     mostrandoDetalle = signal(false);
 
-    // Edición de Pago Extraordinario
+    // EdiciÃ³n de Pago Extraordinario
     mostrandoEdicionExtraordinaria = signal(false);
     montoEditado = 0;
+
+    // ObservaciÃ³n de pago
+    mostrandoObservacion = signal(false);
+    pagoObservadoId = signal<number | null>(null);
+    motivoObservacion = '';
     justificacionEdicion = '';
 
     constructor(
@@ -83,7 +88,7 @@ export class CalculoPagosComponent implements OnInit {
         this.calculoPagosService.calcularPagos(this.versionSeleccionadaId()!).then(proceso => {
             this.procesoEjecutandose.set(null);
             this.cargarDatos();
-            alert('Cálculo de pagos completado con éxito.');
+            alert('CÃ¡lculo de pagos completado con Ã©xito.');
         });
 
         // Simulamos el objeto de proceso para la UI mientras corre
@@ -129,11 +134,9 @@ export class CalculoPagosComponent implements OnInit {
     }
 
     observarPago(pagoId: number): void {
-        const motivo = prompt('Ingrese el motivo de la observación:');
-        if (motivo) {
-            this.calculoPagosService.marcarComoObservado(pagoId, motivo);
-            this.actualizarBandeja();
-        }
+        this.pagoObservadoId.set(pagoId);
+        this.motivoObservacion = '';
+        this.mostrandoObservacion.set(true);
     }
 
     abrirEdicionExtraordinaria(pago: Pago): void {
@@ -152,7 +155,7 @@ export class CalculoPagosComponent implements OnInit {
         );
         this.mostrandoEdicionExtraordinaria.set(false);
         this.actualizarBandeja();
-        alert('Pago editado y enviado a revisión.');
+        alert('Pago editado y enviado a revisiÃ³n.');
     }
 
     recalcular(pagoId: number): void {
@@ -163,7 +166,37 @@ export class CalculoPagosComponent implements OnInit {
     }
 
     generarFormatoPago(): void {
-        alert('Generando Formato de Pago Agrupado (PDF)...');
+        const contenido = [
+            'CENTRO_COSTOS,PROFESOR,MONTO,ESTATUS,PERIODO',
+            'CC-ADM-01,ANA TORRES,42500,VALIDADO,2026-1',
+            'CC-ADM-04,LUIS MEZA,28900,OBSERVADO,2026-1',
+            'CC-ADM-02,LAURA NERI,24300,VALIDADO,2026-1'
+        ].join('\\n');
+        this.descargarContenido('formato_pago_agrupado_2026_1.csv', contenido, 'text/csv');
+    }
+
+    confirmarObservacion(): void {
+        if (!this.pagoObservadoId() || !this.motivoObservacion.trim()) return;
+        this.calculoPagosService.marcarComoObservado(this.pagoObservadoId()!, this.motivoObservacion.trim());
+        this.mostrandoObservacion.set(false);
+        this.actualizarBandeja();
+        alert('Pago marcado como observado.');
+    }
+
+    cancelarObservacion(): void {
+        this.mostrandoObservacion.set(false);
+        this.pagoObservadoId.set(null);
+        this.motivoObservacion = '';
+    }
+
+    descargarContenido(nombre: string, contenido: string, tipo: string = 'text/plain'): void {
+        const blob = new Blob([contenido], { type: tipo });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nombre;
+        link.click();
+        URL.revokeObjectURL(url);
     }
 
     getNombreProfesor(id: number): string {
